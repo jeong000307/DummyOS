@@ -1,0 +1,8 @@
+Reference/
+Boot/BaseTools/
+Boot/Build/
+Boot/Conf/
+Boot/MdePkg/
+Boot/edksetup.bat
+
+.vs/
