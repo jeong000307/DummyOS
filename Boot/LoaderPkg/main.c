@@ -8,7 +8,7 @@ EFI_STATUS EFIAPI UefiMain(
 	EFI_FILE_PROTOCOL* memoryMapFile;
 	struct MEMORY_MAP memoryMap = { sizeof(memoryMapBuffer), memoryMapBuffer, 0, 0, 0, 0 };
 
-	Print(L"Hello, World!\n");
+	Print(L"Hello from DummyOS!\n");
 
 	GetMemoryMap(&memoryMap);
 
