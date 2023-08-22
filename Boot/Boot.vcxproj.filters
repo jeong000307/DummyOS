@@ -15,12 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LoaderPkg\Main.c">
+    <ClCompile Include="Main.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LoaderPkg\Main.h">
+    <ClInclude Include="Main.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

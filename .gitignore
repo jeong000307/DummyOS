@@ -13,15 +13,8 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
-#User files
-Boot/edksetup.bat
-
 # User directories
 Reference/
-Boot/BaseTools/
-Boot/Build/
-Boot/Conf/
-Boot/MdePkg/
 
 # Mono auto generated files
 mono_crash.*
