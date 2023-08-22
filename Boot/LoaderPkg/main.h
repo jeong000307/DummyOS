@@ -4,17 +4,24 @@
 #include <Uefi.h>
 #include <Library/UefiLib.h>
 #include <Library/PrintLib.h>
+#include <Library/MemoryAllocationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Protocol/LoadedImage.h>
 #include <Protocol/SimpleFileSystem.h>
+#include <Protocol/DiskIo2.h>
+#include <Protocol/BlockIo.h>
+#include <Guid/FileInfo.h>
+
+typedef void EntryPointType(UINTN, UINTN);
 
 struct MEMORY_MAP {
     UINTN   bufferSize;
-    VOID*   buffer;
     UINTN   mapSize;
     UINTN   mapKey;
     UINTN   descriptorSize;
     UINT32  descriptorVersion;
+
+    VOID*   buffer;
 };
 
 EFI_STATUS GetMemoryMap(
@@ -27,6 +34,7 @@ EFI_STATUS GetMemoryMap(
 
     @retval EFI_SUCCESS             The memory map is gotten.
     @retval EFI_BUFFER_TOO_SMALL    Buffer is smaller than the memory map's size.
+    @retval TBD
 **/
 
 EFI_STATUS OpenRootDirectory(
@@ -40,6 +48,7 @@ EFI_STATUS OpenRootDirectory(
     @param  rootDirectory   Root directory of boot device.
 
     @retval EFI_SUCCESS The root directory of boot device is opened.
+    @retval TBD
 **/
 
 EFI_STATUS SaveMemoryMap(
@@ -52,7 +61,8 @@ EFI_STATUS SaveMemoryMap(
     @param  map     Memory map.
     @param  file    File to save a memory map.
 
-    @retval EFI_SUCCESS	The file is written correctly.
+    @retval EFI_SUCCESS The file is written correctly.
+    @retval TBD
 **/
 
 const CHAR16* GetMemoryTypeUnicode(
@@ -80,6 +90,34 @@ const CHAR16* GetMemoryTypeUnicode(
     @retval L"EfiPersistentMemory"          Memory is a memory region that operates as EfiConventionalMemory, however it happens to also support byte-addressable non-volatility.
     @retval L"EfiMaxMemoryType"             What is this?
     @retval L"InvalidMemoryType"            Type of memory is unknown.
+**/
+
+EFI_STATUS OpenGOP(
+  EFI_HANDLE imageHandle, 
+  EFI_GRAPHICS_OUTPUT_PROTOCOL** GOP);
+
+/**
+    Initializes and opens Graphics Output Protocol.
+
+    @param  imageHandle Image Handle.
+    @param  GOP         Protocol of graphics output.
+
+    @retval TBD
+**/
+
+const CHAR16* GetPixelFormatUnicode(EFI_GRAPHICS_PIXEL_FORMAT format);
+
+/**
+    Gets a format of pixel in Unicode.
+
+    @param  format  Format of pixel.
+
+    @retval L"PixelRedGreenBlueReserved8BitPerColor"    A pixel is 32-bits and byte zero represents red, byte one represents green, byte two represents blue, and byte three is reserved. This is the definition for the physical frame buffer. The byte values for the red, green, and blue components represent the color intensity. This color intensity value range from a minimum intensity of 0 to maximum intensity of 255.
+    @retval L"PixelBlueGreenRedReserved8BitPerColor"    A pixel is 32-bits and byte zero represents blue, byte one represents green, byte two represents red, and byte three is reserved. This is the definition for the physical frame buffer. The byte values for the red, green, and blue components represent the color intensity. This color intensity value range from a minimum intensity of 0 to maximum intensity of 255.
+    @retval L"PixelBitMask"                             The pixel definition of the physical frame buffer.
+    @retval L"PixelBltOnly"                             This mode does not support a physical frame buffer.
+    @retval L"PixelFormatMax"                           Valid EFI_GRAPHICS_PIXEL_FORMAT enum values are less than this value.
+    @retval L"InvalidPixelFormat"                       The pixel has invalid format.
 **/
 
 #endif

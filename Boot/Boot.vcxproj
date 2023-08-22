@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LoaderPkg\main.c" />
+    <ClCompile Include="LoaderPkg\Main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LoaderPkg\main.h" />
+    <ClInclude Include="LoaderPkg\Main.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

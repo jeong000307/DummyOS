@@ -4,12 +4,12 @@
   FILE_GUID                      = c9d0d202-71e9-11e8-9e52-cfbfd0063fbf
   MODULE_TYPE                    = UEFI_APPLICATION
   VERSION_STRING                 = 0.1
-  ENTRY_POINT                    = UefiMain
+  ENTRY_POINT                    = Main
 
 #  VALID_ARCHITECTURES           = X64
 
 [Sources]
-  main.c
+  Main.c
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -20,10 +20,8 @@
 
 [Guids]
   gEfiFileInfoGuid
-  gEfiAcpiTableGuid
 
 [Protocols]
   gEfiLoadedImageProtocolGuid
   gEfiLoadFileProtocolGuid
   gEfiSimpleFileSystemProtocolGuid
-  gEfiBlockIoProtocolGuid
