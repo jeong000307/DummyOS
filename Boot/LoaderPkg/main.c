@@ -1,8 +1,8 @@
 #include <main.h>
 
 EFI_STATUS EFIAPI UefiMain(
-  EFI_HANDLE		imageHandle,
-  EFI_SYSTEM_TABLE*	systemTable) {
+  EFI_HANDLE        imageHandle,
+  EFI_SYSTEM_TABLE* systemTable) {
     CHAR8 memoryMapBuffer[4096 * 4];
     EFI_FILE_PROTOCOL* rootDirectory;
     EFI_FILE_PROTOCOL* memoryMapFile;
@@ -17,10 +17,10 @@ EFI_STATUS EFIAPI UefiMain(
       &rootDirectory);
 
     rootDirectory->Open(
-      rootDirectory, 
+      rootDirectory,
       &memoryMapFile,
       L"\\MemoryMap",
-      EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 
+      EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE,
       0);
 
     SaveMemoryMap(
@@ -53,8 +53,8 @@ EFI_STATUS GetMemoryMap(
 EFI_STATUS OpenRootDirectory(
   EFI_HANDLE imageHandle, 
   EFI_FILE_PROTOCOL** rootDirectory) {
-    EFI_LOADED_IMAGE_PROTOCOL*			loadedImage;
-    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL*	fileSystem;
+    EFI_LOADED_IMAGE_PROTOCOL*          loadedImage;
+    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL*    fileSystem;
 
     gBS->OpenProtocol(
       imageHandle,
@@ -73,7 +73,7 @@ EFI_STATUS OpenRootDirectory(
       EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
 
     fileSystem->OpenVolume(
-      fileSystem, 
+      fileSystem,
       rootDirectory);
 
     return EFI_SUCCESS;
@@ -82,9 +82,9 @@ EFI_STATUS OpenRootDirectory(
 EFI_STATUS SaveMemoryMap(
   struct MEMORY_MAP* map,
   EFI_FILE_PROTOCOL* file) {
-    INT32					index;
-    CHAR8					buffer[256];
-    CHAR8*					header = "Index, Type, Type(name), PhysicalStart, NumberOfPages, Attribute\n";
+    INT32                   index;
+    CHAR8                   buffer[256];
+    CHAR8*                  header = "Index, Type, Type(name), PhysicalStart, NumberOfPages, Attribute\n";
     UINTN                   length = AsciiStrLen(header);
     EFI_PHYSICAL_ADDRESS    iterator;
     
@@ -94,8 +94,8 @@ EFI_STATUS SaveMemoryMap(
       header);
 
     Print(
-      L"map->buffer = %08lx, map->map_size = %08lx\n", 
-      map->buffer, 
+      L"map->buffer = %08lx, map->map_size = %08lx\n",
+      map->buffer,
       map->mapSize);
 
     for (iterator = (EFI_PHYSICAL_ADDRESS)map->buffer, index = 0; 
@@ -126,22 +126,22 @@ EFI_STATUS SaveMemoryMap(
 const CHAR16* GetMemoryTypeUnicode(
   EFI_MEMORY_TYPE type) {
     switch (type) {
-        case EfiReservedMemoryType:			return L"EfiReservedMemoryType";
-        case EfiLoaderCode:					return L"EfiLoaderCode";
-        case EfiLoaderData:					return L"EfiLoaderData";
-        case EfiBootServicesCode:			return L"EfiBootServicesCode";
-        case EfiBootServicesData:			return L"EfiBootServicesData";
-        case EfiRuntimeServicesCode:		return L"EfiRuntimeServicesCode";
-        case EfiRuntimeServicesData:		return L"EfiRuntimeServicesData";
-        case EfiConventionalMemory:			return L"EfiConventionalMemory";
-        case EfiUnusableMemory:				return L"EfiUnusableMemory";
-        case EfiACPIReclaimMemory:			return L"EfiACPIReclaimMemory";
-        case EfiACPIMemoryNVS:				return L"EfiACPIMemoryNVS";
-        case EfiMemoryMappedIO:				return L"EfiMemoryMappedIO";
-        case EfiMemoryMappedIOPortSpace:	return L"EfiMemoryMappedIOPortSpace";
-        case EfiPalCode:					return L"EfiPalCode";
-        case EfiPersistentMemory:			return L"EfiPersistentMemory";
-        case EfiMaxMemoryType:				return L"EfiMaxMemoryType";
-        default:							return L"InvalidMemoryType";
+        case EfiReservedMemoryType:         return L"EfiReservedMemoryType";
+        case EfiLoaderCode:                 return L"EfiLoaderCode";
+        case EfiLoaderData:                 return L"EfiLoaderData";
+        case EfiBootServicesCode:           return L"EfiBootServicesCode";
+        case EfiBootServicesData:           return L"EfiBootServicesData";
+        case EfiRuntimeServicesCode:        return L"EfiRuntimeServicesCode";
+        case EfiRuntimeServicesData:        return L"EfiRuntimeServicesData";
+        case EfiConventionalMemory:         return L"EfiConventionalMemory";
+        case EfiUnusableMemory:             return L"EfiUnusableMemory";
+        case EfiACPIReclaimMemory:          return L"EfiACPIReclaimMemory";
+        case EfiACPIMemoryNVS:              return L"EfiACPIMemoryNVS";
+        case EfiMemoryMappedIO:             return L"EfiMemoryMappedIO";
+        case EfiMemoryMappedIOPortSpace:    return L"EfiMemoryMappedIOPortSpace";
+        case EfiPalCode:                    return L"EfiPalCode";
+        case EfiPersistentMemory:           return L"EfiPersistentMemory";
+        case EfiMaxMemoryType:              return L"EfiMaxMemoryType";
+        default:                            return L"InvalidMemoryType";
     }
 }
