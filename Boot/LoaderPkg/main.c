@@ -85,8 +85,8 @@ EFI_STATUS SaveMemoryMap(
     INT32					index;
     CHAR8					buffer[256];
     CHAR8*					header = "Index, Type, Type(name), PhysicalStart, NumberOfPages, Attribute\n";
-    UINTN					length = AsciiStrLen(header);
-    EFI_PHYSICAL_ADDRESS	iterator;
+    UINTN                   length = AsciiStrLen(header);
+    EFI_PHYSICAL_ADDRESS    iterator;
     
     file->Write(
       file, 
