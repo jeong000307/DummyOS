@@ -76,8 +76,6 @@ EFI_STATUS EFIAPI Main(
       0, 
       (UINT8*)GOP->Mode->FrameBufferBase };
 
-    frameBuffer = (UINT8*)GOP->Mode->FrameBufferBase;
-
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open GOP: %r\n", status);
         Halt();

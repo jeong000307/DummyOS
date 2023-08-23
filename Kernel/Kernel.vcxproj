@@ -101,6 +101,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics.c" />
     <ClCompile Include="Main.c" />
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +110,9 @@
     </NASM>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AssemblyFunction.h" />
+    <ClInclude Include="Fonts.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Type.h" />
   </ItemGroup>
