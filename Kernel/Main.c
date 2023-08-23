@@ -15,7 +15,7 @@ void Main(const struct FRAMEBUFFER_CONFIG* FrameBufferConfig) {
         }
     }
     
-    while (1) { Halt(); }
+    Halt();
 }
 
 int WritePixel(

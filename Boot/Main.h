@@ -30,6 +30,8 @@ struct FRAMEBUFFER_CONFIG {
     UINT8*              frameBuffer;
 };
 
+extern void Halt(void);
+
 EFI_STATUS GetMemoryMap(
     struct MEMORY_MAP* map);
 
@@ -93,7 +95,6 @@ const CHAR16* GetMemoryTypeUnicode(
     @retval L"EfiMemoryMappedIO"            Memory is used by system firmware to request that a memory-mapped IO region be mapped by the OS to a virtual address so it can be accessed by EFI runtime services.
     @retval L"EfiMemoryMappedIOPortSpace"   Memory is system memory-mapped IO region that is used to translate memory cycles to IO cycles by the processor.
     @retval L"EfiPalCode"                   Memory is address space reserved by the firmware for code that is part of the processor.
-    @retval L"EfiPersistentMemory"          Memory is a memory region that operates as EfiConventionalMemory, however it happens to also support byte-addressable non-volatility.
     @retval L"EfiMaxMemoryType"             What is this?
     @retval L"InvalidMemoryType"            Type of memory is unknown.
 **/

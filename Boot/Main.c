@@ -28,7 +28,7 @@ EFI_STATUS EFIAPI Main(
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to get memory map: %r\n", status);
-        while (1);
+        Halt();
     }
 
     status = OpenRootDirectory(
@@ -37,7 +37,7 @@ EFI_STATUS EFIAPI Main(
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open root directory: %r\n", status);
-        while (1);
+        Halt();
     }
 
     status = rootDirectory->Open(
@@ -57,14 +57,14 @@ EFI_STATUS EFIAPI Main(
         
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to save memory map: %r\n", status);
-            while (1);
+            Halt();
         }
 
         status = memoryMapFile->Close(memoryMapFile);
 
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to close memory map: %r\n", status);
-            while (1);
+            Halt();
         }
 
         Print(L"[NOTICE] Saving memory map is finished.\n");
@@ -74,11 +74,17 @@ EFI_STATUS EFIAPI Main(
       imageHandle,
       &GOP);
 
-    FrameBufferConfig = (struct FRAMEBUFFER_CONFIG){ GOP->Mode->Info->PixelsPerScanLine, GOP->Mode->Info->HorizontalResolution, GOP->Mode->Info->VerticalResolution, 0, (UINT8*)GOP->Mode->FrameBufferBase };
+    FrameBufferConfig = (struct FRAMEBUFFER_CONFIG){ GOP->Mode->Info->PixelsPerScanLine, 
+      GOP->Mode->Info->HorizontalResolution, 
+      GOP->Mode->Info->VerticalResolution, 
+      0, 
+      (UINT8*)GOP->Mode->FrameBufferBase };
+
+    frameBuffer = (UINT8*)GOP->Mode->FrameBufferBase;
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open GOP: %r\n", status);
-        while (1);
+        Halt();
     }
 
     Print(L"[NOTICE] Resolution: %ux%u, Pixel Format: %s, %u pixels/line\n",
@@ -101,10 +107,8 @@ EFI_STATUS EFIAPI Main(
             break;
         default:
             Print(L"Unimplemented pixel format : %d\n", GOP->Mode->Info->PixelFormat);
-            while (1);
+            Halt();
     }
-
-    frameBuffer = (UINT8*)GOP->Mode->FrameBufferBase;
 
     status = rootDirectory->Open(
       rootDirectory,
@@ -115,7 +119,7 @@ EFI_STATUS EFIAPI Main(
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open file '\\kernel.exe': %r\n", status);
-        while (1);
+        Halt();
     }
 
     status = kernelFile->GetInfo(
@@ -126,7 +130,7 @@ EFI_STATUS EFIAPI Main(
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to get kernel file information: %r\n", status);
-        while (1);
+        Halt();
     }
 
     fileInfo = (EFI_FILE_INFO*)fileInfoBuffer;
@@ -141,7 +145,7 @@ EFI_STATUS EFIAPI Main(
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to allocate pages: %r\n", status);
-        while (1);
+        Halt();
     }
 
     status = kernelFile->Read(
@@ -151,7 +155,7 @@ EFI_STATUS EFIAPI Main(
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to read kernel file: %r\n", status);
-        while (1);
+        Halt();
     }
 
     Print(L"[NOTICE] Kernel: 0x%0lx (%lu bytes)\n", 
@@ -166,7 +170,7 @@ EFI_STATUS EFIAPI Main(
 
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to get memory map: %r\n", status);
-            while (1);
+            Halt();
         }
 
         status = BS->ExitBootServices(
@@ -175,7 +179,7 @@ EFI_STATUS EFIAPI Main(
 
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to exit boot service: %r\n", status);
-            while (1);
+            Halt();
         }
     }
 
@@ -307,7 +311,6 @@ const CHAR16* GetMemoryTypeUnicode(
         case EfiMemoryMappedIO:             return L"EfiMemoryMappedIO";
         case EfiMemoryMappedIOPortSpace:    return L"EfiMemoryMappedIOPortSpace";
         case EfiPalCode:                    return L"EfiPalCode";
-//        case EfiPersistentMemory:           return L"EfiPersistentMemory";
         case EfiMaxMemoryType:              return L"EfiMaxMemoryType";
         default:                            return L"InvalidMemoryType";
     }
