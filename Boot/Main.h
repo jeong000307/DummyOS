@@ -4,7 +4,7 @@
 #include <efi.h>
 #include <efiLib.h>
 
-typedef void EntryPointType(UINTN, UINTN);
+typedef void EntryPointType(const struct FRAMEBUFFER_CONFIG*);
 
 struct MEMORY_MAP {
     UINTN   bufferSize;
@@ -14,6 +14,20 @@ struct MEMORY_MAP {
     UINT32  descriptorVersion;
 
     VOID*   buffer;
+};
+
+enum PixelFormat {
+    PixelRGBReserved8BitPerColor,
+    PixelBGRReserved8BitPerColor
+};
+
+struct FRAMEBUFFER_CONFIG {
+    UINT32              pixelsPerScanLine;
+    UINT32              horizontalResolution;
+    UINT32              verticalResolution;
+
+    enum PIXEL_FORMAT   PixelFormat;
+    UINT8*              frameBuffer;
 };
 
 EFI_STATUS GetMemoryMap(

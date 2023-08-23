@@ -67,6 +67,7 @@
       <AssemblerOutput>All</AssemblerOutput>
       <CallingConvention>Cdecl</CallingConvention>
       <AdditionalOptions>/Oy- %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>5045</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

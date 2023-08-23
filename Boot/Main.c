@@ -18,6 +18,7 @@ EFI_STATUS EFIAPI Main(
     EFI_GRAPHICS_OUTPUT_PROTOCOL*   GOP;
     EFI_PHYSICAL_ADDRESS            kernelBaseAddress = 0x100000;
     struct MEMORY_MAP               memoryMap = { sizeof(memoryMapBuffer), 0, 0, 0, 0, memoryMapBuffer };
+    struct FRAMEBUFFER_CONFIG       FrameBufferConfig;
 
     InitializeLib(imageHandle, systemTable);
 
@@ -73,6 +74,8 @@ EFI_STATUS EFIAPI Main(
       imageHandle,
       &GOP);
 
+    FrameBufferConfig = (struct FRAMEBUFFER_CONFIG){ GOP->Mode->Info->PixelsPerScanLine, GOP->Mode->Info->HorizontalResolution, GOP->Mode->Info->VerticalResolution, 0, (UINT8*)GOP->Mode->FrameBufferBase };
+
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open GOP: %r\n", status);
         while (1);
@@ -88,6 +91,18 @@ EFI_STATUS EFIAPI Main(
       GOP->Mode->FrameBufferBase,
       GOP->Mode->FrameBufferBase + GOP->Mode->FrameBufferSize,
       GOP->Mode->FrameBufferSize);
+
+    switch (GOP->Mode->Info->PixelFormat) {
+        case PixelRedGreenBlueReserved8BitPerColor:
+            FrameBufferConfig.PixelFormat = PixelRGBReserved8BitPerColor;
+            break;
+        case PixelBlueGreenRedReserved8BitPerColor:
+            FrameBufferConfig.PixelFormat = PixelBGRReserved8BitPerColor;
+            break;
+        default:
+            Print(L"Unimplemented pixel format : %d\n", GOP->Mode->Info->PixelFormat);
+            while (1);
+    }
 
     frameBuffer = (UINT8*)GOP->Mode->FrameBufferBase;
 
@@ -168,7 +183,7 @@ EFI_STATUS EFIAPI Main(
 
     EntryPointType* entryPoint = (EntryPointType*)(kernelBaseAddress + entryAddress);
 
-    entryPoint(GOP->Mode->FrameBufferBase, GOP->Mode->FrameBufferSize);
+    entryPoint(&FrameBufferConfig);
 
     return EFI_SUCCESS;
 }
