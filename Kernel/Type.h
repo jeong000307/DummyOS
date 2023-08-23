@@ -119,4 +119,7 @@ typedef unsigned long long uintmax_t;
 #define INTMAX_C(x)  INT64_C(x)
 #define UINTMAX_C(x) UINT64_C(x)
 
+#define IN
+#define OUT
+
 #endif

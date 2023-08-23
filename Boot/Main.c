@@ -1,31 +1,30 @@
 #include "Main.h"
 
-EFI_STATUS EFIAPI Main(
-  EFI_HANDLE        imageHandle,
-  EFI_SYSTEM_TABLE* systemTable) {
-    UINTN                           fileInfoSize = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
-    UINTN                           kernelFileSize;
-    UINT32                          entryAddress;
-    EFI_STATUS                      status;
+EFI_STATUS Main(
+  IN EFI_HANDLE        imageHandle,
+  IN EFI_SYSTEM_TABLE* systemTable) {
+    UINTN                         fileInfoSize = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
+    UINTN                         kernelFileSize;
+    UINT32                        entryAddress;
+    EFI_STATUS                    status;
 
-    CHAR8                           memoryMapBuffer[4096 * 4];
-    UINT8                           fileInfoBuffer[sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12]; // VLA issue; size of array is equal to fileInfoSize
-    UINT8*                          frameBuffer;
-    EFI_FILE_INFO*                  fileInfo;
-    EFI_FILE_PROTOCOL*              kernelFile;
-    EFI_FILE_PROTOCOL*              memoryMapFile;
-    EFI_FILE_PROTOCOL*              rootDirectory;
-    EFI_GRAPHICS_OUTPUT_PROTOCOL*   GOP;
-    EFI_PHYSICAL_ADDRESS            kernelBaseAddress = 0x100000;
-    struct MEMORY_MAP               memoryMap = { sizeof(memoryMapBuffer), 0, 0, 0, 0, memoryMapBuffer };
-    struct FRAMEBUFFER_CONFIG       frameBufferConfig;
+    CHAR8                         memoryMapBuffer[4096 * 4];
+    UINT8                         fileInfoBuffer[sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12]; // VLA issue; size of array is equal to fileInfoSize
+    EFI_FILE_INFO*                fileInfo;
+    EFI_FILE_PROTOCOL*            kernelFile;
+    EFI_FILE_PROTOCOL*            memoryMapFile;
+    EFI_FILE_PROTOCOL*            rootDirectory;
+    EFI_GRAPHICS_OUTPUT_PROTOCOL* GOP;
+    EFI_PHYSICAL_ADDRESS          kernelBaseAddress = 0x100000;
+    struct MEMORY_MAP             memoryMap = { sizeof(memoryMapBuffer), 0, 0, 0, 0, memoryMapBuffer };
+    struct FRAME_BUFFER_CONFIG    frameBufferConfig;
 
     InitializeLib(imageHandle, systemTable);
 
     status = GetMemoryMap(&memoryMap);
 
     if (EFI_ERROR(status)) {
-        Print(L"[FAILED] Failed to get memory map: %r\n", status);
+        Print(L"[ERROR] Failed to get memory map: %r\n", status);
         Halt();
     }
 
@@ -34,7 +33,7 @@ EFI_STATUS EFIAPI Main(
       &rootDirectory);
 
     if (EFI_ERROR(status)) {
-        Print(L"[FAILED] Failed to open root directory: %r\n", status);
+        Print(L"[ERROR] Failed to open root directory: %r\n", status);
         Halt();
     }
 
@@ -52,7 +51,7 @@ EFI_STATUS EFIAPI Main(
         status = SaveMemoryMap(
           &memoryMap,
           memoryMapFile);
-        
+
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to save memory map: %r\n", status);
             Halt();
@@ -70,10 +69,11 @@ EFI_STATUS EFIAPI Main(
       imageHandle,
       &GOP);
 
-    frameBufferConfig = (struct FRAMEBUFFER_CONFIG){ GOP->Mode->Info->PixelsPerScanLine, 
-      GOP->Mode->Info->HorizontalResolution, 
-      GOP->Mode->Info->VerticalResolution, 
-      0, 
+    frameBufferConfig = (struct FRAME_BUFFER_CONFIG){ 
+      GOP->Mode->Info->PixelsPerScanLine,
+      GOP->Mode->Info->HorizontalResolution,
+      GOP->Mode->Info->VerticalResolution,
+      0,
       (UINT8*)GOP->Mode->FrameBufferBase };
 
     if (EFI_ERROR(status)) {
@@ -132,8 +132,8 @@ EFI_STATUS EFIAPI Main(
     }
 
     status = kernelFile->Read(
-      kernelFile, 
-      &kernelFileSize, 
+      kernelFile,
+      &kernelFileSize,
       (VOID*)kernelBaseAddress);
 
     if (EFI_ERROR(status)) {
@@ -142,7 +142,7 @@ EFI_STATUS EFIAPI Main(
     }
 
     status = BS->ExitBootServices(
-      imageHandle, 
+      imageHandle,
       memoryMap.mapKey);
 
     if (EFI_ERROR(status)) {
@@ -154,7 +154,7 @@ EFI_STATUS EFIAPI Main(
         }
 
         status = BS->ExitBootServices(
-          imageHandle, 
+          imageHandle,
           memoryMap.mapKey);
 
         if (EFI_ERROR(status)) {
@@ -172,8 +172,8 @@ EFI_STATUS EFIAPI Main(
     return EFI_SUCCESS;
 }
 
-EFI_STATUS GetMemoryMap(
-  struct MEMORY_MAP* map) {
+static EFI_STATUS GetMemoryMap(
+  IN OUT struct MEMORY_MAP* map) {
     if (map->buffer == NULL) {
         return EFI_BUFFER_TOO_SMALL;
     }
@@ -188,27 +188,27 @@ EFI_STATUS GetMemoryMap(
       &map->descriptorVersion);
 }
 
-EFI_STATUS OpenRootDirectory(
-  EFI_HANDLE imageHandle, 
-  EFI_FILE_PROTOCOL** rootDirectory) {
-    EFI_STATUS                          status;
+static EFI_STATUS OpenRootDirectory(
+  IN  EFI_HANDLE          imageHandle,
+  OUT EFI_FILE_PROTOCOL** rootDirectory) {
+    EFI_STATUS                       status;
 
-    EFI_LOADED_IMAGE_PROTOCOL*          loadedImage;
-    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL*    fileSystem;
+    EFI_LOADED_IMAGE_PROTOCOL*       loadedImage;
+    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* fileSystem;
 
     status = BS->LocateProtocol(
-        &gEfiLoadedImageProtocolGuid,
-        NULL,
-        (VOID**)&loadedImage);
+      &gEfiLoadedImageProtocolGuid,
+      NULL,
+      (VOID**)&loadedImage);
 
     if (EFI_ERROR(status)) {
         return status;
     }
 
     status = BS->LocateProtocol(
-        &gEfiSimpleFileSystemProtocolGuid,
-        NULL,
-        (VOID**)&fileSystem);
+      &gEfiSimpleFileSystemProtocolGuid,
+      NULL,
+      (VOID**)&fileSystem);
 
     if (EFI_ERROR(status)) {
         return status;
@@ -219,48 +219,48 @@ EFI_STATUS OpenRootDirectory(
       rootDirectory);
 }
 
-EFI_STATUS SaveMemoryMap(
-  struct MEMORY_MAP* map,
-  EFI_FILE_PROTOCOL* file) {
-    UINT32                  index;
-    UINTN                   length;
-    EFI_STATUS              status;
+static EFI_STATUS SaveMemoryMap(
+  IN  struct MEMORY_MAP* map,
+  OUT EFI_FILE_PROTOCOL* file) {
+    UINT32                 index;
+    UINTN                  length;
+    EFI_STATUS             status;
 
-    CHAR8                   buffer[256];
-    CHAR8*                  header = "Index, Type, Type(name), PhysicalStart, NumberOfPages, Attribute\n";
-    EFI_PHYSICAL_ADDRESS    iterator;
+    CHAR8                  buffer[256];
+    CHAR8*                 header = "Index, Type, Type(name), PhysicalStart, NumberOfPages, Attribute\n";
+    EFI_PHYSICAL_ADDRESS   iterator;
     EFI_MEMORY_DESCRIPTOR* descriptor;
 
     length = AsciiStrLen(header);
-    
+
     status = file->Write(
-      file, 
-      &length, 
+      file,
+      &length,
       header);
 
     if (EFI_ERROR(status)) {
         return status;
     }
 
-    for (iterator = (EFI_PHYSICAL_ADDRESS)map->buffer, index = 0; 
-      iterator < (EFI_PHYSICAL_ADDRESS)map->buffer + map->mapSize; 
+    for (iterator = (EFI_PHYSICAL_ADDRESS)map->buffer, index = 0;
+      iterator < (EFI_PHYSICAL_ADDRESS)map->buffer + map->mapSize;
       iterator += map->descriptorSize, ++index) {
         descriptor = (EFI_MEMORY_DESCRIPTOR*)iterator;
 
         length = AsciiSPrint(
-          buffer, 
-          sizeof(buffer), 
-          "%u, %x, %-ls, %08lx, %lx, %lx\n", 
-          index, 
-          descriptor->Type, 
-          GetMemoryTypeUnicode(descriptor->Type), 
+          buffer,
+          sizeof(buffer),
+          "%u, %x, %-ls, %08lx, %lx, %lx\n",
+          index,
+          descriptor->Type,
+          GetMemoryTypeUnicode(descriptor->Type),
           descriptor->PhysicalStart,
-          descriptor->NumberOfPages, 
+          descriptor->NumberOfPages,
           descriptor->Attribute & 0xfffflu);
 
         status = file->Write(
-          file, 
-          &length, 
+          file,
+          &length,
           buffer);
 
         if (EFI_ERROR(status)) {
@@ -271,8 +271,8 @@ EFI_STATUS SaveMemoryMap(
     return EFI_SUCCESS;
 }
 
-const CHAR16* GetMemoryTypeUnicode(
-  EFI_MEMORY_TYPE type) {
+static CONST CHAR16* GetMemoryTypeUnicode(
+  IN EFI_MEMORY_TYPE type) {
     switch (type) {
         case EfiReservedMemoryType:         return L"EfiReservedMemoryType";
         case EfiLoaderCode:                 return L"EfiLoaderCode";
@@ -293,9 +293,9 @@ const CHAR16* GetMemoryTypeUnicode(
     }
 }
 
-EFI_STATUS OpenGOP(
-  EFI_HANDLE imageHandle,
-  EFI_GRAPHICS_OUTPUT_PROTOCOL** GOP) {
+static EFI_STATUS OpenGOP(
+  IN EFI_HANDLE                     imageHandle,
+  OUT EFI_GRAPHICS_OUTPUT_PROTOCOL** GOP) {
     UINTN       numberOfGOPHandles = 0;
     EFI_STATUS  status;
 
@@ -329,19 +329,14 @@ EFI_STATUS OpenGOP(
     return EFI_SUCCESS;
 }
 
-const CHAR16* GetPixelFormatUnicode(EFI_GRAPHICS_PIXEL_FORMAT format) {
+static CONST CHAR16* GetPixelFormatUnicode(
+  IN EFI_GRAPHICS_PIXEL_FORMAT format) {
     switch (format) {
-        case PixelRedGreenBlueReserved8BitPerColor:
-            return L"PixelRedGreenBlueReserved8BitPerColor";
-        case PixelBlueGreenRedReserved8BitPerColor:
-            return L"PixelBlueGreenRedReserved8BitPerColor";
-        case PixelBitMask:
-            return L"PixelBitMask";
-        case PixelBltOnly:
-            return L"PixelBltOnly";
-        case PixelFormatMax:
-            return L"PixelFormatMax";
-        default:
-            return L"InvalidPixelFormat";
+        case PixelRedGreenBlueReserved8BitPerColor: return L"PixelRedGreenBlueReserved8BitPerColor";
+        case PixelBlueGreenRedReserved8BitPerColor: return L"PixelBlueGreenRedReserved8BitPerColor";
+        case PixelBitMask:                          return L"PixelBitMask";
+        case PixelBltOnly:                          return L"PixelBltOnly";
+        case PixelFormatMax:                        return L"PixelFormatMax";
+        default:                                    return L"InvalidPixelFormat";
     }
 }

@@ -1,57 +1,57 @@
 #include "Graphics.h"
 
-int32_t WritePixel(
-    const struct FRAMEBUFFER_CONFIG* frameBufferConfig,
-    uint32_t x,
-    uint32_t y,
-    const struct PixelColor color) {
+void CreateScreen(
+  OUT SCREEN*                           this,
+  IN  const struct FRAME_BUFFER_CONFIG* frameBufferConfig) {
+    this->pixelsPerScanLine = frameBufferConfig->pixelsPerScanLine;
+    this->horizontalResolution = frameBufferConfig->horizontalResolution;
+    this->verticalResolution = frameBufferConfig->verticalResolution;
+
+    this->frameBuffer = frameBufferConfig->frameBuffer;
+
     if (frameBufferConfig->pixelFormat == pixelRGBReserved8BitPerColor) {
-        uint8_t* Pixel = GetPixelLocation(frameBufferConfig, x, y);
-        Pixel[0] = color.red;
-        Pixel[1] = color.green;
-        Pixel[2] = color.blue;
-    }
-    else if (frameBufferConfig->pixelFormat == pixelBGRReserved8BitPerColor) {
-        uint8_t* Pixel = GetPixelLocation(frameBufferConfig, x, y);
-        Pixel[0] = color.blue;
-        Pixel[1] = color.green;
-        Pixel[2] = color.red;
+        this->WritePixel = __WritePixelRGB;
     }
     else {
-        return -1;
+        this->WritePixel = __WritePixelBGR;
     }
-
-    return 0;
+    
+    this->GetPixelAddress = __GetPixelAddress;
 }
 
-uint8_t* GetPixelLocation(const struct FRAMEBUFFER_CONFIG* frameBufferConfig, uint32_t x, uint32_t y) {
-    return frameBufferConfig->frameBuffer + 4 * (frameBufferConfig->pixelsPerScanLine * y + x);
+static void __WritePixelRGB(
+  IN OUT const SCREEN*           this,
+  IN     uint32_t                x,
+  IN     uint32_t                y,
+  IN     const struct PixelColor color) {
+    uint8_t* Pixel = this->GetPixelAddress(
+      this, 
+      x, 
+      y);
+
+    Pixel[0] = color.red;
+    Pixel[1] = color.green;
+    Pixel[2] = color.blue;
 }
 
-const char* GetFont(char character) {
-    uint32_t index = 16 * (uint32_t)character;
+static void __WritePixelBGR(
+    IN OUT const SCREEN*           this,
+    IN     uint32_t                x,
+    IN     uint32_t                y,
+    IN     const struct PixelColor color) {
+    uint8_t* Pixel = this->GetPixelAddress(
+      this, 
+      x, 
+      y);
 
-    return fonts + index;
+    Pixel[0] = color.blue;
+    Pixel[1] = color.green;
+    Pixel[2] = color.red;
 }
 
-void WriteAscii(const struct FRAMEBUFFER_CONFIG* frameBufferConfig, uint32_t x, uint32_t y, char character, const struct PixelColor color) {
-    uint32_t    dx, dy;
-    const char* font = GetFont(character);
-
-    for (dy = 0; dy < 16; ++dy) {
-        for (dx = 0; dx < 8; ++dx) {
-            if ((font[dy] << dx) & 0x80u) {
-                WritePixel(frameBufferConfig, x + dx, y + dy, color);
-            }
-        }
-    }
+static uint8_t* __GetPixelAddress(
+  IN const SCREEN* this,
+  IN uint32_t      x,
+  IN uint32_t      y) {
+    return this->frameBuffer + 4 * (this->pixelsPerScanLine * y + x);
 }
-
-void WriteString(const struct FRAMEBUFFER_CONFIG* frameBufferConfig, uint32_t x, uint32_t y, const char* string, const struct PixelColor color) {
-    uint32_t index;
-
-    for (index = 0; string[index] != '\0'; ++index) {
-        WriteAscii(frameBufferConfig, x + 8 * index, y, string[index], color);
-    }
-}
-

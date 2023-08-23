@@ -104,14 +104,6 @@
     <ClCompile Include="gnu-efi\lib\guid.c" />
     <ClCompile Include="gnu-efi\lib\hand.c" />
     <ClCompile Include="gnu-efi\lib\hw.c" />
-    <ClCompile Include="gnu-efi\lib\ia32\initplat.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="gnu-efi\lib\ia32\math.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="gnu-efi\lib\init.c" />
     <ClCompile Include="gnu-efi\lib\lock.c" />
     <ClCompile Include="gnu-efi\lib\misc.c" />

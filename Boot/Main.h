@@ -3,17 +3,16 @@
 
 #include <efi.h>
 #include <efiLib.h>
-
-typedef void EntryPointType(const struct FRAMEBUFFER_CONFIG*);
+#include "AssemblyFunction.h"
 
 struct MEMORY_MAP {
-    UINTN   bufferSize;
-    UINTN   mapSize;
-    UINTN   mapKey;
-    UINTN   descriptorSize;
-    UINT32  descriptorVersion;
+    UINTN  bufferSize;
+    UINTN  mapSize;
+    UINTN  mapKey;
+    UINTN  descriptorSize;
+    UINT32 descriptorVersion;
 
-    VOID*   buffer;
+    VOID*  buffer;
 };
 
 enum PIXEL_FORMAT {
@@ -21,19 +20,20 @@ enum PIXEL_FORMAT {
     pixelBGRReserved8BitPerColor
 };
 
-struct FRAMEBUFFER_CONFIG {
-    UINT32              pixelsPerScanLine;
-    UINT32              horizontalResolution;
-    UINT32              verticalResolution;
+struct FRAME_BUFFER_CONFIG {
+    UINT32            pixelsPerScanLine;
+    UINT32            horizontalResolution;
+    UINT32            verticalResolution;
 
-    enum PIXEL_FORMAT   pixelFormat;
-    UINT8*              frameBuffer;
+    enum PIXEL_FORMAT pixelFormat;
+    UINT8*            frameBuffer;
 };
 
-extern void Halt(void);
+typedef void EntryPointType(
+  CONST struct FRAME_BUFFER_CONFIG*);
 
-EFI_STATUS GetMemoryMap(
-    struct MEMORY_MAP* map);
+static EFI_STATUS GetMemoryMap(
+  IN OUT struct MEMORY_MAP* map);
 
 /**
     Gets a memory map.
@@ -45,9 +45,9 @@ EFI_STATUS GetMemoryMap(
     @retval TBD
 **/
 
-EFI_STATUS OpenRootDirectory(
-    EFI_HANDLE imageHandle,
-    EFI_FILE_PROTOCOL** rootDirectory);
+static EFI_STATUS OpenRootDirectory(
+  IN  EFI_HANDLE          imageHandle,
+  OUT EFI_FILE_PROTOCOL** rootDirectory);
 
 /**
     Opens a root directory of boot device.
@@ -59,9 +59,9 @@ EFI_STATUS OpenRootDirectory(
     @retval TBD
 **/
 
-EFI_STATUS SaveMemoryMap(
-    struct MEMORY_MAP* map,
-    EFI_FILE_PROTOCOL* file);
+static EFI_STATUS SaveMemoryMap(
+  IN struct MEMORY_MAP* map,
+  OUT EFI_FILE_PROTOCOL* file);
 
 /**
     Saves a memory map.
@@ -73,8 +73,8 @@ EFI_STATUS SaveMemoryMap(
     @retval TBD
 **/
 
-const CHAR16* GetMemoryTypeUnicode(
-    EFI_MEMORY_TYPE type);
+static CONST CHAR16* GetMemoryTypeUnicode(
+  IN EFI_MEMORY_TYPE type);
 
 /**
     Gets a memory type in Unicode.
@@ -99,9 +99,9 @@ const CHAR16* GetMemoryTypeUnicode(
     @retval L"InvalidMemoryType"            Type of memory is unknown.
 **/
 
-EFI_STATUS OpenGOP(
-  EFI_HANDLE imageHandle, 
-  EFI_GRAPHICS_OUTPUT_PROTOCOL** GOP);
+static EFI_STATUS OpenGOP(
+  IN EFI_HANDLE                     imageHandle,
+  OUT EFI_GRAPHICS_OUTPUT_PROTOCOL** GOP);
 
 /**
     Initializes and opens Graphics Output Protocol.
@@ -112,7 +112,8 @@ EFI_STATUS OpenGOP(
     @retval TBD
 **/
 
-const CHAR16* GetPixelFormatUnicode(EFI_GRAPHICS_PIXEL_FORMAT format);
+static CONST CHAR16* GetPixelFormatUnicode(
+  IN EFI_GRAPHICS_PIXEL_FORMAT format);
 
 /**
     Gets a format of pixel in Unicode.
@@ -129,7 +130,8 @@ const CHAR16* GetPixelFormatUnicode(EFI_GRAPHICS_PIXEL_FORMAT format);
 
 // Miscellaneous Functions
 
-UINTN AsciiStrLen(CHAR8* string) {
+static UINTN AsciiStrLen(
+  IN CHAR8* string) {
     UINTN length;
 
     for (length = 0; *string; string += 1, length += 1);
@@ -137,10 +139,11 @@ UINTN AsciiStrLen(CHAR8* string) {
     return length;
 }
 
-UINTN AsciiSPrint(CHAR8* buffer, 
-  UINTN bufferSize, 
-  CONST CHAR8* formatString, 
-  ...) {
+static UINTN AsciiSPrint(
+  OUT CHAR8*       buffer,
+  IN  UINTN        bufferSize,
+  IN  CONST CHAR8* formatString,
+  IN  ...) {
     va_list marker;
     UINTN   numberOfPrinted;
 

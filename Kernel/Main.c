@@ -1,15 +1,30 @@
 #include "Main.h"
 
-void Main(const struct FRAMEBUFFER_CONFIG* frameBufferConfig) {
+void Main(
+  IN const struct FRAME_BUFFER_CONFIG* frameBufferConfig) {
+    SCREEN*  screen;
     uint32_t x, y;
 
-    for (x = 0; x < (*frameBufferConfig).horizontalResolution; ++x) {
-        for (y = 0; y < (*frameBufferConfig).verticalResolution; ++y) {
-            WritePixel(frameBufferConfig, x, y, (struct PixelColor) { 0, 0, 0 });
+    CreateScreen(
+      screen, 
+      frameBufferConfig);
+
+    for (x = 0; x < screen->horizontalResolution; ++x) {
+        for (y = 0; y < screen->verticalResolution; ++y) {
+            screen->WritePixel(
+              screen, 
+              x, 
+              y, 
+              (struct PixelColor) { 0, 0, 0 });
         }
     }
 
-    WriteString(frameBufferConfig, 0, 0, "Hello from DummyOS!", (struct PixelColor) { 255, 255, 255 });
+    WriteString(
+      screen, 
+      0, 
+      0, 
+      "Hello from DummyOS!", 
+      (struct PixelColor) { 255, 255, 255 });
     
     Halt();
 }

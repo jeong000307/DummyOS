@@ -89,11 +89,5 @@
     <ClCompile Include="gnu-efi\lib\x86_64\math.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gnu-efi\lib\ia32\initplat.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gnu-efi\lib\ia32\math.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
