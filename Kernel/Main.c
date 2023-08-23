@@ -1,17 +1,17 @@
 #include "Main.h"
 
-void Main(const struct FRAMEBUFFER_CONFIG* FrameBufferConfig) {
+void Main(const struct FRAMEBUFFER_CONFIG* frameBufferConfig) {
     uint32_t x, y;
 
-    for (x = 0; x < (*FrameBufferConfig).horizontalResolution; ++x) {
-        for (y = 0; y < (*FrameBufferConfig).verticalResolution; ++y) {
-            WritePixel(FrameBufferConfig, x, y, (struct PixelColor){ 255, 255, 255 });
+    for (x = 0; x < (*frameBufferConfig).horizontalResolution; ++x) {
+        for (y = 0; y < (*frameBufferConfig).verticalResolution; ++y) {
+            WritePixel(frameBufferConfig, x, y, (struct PixelColor){ 255, 255, 255 });
         }
     }
 
     for (x = 0; x < 200; ++x) {
         for (y = 0; y < 100; ++y) {
-            WritePixel(FrameBufferConfig, 100 + x, 100 + y, (struct PixelColor){ 0, 255, 0 });
+            WritePixel(frameBufferConfig, 100 + x, 100 + y, (struct PixelColor){ 0, 255, 0 });
         }
     }
     
@@ -19,23 +19,23 @@ void Main(const struct FRAMEBUFFER_CONFIG* FrameBufferConfig) {
 }
 
 int WritePixel(
-  const struct FRAMEBUFFER_CONFIG* FrameBufferConfig, 
+  const struct FRAMEBUFFER_CONFIG* frameBufferConfig, 
   uint32_t x,
   uint32_t y,
-  const struct PixelColor Color) {
-    const uint32_t pixelPosition = (*FrameBufferConfig).pixelsPerScanLine * y + x;
+  const struct PixelColor color) {
+    const uint32_t pixelPosition = (*frameBufferConfig).pixelsPerScanLine * y + x;
 
-    if (FrameBufferConfig->PixelFormat == PixelRGBReserved8BitPerColor) {
-        uint8_t* Pixel = &FrameBufferConfig->frameBuffer[4 * pixelPosition];
-        Pixel[0] = Color.red;
-        Pixel[1] = Color.green;
-        Pixel[2] = Color.blue;
+    if (frameBufferConfig->pixelFormat == pixelRGBReserved8BitPerColor) {
+        uint8_t* Pixel = &frameBufferConfig->frameBuffer[4 * pixelPosition];
+        Pixel[0] = color.red;
+        Pixel[1] = color.green;
+        Pixel[2] = color.blue;
     } 
-    else if (FrameBufferConfig->PixelFormat == PixelBGRReserved8BitPerColor) {
-        uint8_t* Pixel = &FrameBufferConfig->frameBuffer[4 * pixelPosition];
-        Pixel[0] = Color.blue;
-        Pixel[1] = Color.green;
-        Pixel[2] = Color.red;
+    else if (frameBufferConfig->pixelFormat == pixelBGRReserved8BitPerColor) {
+        uint8_t* Pixel = &frameBufferConfig->frameBuffer[4 * pixelPosition];
+        Pixel[0] = color.blue;
+        Pixel[1] = color.green;
+        Pixel[2] = color.red;
     }
     else {
         return -1;

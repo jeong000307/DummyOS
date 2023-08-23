@@ -3,9 +3,9 @@
 
 #include "Type.h"
 
-enum PixelFormat {
-    PixelRGBReserved8BitPerColor,
-    PixelBGRReserved8BitPerColor
+enum PIXEL_FORMAT {
+    pixelRGBReserved8BitPerColor,
+    pixelBGRReserved8BitPerColor
 };
 
 struct FRAMEBUFFER_CONFIG {
@@ -13,7 +13,7 @@ struct FRAMEBUFFER_CONFIG {
     uint32_t            horizontalResolution;
     uint32_t            verticalResolution;
 
-    enum PIXEL_FORMAT   PixelFormat;
+    enum PIXEL_FORMAT   pixelFormat;
     uint8_t*            frameBuffer;
 };
 
@@ -24,9 +24,9 @@ struct PixelColor {
 extern void Halt(void);
 
 int WritePixel(
-  const struct FRAMEBUFFER_CONFIG* FrameBufferConfig,
+  const struct FRAMEBUFFER_CONFIG* frameBufferConfig,
   uint32_t x,
   uint32_t y,
-  const struct PixelColor Color);
+  const struct PixelColor color);
 
 #endif

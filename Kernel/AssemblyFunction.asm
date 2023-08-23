@@ -7,4 +7,3 @@ GLOBAL Halt
 Halt:
     hlt
     jmp Halt
-    ret

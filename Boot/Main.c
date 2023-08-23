@@ -18,16 +18,14 @@ EFI_STATUS EFIAPI Main(
     EFI_GRAPHICS_OUTPUT_PROTOCOL*   GOP;
     EFI_PHYSICAL_ADDRESS            kernelBaseAddress = 0x100000;
     struct MEMORY_MAP               memoryMap = { sizeof(memoryMapBuffer), 0, 0, 0, 0, memoryMapBuffer };
-    struct FRAMEBUFFER_CONFIG       FrameBufferConfig;
+    struct FRAMEBUFFER_CONFIG       frameBufferConfig;
 
     InitializeLib(imageHandle, systemTable);
-
-    Print(L"[NOTICE] Hello from DummyOS!\n");
 
     status = GetMemoryMap(&memoryMap);
 
     if (EFI_ERROR(status)) {
-        Print(L"[ERROR] Failed to get memory map: %r\n", status);
+        Print(L"[FAILED] Failed to get memory map: %r\n", status);
         Halt();
     }
 
@@ -36,7 +34,7 @@ EFI_STATUS EFIAPI Main(
       &rootDirectory);
 
     if (EFI_ERROR(status)) {
-        Print(L"[ERROR] Failed to open root directory: %r\n", status);
+        Print(L"[FAILED] Failed to open root directory: %r\n", status);
         Halt();
     }
 
@@ -66,15 +64,13 @@ EFI_STATUS EFIAPI Main(
             Print(L"[ERROR] Failed to close memory map: %r\n", status);
             Halt();
         }
-
-        Print(L"[NOTICE] Saving memory map is finished.\n");
     }
 
     status = OpenGOP(
       imageHandle,
       &GOP);
 
-    FrameBufferConfig = (struct FRAMEBUFFER_CONFIG){ GOP->Mode->Info->PixelsPerScanLine, 
+    frameBufferConfig = (struct FRAMEBUFFER_CONFIG){ GOP->Mode->Info->PixelsPerScanLine, 
       GOP->Mode->Info->HorizontalResolution, 
       GOP->Mode->Info->VerticalResolution, 
       0, 
@@ -87,26 +83,15 @@ EFI_STATUS EFIAPI Main(
         Halt();
     }
 
-    Print(L"[NOTICE] Resolution: %ux%u, Pixel Format: %s, %u pixels/line\n",
-      GOP->Mode->Info->HorizontalResolution,
-      GOP->Mode->Info->VerticalResolution,
-      GetPixelFormatUnicode(GOP->Mode->Info->PixelFormat),
-      GOP->Mode->Info->PixelsPerScanLine);
-
-    Print(L"[NOTICE] Frame Buffer: 0x%0lx - 0x%0lx, Size: %lu bytes\n",
-      GOP->Mode->FrameBufferBase,
-      GOP->Mode->FrameBufferBase + GOP->Mode->FrameBufferSize,
-      GOP->Mode->FrameBufferSize);
-
     switch (GOP->Mode->Info->PixelFormat) {
         case PixelRedGreenBlueReserved8BitPerColor:
-            FrameBufferConfig.PixelFormat = PixelRGBReserved8BitPerColor;
+            frameBufferConfig.pixelFormat = pixelRGBReserved8BitPerColor;
             break;
         case PixelBlueGreenRedReserved8BitPerColor:
-            FrameBufferConfig.PixelFormat = PixelBGRReserved8BitPerColor;
+            frameBufferConfig.pixelFormat = pixelBGRReserved8BitPerColor;
             break;
         default:
-            Print(L"Unimplemented pixel format : %d\n", GOP->Mode->Info->PixelFormat);
+            Print(L"[ERROR] Graphics output protocol does not support RGB mode. GOP supports %d mode.\n", GOP->Mode->Info->PixelFormat);
             Halt();
     }
 
@@ -158,9 +143,6 @@ EFI_STATUS EFIAPI Main(
         Halt();
     }
 
-    Print(L"[NOTICE] Kernel: 0x%0lx (%lu bytes)\n", 
-      kernelBaseAddress, kernelFileSize);
-
     status = BS->ExitBootServices(
       imageHandle, 
       memoryMap.mapKey);
@@ -187,7 +169,7 @@ EFI_STATUS EFIAPI Main(
 
     EntryPointType* entryPoint = (EntryPointType*)(kernelBaseAddress + entryAddress);
 
-    entryPoint(&FrameBufferConfig);
+    entryPoint(&frameBufferConfig);
 
     return EFI_SUCCESS;
 }
@@ -261,9 +243,6 @@ EFI_STATUS SaveMemoryMap(
     if (EFI_ERROR(status)) {
         return status;
     }
-
-    Print(L"[NOTICE] map->buffer = %08lx, map->map_size = %08lx\n",
-      map->buffer, map->mapSize);
 
     for (iterator = (EFI_PHYSICAL_ADDRESS)map->buffer, index = 0; 
       iterator < (EFI_PHYSICAL_ADDRESS)map->buffer + map->mapSize; 
