@@ -24,15 +24,27 @@
     <ClCompile Include="Console.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="PCI.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Math.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="String.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Font.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Type.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Fonts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Graphics.h">
@@ -42,6 +54,21 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Console.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PCI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorCode.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="String.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

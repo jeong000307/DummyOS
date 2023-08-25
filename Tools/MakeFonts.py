@@ -12,7 +12,7 @@ BITMAP_PATTERN = re.compile(r'([.*@]+)')
 
 def compile(src: str) -> bytes:
     src = src.lstrip()
-    result = "char fonts[16 * 128] = \n\t{"
+    result = "const byte* fonts = \n\t{"
     i = 0
 
     for line in src.splitlines():
@@ -32,12 +32,11 @@ def compile(src: str) -> bytes:
 
 
 def main():
-    with open("Fonts.h", 'w') as out, open("Fonts.txt") as font:
+    with open("Fonts.c", 'w') as out, open("Fonts.txt") as font:
         src = font.read()
-        out.write("#ifndef __FONTS_H__\n")
-        out.write("#define __FONTS_H__\n\n")
+        out.write('#include "Font.h"\n')
+        out.write('\n')
         out.write(compile(src))
-        out.write("\n\n#endif")
 
 if __name__ == '__main__':
     main()

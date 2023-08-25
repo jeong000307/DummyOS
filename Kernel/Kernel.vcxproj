@@ -65,10 +65,10 @@
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AssemblerOutput>All</AssemblerOutput>
-      <CallingConvention>Cdecl</CallingConvention>
       <AdditionalOptions>/Oy- %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>5045</DisableSpecificWarnings>
       <CompileAs>CompileAsC</CompileAs>
+      <CallingConvention>Cdecl</CallingConvention>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -103,8 +103,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Console.c" />
+    <ClCompile Include="Font.c" />
     <ClCompile Include="Graphics.c" />
     <ClCompile Include="Main.c" />
+    <ClCompile Include="Math.c" />
+    <ClCompile Include="Memory.c" />
+    <ClCompile Include="PCI.c" />
+    <ClCompile Include="String.c" />
   </ItemGroup>
   <ItemGroup>
     <NASM Include="AssemblyFunction.asm">
@@ -114,9 +119,13 @@
   <ItemGroup>
     <ClInclude Include="AssemblyFunction.h" />
     <ClInclude Include="Console.h" />
-    <ClInclude Include="Fonts.h" />
+    <ClInclude Include="ErrorCode.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Main.h" />
+    <ClInclude Include="Math.h" />
+    <ClInclude Include="Memory.h" />
+    <ClInclude Include="PCI.h" />
+    <ClInclude Include="String.h" />
     <ClInclude Include="Type.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,30 +1,53 @@
 #include "Main.h"
 
+SYSTEM_CONSOLE* systemConsole;
+PCI_DEVICES*    PCIDevices;
+
 void Main(
   IN const struct FRAME_BUFFER_CONFIG* frameBufferConfig) {
-    SCREEN*  screen;
-    uint32_t x, y;
+    code            status;
+    size            index;
 
-    CreateScreen(
-      screen, 
+    SCREEN*         screen = &(SCREEN){ 
+      .pixelsPerScanLine = 0, 
+      .horizontalResolution = 0, 
+      .verticalResolution = 0, 
+      .frameBuffer = NULL, 
+      .WritePixel = NULL, 
+      .GetPixelAddress = NULL 
+    };
+
+    status = CreateScreen(
+      screen,
       frameBufferConfig);
 
-    for (x = 0; x < screen->horizontalResolution; ++x) {
-        for (y = 0; y < screen->verticalResolution; ++y) {
-            screen->WritePixel(
-              screen, 
-              x, 
-              y, 
-              (struct PixelColor) { 0, 0, 0 });
-        }
+    if (status != SUCCESS) {
+        return ;
     }
 
-    WriteString(
-      screen, 
-      0, 
-      0, 
-      "Hello from DummyOS!", 
-      (struct PixelColor) { 255, 255, 255 });
+    status = CreateSystemConsole(
+      systemConsole,
+      screen
+    );
+
+    if (status != SUCCESS) {
+        return ;
+    }
+
+    systemConsole->SystemPrint(systemConsole, "%s", "Hello from DummyOS!\n");
+
+    ScanAllPCIBus();
+
+    systemConsole->SystemPrint(systemConsole, "ScanAllBus: %d\n", PCIDevices->count);
+
+    for (index = 0; index < PCIDevices->count; ++index) {
+        struct PCIDevice* device = PCIDevices->devices[index];
+
+        uint16 vendorID = ReadPCIVendorID(device->bus, device->device, device->function);
+        uint32 classCode = ReadPCIClassCode(device->bus, device->device, device->function);
+
+        systemConsole->SystemPrint(systemConsole, "%d.%d.%d: vend %x, class %x, head %x\n", device->bus, device->device, device->function, vendorID, classCode, device->headerType);
+    }
     
     Halt();
 }

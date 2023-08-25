@@ -1,22 +1,23 @@
 #ifndef __GRAPHICS_H__
 #define __GRAPHICS_H__
 
-#include "Fonts.h"
+#include "ErrorCode.h"
+#include "Memory.h"
 #include "Type.h"
 
-typedef struct      __SCREEN SCREEN;
+typedef struct __SCREEN SCREEN;
 
-typedef void
+typedef code
     (*WRITE_PIXEL)(
       IN OUT const SCREEN*       this, 
-      IN uint32_t                x, 
-      IN uint32_t                y, 
+      IN size                    x, 
+      IN size                    y,
       IN const struct PixelColor color);
-typedef uint8_t*
+typedef byte*
     (*GET_PIXEL_ADDRESS)(
       IN const SCREEN* this, 
-      IN uint32_t      x, 
-      IN uint32_t      y);
+      IN size          x,
+      IN size          y);
 
 enum PIXEL_FORMAT {
     pixelRGBReserved8BitPerColor,
@@ -24,50 +25,50 @@ enum PIXEL_FORMAT {
 };
 
 struct FRAME_BUFFER_CONFIG {
-    uint32_t          pixelsPerScanLine;
-    uint32_t          horizontalResolution;
-    uint32_t          verticalResolution;
+    uint32            pixelsPerScanLine;
+    uint32            horizontalResolution;
+    uint32            verticalResolution;
 
     enum PIXEL_FORMAT pixelFormat;
-    uint8_t*          frameBuffer;
+    byte*             frameBuffer;
 };
 
 struct __SCREEN {
-    uint32_t          pixelsPerScanLine;
-    uint32_t          horizontalResolution;
-    uint32_t          verticalResolution;
+    uint32            pixelsPerScanLine;
+    uint32            horizontalResolution;
+    uint32            verticalResolution;
 
-    uint8_t*          frameBuffer;
+    byte*             frameBuffer;
 
     WRITE_PIXEL       WritePixel;
     GET_PIXEL_ADDRESS GetPixelAddress;
 };
 
 struct PixelColor {
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
+    byte red;
+    byte green;
+    byte blue;
 };
 
-void CreateScreen(
-  OUT SCREEN* this,
+code CreateScreen(
+  OUT SCREEN*                           this,
   IN  const struct FRAME_BUFFER_CONFIG* frameBufferConfig);
 
-static void __WritePixelRGB(
-  IN OUT const SCREEN* this,
-  IN     uint32_t                x,
-  IN     uint32_t                y,
+static code __WritePixelRGB(
+  IN OUT const SCREEN*           this,
+  IN     size                    x,
+  IN     size                    y,
   IN     const struct PixelColor color);
 
-static void __WritePixelBGR(
-  IN OUT const SCREEN* this,
-  IN     uint32_t                x,
-  IN     uint32_t                y,
+static code __WritePixelBGR(
+  IN OUT const SCREEN*           this,
+  IN     size                    x,
+  IN     size                    y,
   IN     const struct PixelColor color);
 
-static uint8_t* __GetPixelAddress(
+static byte* __GetPixelAddress(
   IN const SCREEN* this,
-  IN uint32_t      x,
-  IN uint32_t      y);
+  IN size          x,
+  IN size          y);
 
 #endif
