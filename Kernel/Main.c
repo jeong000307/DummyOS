@@ -14,8 +14,7 @@ void Main(
       .verticalResolution = 0, 
       .frameBuffer = NULL, 
       .WritePixel = NULL, 
-      .GetPixelAddress = NULL 
-    };
+      .GetPixelAddress = NULL };
 
     status = CreateScreen(
       screen,
@@ -27,8 +26,7 @@ void Main(
 
     status = CreateSystemConsole(
       systemConsole,
-      screen
-    );
+      screen);
 
     if (status != SUCCESS) {
         return ;
@@ -41,12 +39,19 @@ void Main(
     systemConsole->SystemPrint(systemConsole, "ScanAllBus: %d\n", PCIDevices->count);
 
     for (index = 0; index < PCIDevices->count; ++index) {
-        struct PCIDevice* device = PCIDevices->devices[index];
-
-        uint16 vendorID = ReadPCIVendorID(device->bus, device->device, device->function);
-        uint32 classCode = ReadPCIClassCode(device->bus, device->device, device->function);
-
-        systemConsole->SystemPrint(systemConsole, "%d.%d.%d: vend %x, class %x, head %x\n", device->bus, device->device, device->function, vendorID, classCode, device->headerType);
+        systemConsole->SystemPrint(systemConsole, "%d.%d.%d: vend %x, class %x, head %x\n", 
+          PCIDevices->devices[index]->bus, 
+          PCIDevices->devices[index]->device, 
+          PCIDevices->devices[index]->function, 
+          ReadPCIVendorID(
+            PCIDevices->devices[index]->bus,
+            PCIDevices->devices[index]->device,
+            PCIDevices->devices[index]->function),
+          ReadPCIClassCode(
+            PCIDevices->devices[index]->bus,
+            PCIDevices->devices[index]->device,
+            PCIDevices->devices[index]->function), 
+          PCIDevices->devices[index]->headerType);
     }
     
     Halt();

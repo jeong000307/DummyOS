@@ -3,4 +3,8 @@
 
 extern void Halt(void);
 
+/**
+    Halt the processor.
+**/
+
 #endif

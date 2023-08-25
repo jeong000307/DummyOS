@@ -21,7 +21,8 @@ EFI_STATUS Main(
 
     InitializeLib(imageHandle, systemTable);
 
-    status = GetMemoryMap(&memoryMap);
+    status = GetMemoryMap(
+      &memoryMap);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to get memory map: %r\n", status);
@@ -57,7 +58,8 @@ EFI_STATUS Main(
             Halt();
         }
 
-        status = memoryMapFile->Close(memoryMapFile);
+        status = memoryMapFile->Close(
+          memoryMapFile);
 
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to close memory map: %r\n", status);
@@ -173,7 +175,7 @@ EFI_STATUS Main(
 }
 
 static EFI_STATUS GetMemoryMap(
-  IN OUT struct MEMORY_MAP* map) {
+  OUT struct MEMORY_MAP* map) {
     if (map->buffer == NULL) {
         return EFI_BUFFER_TOO_SMALL;
     }
@@ -231,7 +233,8 @@ static EFI_STATUS SaveMemoryMap(
     EFI_PHYSICAL_ADDRESS   iterator;
     EFI_MEMORY_DESCRIPTOR* descriptor;
 
-    length = AsciiStrLen(header);
+    length = AsciiStrLen(
+      header);
 
     status = file->Write(
       file,
@@ -274,22 +277,22 @@ static EFI_STATUS SaveMemoryMap(
 static CONST CHAR16* GetMemoryTypeUnicode(
   IN EFI_MEMORY_TYPE type) {
     switch (type) {
-        case EfiReservedMemoryType:         return L"EfiReservedMemoryType";
-        case EfiLoaderCode:                 return L"EfiLoaderCode";
-        case EfiLoaderData:                 return L"EfiLoaderData";
-        case EfiBootServicesCode:           return L"EfiBootServicesCode";
-        case EfiBootServicesData:           return L"EfiBootServicesData";
-        case EfiRuntimeServicesCode:        return L"EfiRuntimeServicesCode";
-        case EfiRuntimeServicesData:        return L"EfiRuntimeServicesData";
-        case EfiConventionalMemory:         return L"EfiConventionalMemory";
-        case EfiUnusableMemory:             return L"EfiUnusableMemory";
-        case EfiACPIReclaimMemory:          return L"EfiACPIReclaimMemory";
-        case EfiACPIMemoryNVS:              return L"EfiACPIMemoryNVS";
-        case EfiMemoryMappedIO:             return L"EfiMemoryMappedIO";
-        case EfiMemoryMappedIOPortSpace:    return L"EfiMemoryMappedIOPortSpace";
-        case EfiPalCode:                    return L"EfiPalCode";
-        case EfiMaxMemoryType:              return L"EfiMaxMemoryType";
-        default:                            return L"InvalidMemoryType";
+        case EfiReservedMemoryType:      return L"EfiReservedMemoryType";
+        case EfiLoaderCode:              return L"EfiLoaderCode";
+        case EfiLoaderData:              return L"EfiLoaderData";
+        case EfiBootServicesCode:        return L"EfiBootServicesCode";
+        case EfiBootServicesData:        return L"EfiBootServicesData";
+        case EfiRuntimeServicesCode:     return L"EfiRuntimeServicesCode";
+        case EfiRuntimeServicesData:     return L"EfiRuntimeServicesData";
+        case EfiConventionalMemory:      return L"EfiConventionalMemory";
+        case EfiUnusableMemory:          return L"EfiUnusableMemory";
+        case EfiACPIReclaimMemory:       return L"EfiACPIReclaimMemory";
+        case EfiACPIMemoryNVS:           return L"EfiACPIMemoryNVS";
+        case EfiMemoryMappedIO:          return L"EfiMemoryMappedIO";
+        case EfiMemoryMappedIOPortSpace: return L"EfiMemoryMappedIOPortSpace";
+        case EfiPalCode:                 return L"EfiPalCode";
+        case EfiMaxMemoryType:           return L"EfiMaxMemoryType";
+        default:                         return L"InvalidMemoryType";
     }
 }
 
@@ -324,7 +327,8 @@ static EFI_STATUS OpenGOP(
         return status;
     }
 
-    FreePool(GOPHandles);
+    FreePool(
+      GOPHandles);
 
     return EFI_SUCCESS;
 }
