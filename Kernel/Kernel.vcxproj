@@ -62,13 +62,15 @@
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AssemblerOutput>All</AssemblerOutput>
-      <AdditionalOptions>/Oy- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
       <DisableSpecificWarnings>5045</DisableSpecificWarnings>
       <CompileAs>CompileAsC</CompileAs>
       <CallingConvention>Cdecl</CallingConvention>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -77,13 +79,15 @@
       <GenerateMapFile>true</GenerateMapFile>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <BaseAddress>0x100000</BaseAddress>
+      <BaseAddress>0x1000000</BaseAddress>
       <FixedBaseAddress>true</FixedBaseAddress>
       <AdditionalOptions>/emittoolversioninfo:no %(AdditionalOptions)</AdditionalOptions>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <EntryPointSymbol>Main</EntryPointSymbol>
-      <SectionAlignment>512</SectionAlignment>
+      <EntryPointSymbol>Enter</EntryPointSymbol>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <SectionAlignment>4096</SectionAlignment>
     </Link>
+    <NASM />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -105,10 +109,12 @@
     <ClCompile Include="Console.c" />
     <ClCompile Include="Font.c" />
     <ClCompile Include="Graphics.c" />
+    <ClCompile Include="Heap.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="Math.c" />
     <ClCompile Include="Memory.c" />
     <ClCompile Include="PCI.c" />
+    <ClCompile Include="Descriptor.c" />
     <ClCompile Include="String.c" />
   </ItemGroup>
   <ItemGroup>
@@ -120,7 +126,9 @@
     <ClInclude Include="AssemblyFunction.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="ErrorCode.h" />
+    <ClInclude Include="Descriptor.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Heap.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Memory.h" />

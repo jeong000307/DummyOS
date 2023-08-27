@@ -16,24 +16,30 @@ struct __PCI_DEVICES {
     size              count;
 };
 
-code ScanAllPCIBus();
+code InitializePCI(void);
 
-bool HasSingleFunctionPCIDevice(
+PCI_DEVICES* GetPCIDevices(void);
+
+static bool HasSingleFunctionPCIDevice(
     uint8 headerType);
 
-code ScanPCIBus(
+static code ScanPCIBus(
+    PCI_DEVICES* PCIDevice,
     uint8 bus);
 
-code ScanPCIDevice(
+static code ScanPCIDevice(
+    PCI_DEVICES* PCIDevice,
     uint8 bus,
     uint8 device);
 
-code ScanPCIFunction(
+static code ScanPCIFunction(
+    PCI_DEVICES* PCIDevice,
     uint8 bus,
     uint8 device,
     uint8 function);
 
-code AddPCIDevice(
+static code AddPCIDevice(
+    PCI_DEVICES* PCIDevice,
     uint8 bus,
     uint8 device,
     uint8 function,
@@ -64,18 +70,18 @@ uint32 ReadPCIBusNumber(
     uint8 device,
     uint8 function);
 
-uint32 MakePCIAddress(
+static uint32 MakePCIAddress(
     uint8 bus,
     uint8 device,
     uint8 function,
     uint8 registerAddress);
 
-void WritePCIAddress(
+static void WritePCIAddress(
     uint32 address);
 
-void WritePCIData(
+static void WritePCIData(
     uint32 value);
 
-uint32 ReadPCIData();
+static uint32 ReadPCIData(void);
 
 #endif

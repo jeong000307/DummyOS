@@ -16,6 +16,7 @@
   <ItemGroup>
     <ClInclude Include="AssemblyFunction.h" />
     <ClInclude Include="Main.h" />
+    <ClInclude Include="PE.h" />
   </ItemGroup>
   <ItemGroup>
     <NASM Include="AssemblyFunction.asm">
@@ -82,10 +83,12 @@
       <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>EFI Application</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>EDK.lib;libcmtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
@@ -94,6 +97,8 @@
       <RandomizedBaseAddress />
       <DataExecutionPrevention>false</DataExecutionPrevention>
       <AdditionalOptions>/emittoolversioninfo:no /VERBOSE %(AdditionalOptions)</AdditionalOptions>
+      <GenerateMapFile>true</GenerateMapFile>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

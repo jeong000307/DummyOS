@@ -3,21 +3,28 @@
 EFI_STATUS Main(
   IN EFI_HANDLE        imageHandle,
   IN EFI_SYSTEM_TABLE* systemTable) {
-    UINTN                         fileInfoSize = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
-    UINTN                         kernelFileSize;
     UINT32                        entryAddress;
+    UINT64                        fileInfoSize = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
+    UINT64                        kernelFileSize;
+    UINT64                        numberOfPages;
     EFI_STATUS                    status;
 
-    CHAR8                         memoryMapBuffer[4096 * 4];
-    UINT8                         fileInfoBuffer[sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12]; // VLA issue; size of array is equal to fileInfoSize
     EFI_FILE_INFO*                fileInfo;
     EFI_FILE_PROTOCOL*            kernelFile;
     EFI_FILE_PROTOCOL*            memoryMapFile;
     EFI_FILE_PROTOCOL*            rootDirectory;
     EFI_GRAPHICS_OUTPUT_PROTOCOL* GOP;
-    EFI_PHYSICAL_ADDRESS          kernelBaseAddress = 0x100000;
+    EFI_PHYSICAL_ADDRESS          kernelStartAddress;
+    EFI_PHYSICAL_ADDRESS          kernelEndAddress;
+
+    CHAR8                         memoryMapBuffer[4096 * 4];
+    UINT8                         fileInfoBuffer[sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12]; // VLA issue; size of array is equal to fileInfoSize
+    VOID*                         kernelBuffer;
+    
     struct MEMORY_MAP             memoryMap = { sizeof(memoryMapBuffer), 0, 0, 0, 0, memoryMapBuffer };
     struct FRAME_BUFFER_CONFIG    frameBufferConfig;
+
+    EntryPoint*                   entryPoint;
 
     InitializeLib(imageHandle, systemTable);
 
@@ -26,7 +33,7 @@ EFI_STATUS Main(
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to get memory map: %r\n", status);
-        Halt();
+        Pause();
     }
 
     status = OpenRootDirectory(
@@ -35,7 +42,7 @@ EFI_STATUS Main(
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open root directory: %r\n", status);
-        Halt();
+        Pause();
     }
 
     status = rootDirectory->Open(
@@ -55,7 +62,7 @@ EFI_STATUS Main(
 
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to save memory map: %r\n", status);
-            Halt();
+            Pause();
         }
 
         status = memoryMapFile->Close(
@@ -63,7 +70,7 @@ EFI_STATUS Main(
 
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to close memory map: %r\n", status);
-            Halt();
+            Pause();
         }
     }
 
@@ -80,7 +87,7 @@ EFI_STATUS Main(
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open GOP: %r\n", status);
-        Halt();
+        Pause();
     }
 
     switch (GOP->Mode->Info->PixelFormat) {
@@ -92,7 +99,7 @@ EFI_STATUS Main(
             break;
         default:
             Print(L"[ERROR] Graphics output protocol does not support RGB mode. GOP supports %d mode.\n", GOP->Mode->Info->PixelFormat);
-            Halt();
+            Pause();
     }
 
     status = rootDirectory->Open(
@@ -104,7 +111,7 @@ EFI_STATUS Main(
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open file '\\kernel.exe': %r\n", status);
-        Halt();
+        Pause();
     }
 
     status = kernelFile->GetInfo(
@@ -115,32 +122,59 @@ EFI_STATUS Main(
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to get kernel file information: %r\n", status);
-        Halt();
+        Pause();
     }
 
     fileInfo = (EFI_FILE_INFO*)fileInfoBuffer;
 
     kernelFileSize = fileInfo->FileSize;
 
-    status = BS->AllocatePages(
-      AllocateAddress,
-      EfiLoaderData,
-      (kernelFileSize + 0xfff) / 0x1000,
-      &kernelBaseAddress);
+    status = BS->AllocatePool(
+      EfiLoaderData, 
+      kernelFileSize, 
+      &kernelBuffer);
 
     if (EFI_ERROR(status)) {
-        Print(L"[ERROR] Failed to allocate pages: %r\n", status);
-        Halt();
+        Print(L"[ERROR] Failed to allocate pool: %r\n", status);
+        Pause();
     }
 
     status = kernelFile->Read(
       kernelFile,
       &kernelFileSize,
-      (VOID*)kernelBaseAddress);
+      kernelBuffer);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to read kernel file: %r\n", status);
-        Halt();
+        Pause();
+    }
+
+    CalculateLoadAddressRange(kernelBuffer, &kernelStartAddress, &kernelEndAddress);
+
+    numberOfPages = (kernelEndAddress - kernelStartAddress + 0xfff) / 0x1000;
+
+    status = BS->AllocatePages(
+      AllocateAddress,
+      EfiLoaderData,
+      numberOfPages,
+      &kernelStartAddress);
+
+    if (EFI_ERROR(status)) {
+        Print(L"[ERROR] Failed to allocate pages: %r\n", status);
+        Pause();
+    }
+
+    entryAddress = *(UINT32 *)((char *)kernelBuffer + 0xA8);
+
+    entryPoint = (EntryPoint*)(kernelStartAddress + entryAddress);
+
+    LoadKernelSegment(kernelBuffer);
+
+    status = BS->FreePool(kernelBuffer);
+
+    if (EFI_ERROR(status)) {
+        Print(L"[ERROR] Failed to free pool: %r\n", status);
+        Pause();
     }
 
     status = BS->ExitBootServices(
@@ -152,7 +186,7 @@ EFI_STATUS Main(
 
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to get memory map: %r\n", status);
-            Halt();
+            Pause();
         }
 
         status = BS->ExitBootServices(
@@ -161,15 +195,11 @@ EFI_STATUS Main(
 
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to exit boot service: %r\n", status);
-            Halt();
+            Pause();
         }
     }
 
-    entryAddress = *(UINT32*)(kernelBaseAddress + 0xA8);
-
-    EntryPointType* entryPoint = (EntryPointType*)(kernelBaseAddress + entryAddress);
-
-    entryPoint(&frameBufferConfig);
+    entryPoint(&frameBufferConfig, &memoryMap);
 
     return EFI_SUCCESS;
 }
@@ -224,8 +254,8 @@ static EFI_STATUS OpenRootDirectory(
 static EFI_STATUS SaveMemoryMap(
   IN  struct MEMORY_MAP* map,
   OUT EFI_FILE_PROTOCOL* file) {
+    UINT64                 length;
     UINT32                 index;
-    UINTN                  length;
     EFI_STATUS             status;
 
     CHAR8                  buffer[256];
@@ -299,7 +329,7 @@ static CONST CHAR16* GetMemoryTypeUnicode(
 static EFI_STATUS OpenGOP(
   IN EFI_HANDLE                     imageHandle,
   OUT EFI_GRAPHICS_OUTPUT_PROTOCOL** GOP) {
-    UINTN       numberOfGOPHandles = 0;
+    UINT64      numberOfGOPHandles = 0;
     EFI_STATUS  status;
 
     EFI_HANDLE* GOPHandles = NULL;
@@ -342,5 +372,73 @@ static CONST CHAR16* GetPixelFormatUnicode(
         case PixelBltOnly:                          return L"PixelBltOnly";
         case PixelFormatMax:                        return L"PixelFormatMax";
         default:                                    return L"InvalidPixelFormat";
+    }
+}
+
+static void CalculateLoadAddressRange(
+  IN VOID* kernelBuffer,
+  OUT EFI_PHYSICAL_ADDRESS* start,
+  OUT EFI_PHYSICAL_ADDRESS* end) {
+    UINT64   index;
+
+    DOSHeader* kernelDOSHeader = (DOSHeader*)kernelBuffer;
+    NTHeader* kernelNTHeader = (NTHeader *)((char *)kernelBuffer + kernelDOSHeader->e_lfanew);
+    EFI_PHYSICAL_ADDRESS kernelSectionHeader = (EFI_PHYSICAL_ADDRESS)kernelBuffer + kernelDOSHeader->e_lfanew + sizeof(NTHeader) + kernelNTHeader->optionalHeader.NumberOfRvaAndSizes * sizeof(DataDirectory);
+    Section* section;
+
+    if (((EFI_PHYSICAL_ADDRESS)kernelSectionHeader - (EFI_PHYSICAL_ADDRESS)kernelBuffer) % 8 != 0) {
+        kernelSectionHeader += 8 - ((EFI_PHYSICAL_ADDRESS)kernelSectionHeader - (EFI_PHYSICAL_ADDRESS)kernelBuffer) % 8;
+    }
+
+    *start = kernelNTHeader->optionalHeader.ImageBase;
+    *end = 0;
+
+    for (index = 0; index < kernelNTHeader->fileHeader.NumberOfSections; ++index) {
+        section = (Section *)(kernelSectionHeader + index * sizeof(Section));
+
+        *end = (*end > kernelNTHeader->optionalHeader.ImageBase + section->VirtualAddress + section->VirtualSize) ? *end: kernelNTHeader->optionalHeader.ImageBase + section->VirtualAddress + section->VirtualSize;
+    }
+}
+
+static void LoadKernelSegment(
+  IN VOID* kernelBuffer) {
+    UINT64 index;
+    EFI_PHYSICAL_ADDRESS segment;
+    INT64 remain;
+    
+    DOSHeader* kernelDOSHeader = (DOSHeader*)kernelBuffer;
+    NTHeader* kernelNTHeader = (NTHeader *)((char *)kernelBuffer + kernelDOSHeader->e_lfanew);
+    EFI_PHYSICAL_ADDRESS kernelSectionHeader = (EFI_PHYSICAL_ADDRESS)kernelBuffer + kernelDOSHeader->e_lfanew + sizeof(NTHeader) + kernelNTHeader->optionalHeader.NumberOfRvaAndSizes * sizeof(DataDirectory);
+    Section section;
+
+    if ((kernelSectionHeader - (EFI_PHYSICAL_ADDRESS)kernelBuffer) % 8 != 0) {
+        kernelSectionHeader += 8 - (kernelSectionHeader - (EFI_PHYSICAL_ADDRESS)kernelBuffer) % 8;
+    }
+
+    for(index = 0; index < kernelNTHeader->fileHeader.NumberOfSections; ++index) {
+        section = *((Section *)kernelSectionHeader + index);
+        segment = (EFI_PHYSICAL_ADDRESS)((char *)kernelBuffer + section.PointerToRawData);
+
+        if (section.VirtualSize > section.SizeOfRawData) {
+            CopyMem(
+                (VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress),
+                (VOID*)segment,
+                section.SizeOfRawData);
+
+            SetMem(
+              (VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress + section.SizeOfRawData),
+              section.VirtualSize - section.SizeOfRawData,
+              0);
+        } else {
+            CopyMem(
+                (VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress),
+                (VOID*)segment,
+                section.VirtualSize);
+
+            SetMem(
+              (VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress + section.VirtualSize),
+              section.SizeOfRawData - section.VirtualSize,
+              0);
+        }
     }
 }

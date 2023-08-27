@@ -1,9 +1,15 @@
 [BITS 64]
 
-GLOBAL Halt
+GLOBAL Test
+GLOBAL Pause
 
 [SECTION .text]
 
-Halt:
+Test:
+    mov rax, rcx
     hlt
-    jmp Halt
+    jmp Test
+
+Pause:
+    hlt
+    jmp Pause

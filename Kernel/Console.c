@@ -1,21 +1,25 @@
 #include "Console.h"
+#include "AssemblyFunction.h"
 
 extern const byte fonts[];
 
-code CreateSystemConsole(
-  OUT SYSTEM_CONSOLE* this,
+static SYSTEM_CONSOLE systemConsole;
+
+SYSTEM_CONSOLE* GetSystemConsole(void) {
+    return &systemConsole;
+}
+
+code InitializeSystemConsole(
   IN  SCREEN* screen) {
-    this->rows = 25;
-    this->columns = 80;
-    this->cursor = (struct Cursor){0, 0};
+    systemConsole.rows = 25;
+    systemConsole.columns = 80;
+    systemConsole.cursor = (struct Cursor){0, 0};
 
-    SetMemory(this->buffer, 0, this->rows * (this->columns + 1));
+    systemConsole.foregroundColor = (struct PixelColor){255, 255, 255};
+    systemConsole.backgroundColor = (struct PixelColor){0, 0, 0};
+    systemConsole.screen = screen;
 
-    this->foregroundColor = (struct PixelColor){255, 255, 255};
-    this->backgroundColor = (struct PixelColor){0, 0, 0};
-    this->screen = screen;
-
-    this->SystemPrint = __SystemPrint;
+    systemConsole.SystemPrint = __SystemPrint;
 
     return SUCCESS;
 }
@@ -32,24 +36,32 @@ static code __SystemPrint(
     va_start(list, string);
 
     for (index = 0; string[index] != '\0'; ++index) {
-        SetMemory(copyBuffer, '\0', 1000 * sizeof(byte));
-
         if (this->cursor.x >= this->columns) {
             this->cursor.x = 0;
             ++this->cursor.y;
         }
 
         if (this->cursor.y >= this->rows) {
-            CopyMemory(this->screen->frameBuffer, this->screen->GetPixelAddress(this->screen, 0, 16), this->screen->horizontalResolution * (this->screen->verticalResolution - 16) * sizeof(byte) * 3);
-            --(this->cursor.y);
+            CopyMemory(
+              this->screen->GetPixelAddress(this->screen, 0, 16),
+              this->screen->frameBufferConfig.frameBuffer,
+              this->screen->GetPixelAddress(this->screen, this->screen->frameBufferConfig.horizontalResolution, this->screen->frameBufferConfig.verticalResolution) - this->screen->frameBufferConfig.frameBuffer);
+            SetMemory(
+              this->screen->GetPixelAddress(this->screen, 0, (this->rows - 1) * 16),
+              0,
+              this->screen->GetPixelAddress(this->screen, this->screen->frameBufferConfig.horizontalResolution, this->screen->frameBufferConfig.verticalResolution) - this->screen->GetPixelAddress(this->screen, 0, (this->rows - 1) * 16));
+
+            this->cursor.y = this->rows - 1;
+            this->cursor.x = 0;
         }
 
         if (string[index] == '%') {
             ++index;
+            SetMemory(copyBuffer, '\0', 1000 * sizeof(byte));
 
             switch (string[index]) {
                 case 's':
-                    CopyString(copyBuffer, va_arg(list, byte*));
+                    CopyString(va_arg(list, byte*), copyBuffer);
                     __SystemPrint(this, copyBuffer);
                     break;
                 case 'c':
@@ -59,18 +71,23 @@ static code __SystemPrint(
                     break;
                 case 'd':
                 case 'i':
-                    ConvertDecimalToString(copyBuffer, va_arg(list, int64));
+                    ConvertDecimalToString(copyBuffer, va_arg(list, int64), true);
+                    __SystemPrint(this, copyBuffer);
+                    break;
+                case 'u':
+                    ConvertDecimalToString(copyBuffer, va_arg(list, uint64), false);
                     __SystemPrint(this, copyBuffer);
                     break;
                 case 'x':
-                case 'X':
-                    ConvertHexadecimalToString(copyBuffer, va_arg(list, uint32) & 0xFFFFFFFF);
+                    ConvertHexadecimalToString(copyBuffer, va_arg(list, uint64) & 0xFFFFFFFF, false);
                     __SystemPrint(this, copyBuffer);
                     break;
-                case 'q':
-                case 'Q':
+                case 'X':
+                    ConvertHexadecimalToString(copyBuffer, va_arg(list, uint64) & 0xFFFFFFFF, true);
+                    __SystemPrint(this, copyBuffer);
+                    break;
                 case 'p':
-                    ConvertHexadecimalToString(copyBuffer, va_arg(list, uint64));
+                    ConvertHexadecimalToString(copyBuffer, va_arg(list, uint64), true);
                     __SystemPrint(this, copyBuffer);
                     break;
                 /*case 'f':
@@ -98,7 +115,7 @@ static code __SystemPrint(
     return SUCCESS;
 }
 
-code WriteAscii(
+static code WriteAscii(
   IN OUT const SCREEN*           screen,
   IN     size                    x,
   IN     size                    y,

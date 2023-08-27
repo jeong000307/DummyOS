@@ -7,17 +7,22 @@
 
 typedef struct __SCREEN SCREEN;
 
-typedef code
-    (*WRITE_PIXEL)(
-      IN OUT const SCREEN*       this, 
-      IN size                    x, 
-      IN size                    y,
-      IN const struct PixelColor color);
-typedef byte*
-    (*GET_PIXEL_ADDRESS)(
-      IN const SCREEN* this, 
-      IN size          x,
-      IN size          y);
+typedef code(*WRITE_PIXEL)(
+    IN OUT const SCREEN* this,
+    IN size                    x,
+    IN size                    y,
+    IN const struct PixelColor color);
+
+typedef byte* (*GET_PIXEL_ADDRESS)(
+    IN const SCREEN* this,
+    IN size          x,
+    IN size          y);
+
+struct PixelColor {
+    byte red;
+    byte green;
+    byte blue;
+};
 
 enum PIXEL_FORMAT {
     pixelRGBReserved8BitPerColor,
@@ -34,25 +39,16 @@ struct FRAME_BUFFER_CONFIG {
 };
 
 struct __SCREEN {
-    uint32            pixelsPerScanLine;
-    uint32            horizontalResolution;
-    uint32            verticalResolution;
+    struct FRAME_BUFFER_CONFIG  frameBufferConfig;
 
-    byte*             frameBuffer;
-
-    WRITE_PIXEL       WritePixel;
-    GET_PIXEL_ADDRESS GetPixelAddress;
+    WRITE_PIXEL                 WritePixel;
+    GET_PIXEL_ADDRESS           GetPixelAddress;
 };
 
-struct PixelColor {
-    byte red;
-    byte green;
-    byte blue;
-};
+SCREEN* GetScreen(void);
 
-code CreateScreen(
-  OUT SCREEN*                           this,
-  IN  const struct FRAME_BUFFER_CONFIG* frameBufferConfig);
+code InitializeScreen(
+  IN const struct FRAME_BUFFER_CONFIG* frameBufferConfig);
 
 static code __WritePixelRGB(
   IN OUT const SCREEN*           this,

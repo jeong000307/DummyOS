@@ -1,19 +1,18 @@
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
-#include "Graphics.h"
-#include "Type.h"
-#include "Memory.h"
 #include "ErrorCode.h"
+#include "Graphics.h"
+#include "Memory.h"
 #include "String.h"
+#include "Type.h"
 
 typedef struct __SYSTEM_CONSOLE SYSTEM_CONSOLE;
 
-typedef code
-    (*SYSTEM_PRINT)(
-      IN SYSTEM_CONSOLE* this,
-      IN const byte*     string,
-      IN ...);
+typedef code (*SYSTEM_PRINT)(
+  IN SYSTEM_CONSOLE* this,
+  IN const byte*     string,
+  IN ...);
 
 struct Cursor {
     size x;
@@ -24,7 +23,6 @@ struct __SYSTEM_CONSOLE {
     size              rows;
     size              columns;
 
-    byte              buffer[25][80]; // VLA issue; row, columns
     struct Cursor     cursor;
     struct PixelColor foregroundColor;
     struct PixelColor backgroundColor;
@@ -34,10 +32,14 @@ struct __SYSTEM_CONSOLE {
     SYSTEM_PRINT      SystemPrint;
 };
 
-code CreateSystemConsole(
-  OUT SYSTEM_CONSOLE* this,
-  IN  SCREEN*         screen
-);
+SYSTEM_CONSOLE* GetSystemConsole(void);
+
+code InitializeSystemConsole(
+  IN  SCREEN*         screen);
+
+/**
+    
+**/
 
 static code __SystemPrint(
   IN SYSTEM_CONSOLE* this,
@@ -45,12 +47,20 @@ static code __SystemPrint(
   IN ...
 );
 
-code WriteAscii(
+/**
+
+**/
+
+static code WriteAscii(
   IN OUT const SCREEN* screen,
   IN     size                    x,
   IN     size                    y,
   IN     byte                    character,
   IN     const struct PixelColor color
 );
+
+/**
+
+**/
 
 #endif

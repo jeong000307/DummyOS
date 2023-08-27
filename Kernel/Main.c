@@ -1,42 +1,82 @@
 #include "Main.h"
 
-SYSTEM_CONSOLE* systemConsole;
-PCI_DEVICES*    PCIDevices;
-
 void Main(
-  IN const struct FRAME_BUFFER_CONFIG* frameBufferConfig) {
-    code            status;
-    size            index;
+  IN const struct FRAME_BUFFER_CONFIG* frameBufferConfig,
+  IN const struct MEMORY_MAP* memoryMap) {
+    code           status;
+    size           index;
+    SCREEN*         screen;
+    SYSTEM_CONSOLE* systemConsole;
+    PCI_DEVICES*    PCIDevices;
+    MEMORY_MANAGER* memoryManager;
+    HEAP*           systemHeap;
 
-    SCREEN*         screen = &(SCREEN){ 
-      .pixelsPerScanLine = 0, 
-      .horizontalResolution = 0, 
-      .verticalResolution = 0, 
-      .frameBuffer = NULL, 
-      .WritePixel = NULL, 
-      .GetPixelAddress = NULL };
-
-    status = CreateScreen(
-      screen,
-      frameBufferConfig);
+    status = InitializeScreen(frameBufferConfig);
 
     if (status != SUCCESS) {
-        return ;
+        return;
     }
 
-    status = CreateSystemConsole(
-      systemConsole,
-      screen);
+    screen = GetScreen();
+
+    status = InitializeSystemConsole(screen);
 
     if (status != SUCCESS) {
-        return ;
+        return;
     }
 
-    systemConsole->SystemPrint(systemConsole, "%s", "Hello from DummyOS!\n");
+    systemConsole = GetSystemConsole();
 
-    ScanAllPCIBus();
+    systemConsole->SystemPrint(systemConsole, "%s", "Initializing screen and system console is complete.\n");
 
-    systemConsole->SystemPrint(systemConsole, "ScanAllBus: %d\n", PCIDevices->count);
+    status = SetupSegments();
+
+    if (status != SUCCESS) {
+        return;
+    }
+
+    status = InitializeMemoryManager(memoryMap);
+
+    if (status != SUCCESS) {
+        return;
+    }
+
+    systemConsole->SystemPrint(systemConsole, "%s", "Initializing memory manager is ");
+
+    if (status != SUCCESS) {
+        systemConsole->SystemPrint(systemConsole, "%s", "failed.\n");
+        return;
+    }
+
+    systemConsole->SystemPrint(systemConsole, "%s", "complete.\n");
+
+    memoryManager = GetMemoryManager();
+
+    status = InitializeHeap(memoryManager);
+
+    systemConsole->SystemPrint(systemConsole, "%s", "Initializing system heap is ");
+
+    if (status != SUCCESS) {
+        systemConsole->SystemPrint(systemConsole, "%s", "failed.\n");
+        return;
+    }
+
+    systemConsole->SystemPrint(systemConsole, "%s", "complete.\n");
+
+    systemHeap = GetSystemHeap();
+
+    status = InitializePCI();
+
+    systemConsole->SystemPrint(systemConsole, "%s", "Initializing PCI device is ");
+
+    if (status != SUCCESS) {
+        systemConsole->SystemPrint(systemConsole, "%s", "failed.\n");
+        return;
+    }
+
+    systemConsole->SystemPrint(systemConsole, "%s", "complete.\n");
+
+    PCIDevices = GetPCIDevices();
 
     for (index = 0; index < PCIDevices->count; ++index) {
         systemConsole->SystemPrint(systemConsole, "%d.%d.%d: vend %x, class %x, head %x\n", 
@@ -53,6 +93,6 @@ void Main(
             PCIDevices->devices[index]->function), 
           PCIDevices->devices[index]->headerType);
     }
-    
-    Halt();
+
+    Pause();
 }

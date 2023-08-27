@@ -1,8 +1,13 @@
 #include "Graphics.h"
 
-code CreateScreen(
-  OUT SCREEN*                           this,
-  IN  const struct FRAME_BUFFER_CONFIG* frameBufferConfig) {
+static SCREEN screen;
+
+SCREEN* GetScreen(void) {
+    return &screen;
+}
+
+code InitializeScreen(
+  IN const struct FRAME_BUFFER_CONFIG* frameBufferConfig) {
     if (frameBufferConfig->pixelsPerScanLine == 0
       or frameBufferConfig->horizontalResolution == 0
       or frameBufferConfig->verticalResolution == 0) {
@@ -13,22 +18,26 @@ code CreateScreen(
         return MEMORY_ERROR;
     }
 
-    this->pixelsPerScanLine = frameBufferConfig->pixelsPerScanLine;
-    this->horizontalResolution = frameBufferConfig->horizontalResolution;
-    this->verticalResolution = frameBufferConfig->verticalResolution;
+    screen.frameBufferConfig.pixelFormat = frameBufferConfig->pixelFormat;
+    screen.frameBufferConfig.frameBuffer = frameBufferConfig->frameBuffer;
 
-    this->frameBuffer = frameBufferConfig->frameBuffer;
+    screen.frameBufferConfig.pixelsPerScanLine = frameBufferConfig->pixelsPerScanLine;
+    screen.frameBufferConfig.horizontalResolution = frameBufferConfig->horizontalResolution;
+    screen.frameBufferConfig.verticalResolution = frameBufferConfig->verticalResolution;
 
-    SetMemory(this->frameBuffer, 0, this->horizontalResolution * this->verticalResolution * sizeof(byte) * 3);
+    SetMemory(
+      screen.frameBufferConfig.frameBuffer,
+      0, 
+      (size)screen.frameBufferConfig.horizontalResolution * (size)screen.frameBufferConfig.verticalResolution * sizeof(byte) * 4);
 
     if (frameBufferConfig->pixelFormat == pixelRGBReserved8BitPerColor) {
-        this->WritePixel = __WritePixelRGB;
+        screen.WritePixel = __WritePixelRGB;
     }
     else {
-        this->WritePixel = __WritePixelBGR;
+        screen.WritePixel = __WritePixelBGR;
     }
     
-    this->GetPixelAddress = __GetPixelAddress;
+    screen.GetPixelAddress = __GetPixelAddress;
 
     return SUCCESS;
 }
@@ -71,5 +80,5 @@ static byte* __GetPixelAddress(
   IN const SCREEN* this,
   IN size          x,
   IN size          y) {
-    return this->frameBuffer + 4 * (this->pixelsPerScanLine * y + x);
+    return this->frameBufferConfig.frameBuffer + 4 * sizeof(byte) * (this->frameBufferConfig.pixelsPerScanLine * y + x);
 }

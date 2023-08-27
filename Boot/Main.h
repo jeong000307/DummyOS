@@ -2,8 +2,9 @@
 #define __MAIN_H__
 
 #include <efi.h>
-#include <efiLib.h>
+#include <efilib.h>
 #include "AssemblyFunction.h"
+#include "PE.h"
 
 struct MEMORY_MAP {
     UINTN  bufferSize;
@@ -29,8 +30,9 @@ struct FRAME_BUFFER_CONFIG {
     UINT8*            frameBuffer;
 };
 
-typedef void EntryPointType(
-  CONST struct FRAME_BUFFER_CONFIG*);
+typedef void EntryPoint(
+  IN struct FRAME_BUFFER_CONFIG*, 
+  IN struct MEMORY_MAP*);
 
 static EFI_STATUS GetMemoryMap(
   OUT struct MEMORY_MAP* map);
@@ -190,5 +192,13 @@ static UINTN AsciiSPrint(
 
     @retval numberOfPrinted Size of converted string.
 **/
+
+static void CalculateLoadAddressRange(
+  IN VOID* kernelBuffer,
+  OUT EFI_PHYSICAL_ADDRESS* start,
+  OUT EFI_PHYSICAL_ADDRESS* end);
+
+static void LoadKernelSegment(
+  IN VOID* kernelBuffer);
 
 #endif

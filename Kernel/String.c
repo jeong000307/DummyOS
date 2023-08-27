@@ -1,31 +1,31 @@
 #include "String.h"
 
 size GetStringLength(
-    const byte* string) {
+  const byte* string) {
     size length = 0;
 
-    while (*string) {
-        ++length;
-        ++string;
-    }
+    for (length = 0; string[length] != '\0'; ++length);
 
     return length;
 }
 
-void CopyString(byte* destination, const byte* source) {
+void CopyString(
+  const byte* source,
+  byte* destination) {
     size length = GetStringLength(source);
-    size index;
-
-    for(index = 0; index < length; ++index) {
-        destination[index] = source[index];
-    }
 
     destination[length] = '\0';
+
+    while (--length > 0) {
+        destination[length] = source[length];
+    }
+
+    destination[0] = source[0];
 }
 
-void ConvertDecimalToString(byte* string, int64 number) {
-    int64 index = 0;
-    int64 length = 0;
+void ConvertDecimalToString(byte* string, uint64 number, bool sign) {
+    uint64 index = 0;
+    uint64 length = 0;
 
     byte buffer[100] = {0, };
 
@@ -36,9 +36,9 @@ void ConvertDecimalToString(byte* string, int64 number) {
         return ;
     }
 
-    if (number < 0) {
+    if (sign and number > MAX_INT64) {
         buffer[0] = '-';
-        number = -number;
+        number = -(int)number;
         ++index;
     }
 
@@ -58,10 +58,11 @@ void ConvertDecimalToString(byte* string, int64 number) {
             --index;
         }
     } else {
-        while (index >= 0) {
+        while (index > 0) {
             string[length - index] = buffer[index];
             --index;
         }
+        string[length] = buffer[0];
     }
 
     string[length + 1] = '\0';
@@ -71,9 +72,9 @@ void ConvertDecimalToString(byte* string, int64 number) {
 //    
 //}
 
-void ConvertHexadecimalToString(byte* string, uint64 number) {
-    int64 index = 0;
-    int64 length = 0;
+void ConvertHexadecimalToString(byte* string, uint64 number, bool caps) {
+    uint64 index = 0;
+    uint64 length = 0;
 
     byte buffer[100] = { 0, };
 
@@ -85,7 +86,11 @@ void ConvertHexadecimalToString(byte* string, uint64 number) {
     }
 
     while (number > 0) {
-        buffer[index] = (number % 16 >= 10)? 'A' + (number % 16 - 10): '0' + number % 16;
+        if (caps) {
+            buffer[index] = (number % 16 >= 10) ? 'A' + (number % 16 - 10) : '0' + number % 16;
+        } else {
+            buffer[index] = (number % 16 >= 10) ? 'a' + (number % 16 - 10) : '0' + number % 16;
+        }
         number /= 16;
         ++index;
     }
@@ -93,10 +98,11 @@ void ConvertHexadecimalToString(byte* string, uint64 number) {
     --index;
     length = index;
 
-    while (index >= 0) {
+    while (index > 0) {
         string[length - index] = buffer[index];
         --index;
     }
 
+    string[length] = buffer[0];
     string[length + 1] = '\0';
 }

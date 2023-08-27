@@ -7,10 +7,12 @@
 size GetStringLength(
     const byte* string);
 
-void CopyString(byte* destination, const byte* source);
+void CopyString(
+  const byte* source,
+  byte* destination);
 
-void ConvertDecimalToString(byte* string, int64 number);
+void ConvertDecimalToString(byte* string, uint64 number, bool sign);
 
-void ConvertHexadecimalToString(byte* string, uint64 number);
+void ConvertHexadecimalToString(byte* string, uint64 number, bool caps);
 
 #endif

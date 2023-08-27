@@ -27,9 +27,6 @@
     <ClCompile Include="PCI.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Memory.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Math.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -37,6 +34,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Font.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Heap.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Descriptor.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,9 +65,6 @@
     <ClInclude Include="PCI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Memory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Math.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -69,6 +72,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="String.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Descriptor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Heap.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

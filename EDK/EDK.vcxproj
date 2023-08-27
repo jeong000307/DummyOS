@@ -51,14 +51,15 @@
       <AdditionalIncludeDirectories>$(ProjectDir)gnu-efi\inc</AdditionalIncludeDirectories>
       <ExceptionHandling>false</ExceptionHandling>
       <CompileAs>CompileAsC</CompileAs>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DisableSpecificWarnings>4312</DisableSpecificWarnings>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>None</DebugInformationFormat>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/Oi-</AdditionalOptions>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

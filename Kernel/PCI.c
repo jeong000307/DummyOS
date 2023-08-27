@@ -1,30 +1,23 @@
 #include "PCI.h"
 
-extern SYSTEM_CONSOLE* systemConsole;
-extern PCI_DEVICES*    PCIDevices;
+static PCI_DEVICES* PCIDevices;
 
-static const uint8 maxSizeOfPCIDevice = 32;
-static const uint8 maxSizeOfPCIFunction = 8;
-
-static const uint16 PCIConfigAddress = 0x0cf8;
-static const uint16 PCIConfigData = 0x0cfc;
-
-code ScanAllPCIBus() {
+code InitializePCI(void) {
     code status;
     uint8 headerType = ReadPCIHeaderType(0, 0, 0);
 
     PCIDevices->count = 0;
 
     if (HasSingleFunctionPCIDevice(headerType)) {
-        return ScanPCIBus(0);
+        return ScanPCIBus(PCIDevices, 0);
     }
 
-    for (uint8 function = 1; function < maxSizeOfPCIFunction; ++function) {
+    for (uint8 function = 1; function < PCI_FUNCTION_MAX; ++function) {
         if (ReadPCIVendorID(0, 0, function) == 0xffffu) {
             continue;
         }
 
-        status = ScanPCIBus(function);
+        status = ScanPCIBus(PCIDevices, function);
 
         if (status == PCI_ERROR) {
             return PCI_ERROR;
@@ -34,21 +27,26 @@ code ScanAllPCIBus() {
     return SUCCESS;
 }
 
-bool HasSingleFunctionPCIDevice(
+PCI_DEVICES* GetPCIDevices(void) {
+    return PCIDevices;
+}
+
+static bool HasSingleFunctionPCIDevice(
   uint8 headerType) {
     return (headerType & 0x80u) == 0;
 }
 
-code ScanPCIBus(
+static code ScanPCIBus(
+  PCI_DEVICES* PCIDevices,
   uint8 bus) {
     code status = SUCCESS;
 
-    for (uint8 device = 0; device < maxSizeOfPCIDevice; ++device) {
+    for (uint8 device = 0; device < PCI_DEVICE_MAX; ++device) {
         if (ReadPCIVendorID(bus, device, 0) == 0xffffu) {
             continue;
         }
 
-        status = ScanPCIDevice(bus, device);
+        status = ScanPCIDevice(PCIDevices, bus, device);
 
         if (status == PCI_ERROR) {
             return status;
@@ -58,12 +56,13 @@ code ScanPCIBus(
     return status;
 }
 
-code ScanPCIDevice(
+static code ScanPCIDevice(
+  PCI_DEVICES* PCIDevices,
   uint8 bus, 
   uint8 device) {
     code status;
 
-    status = ScanPCIFunction(bus, device, 0);
+    status = ScanPCIFunction(PCIDevices, bus, device, 0);
 
     if (status == PCI_ERROR) {
         return PCI_ERROR;
@@ -73,12 +72,12 @@ code ScanPCIDevice(
         return SUCCESS;
     }
 
-    for (uint8 function = 1; function < maxSizeOfPCIFunction; ++function) {
+    for (uint8 function = 1; function < PCI_FUNCTION_MAX; ++function) {
         if (ReadPCIVendorID(bus, device, function) == 0xffffu) {
             continue;
         }
 
-        status = ScanPCIFunction(bus, device, function);
+        status = ScanPCIFunction(PCIDevices, bus, device, function);
 
         if (status == PCI_ERROR) {
             return PCI_ERROR;
@@ -88,10 +87,11 @@ code ScanPCIDevice(
     return SUCCESS;
 }
 
-code ScanPCIFunction(
-    uint8 bus,
-    uint8 device,
-    uint8 function) {
+static code ScanPCIFunction(
+  PCI_DEVICES* PCIDevices,
+  uint8 bus,
+  uint8 device,
+  uint8 function) {
     code status;
     uint8 headerType = ReadPCIHeaderType(bus, device, function);
     uint8 baseClassCode, subClassCode;
@@ -99,7 +99,7 @@ code ScanPCIFunction(
     uint32 classCode;
     uint32 busNumber;
 
-    status = AddPCIDevice(bus, device, function, headerType);
+    status = AddPCIDevice(PCIDevices, bus, device, function, headerType);
 
     if (status == PCI_ERROR) {
         return PCI_ERROR;
@@ -114,18 +114,19 @@ code ScanPCIFunction(
         busNumber = ReadPCIBusNumber(bus, device, function);
         secondaryBusNumber = (busNumber >> 8) & 0xffu;
 
-        return ScanPCIBus(secondaryBusNumber);
+        return ScanPCIBus(PCIDevices, secondaryBusNumber);
     }
 
     return SUCCESS;
 }
 
-code AddPCIDevice(
-    uint8 bus,
-    uint8 device,
-    uint8 function,
-    uint8 headerType) {
-    if (PCIDevices->count == maxSizeOfPCIDevice) {
+static code AddPCIDevice(
+  PCI_DEVICES* PCIDevices,
+  uint8 bus,
+  uint8 device,
+  uint8 function,
+  uint8 headerType) {
+    if (PCIDevices->count == PCI_DEVICE_MAX) {
         return PCI_ERROR;
     }
 
@@ -184,7 +185,7 @@ uint32 ReadPCIBusNumber(
     return ReadPCIData();
 }
 
-uint32 MakePCIAddress(
+static uint32 MakePCIAddress(
     uint8 bus,
     uint8 device,
     uint8 function,
@@ -196,16 +197,16 @@ uint32 MakePCIAddress(
       | (registerAddress & 0xfcu);
 }
 
-void WritePCIAddress(
+static void WritePCIAddress(
     uint32 address) {
-    IOOut32(PCIConfigAddress, address);
+    IOOut32(PCI_CONFIG_ADDRESS, address);
 }
 
-void WritePCIData(
+static void WritePCIData(
     uint32 value) {
-    IOOut32(PCIConfigData, value);
+    IOOut32(PCI_CONFIG_DATA, value);
 }
 
-uint32 ReadPCIData() {
-    return IOIn32(PCIConfigData);
+static uint32 ReadPCIData(void) {
+    return IOIn32(PCI_CONFIG_DATA);
 }
