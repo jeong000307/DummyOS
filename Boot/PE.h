@@ -1,8 +1,6 @@
 #ifndef __PE_H__
 #define __PE_H__
 
-#pragma pack(1)
-
 #include "efi.h"
 
 typedef struct {

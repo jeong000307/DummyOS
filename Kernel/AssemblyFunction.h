@@ -14,44 +14,56 @@ extern void Pause(void);
 **/
 
 extern void IOOut32(
-  IN uint16 address, 
-  IN uint32 data);
+  uint16 address, 
+  uint32 data);
 
 /**
     
 **/
 
 extern uint32 IOIn32(
-  IN uint16 address);
+  uint16 address);
 
 /**
     
 **/
 
 extern void LoadGDT(
-  IN uint16 limit, 
-  IN uint64 offset);
+  uint16 limit, 
+  uint64 offset);
 
 /**
 
 **/
 
 extern void LoadIDT(
-  IN uint16 limit,
-  IN uint64 offset);
+  uint16 limit,
+  uint64 offset);
 
 /**
 
 **/
 
 extern void InitializeSegmentRegister(
-  IN uint16 csValue,
-  IN uint16 ssValue,
-  IN uint16 anotherValue);
+  uint16 csValue,
+  uint16 ssValue,
+  uint16 anotherValue);
 
 extern uint16 GetCS(void);
 
+extern uint16 GetSS(void);
+
+extern uint64 GetCR3(void);
+
 extern void SetCR3(
-  IN uint64 value);
+  uint64 value);
+
+extern void SwitchContext(
+  void* nextContext,
+  void* currentContext);
+
+extern void ClearInterruptFlag(void);
+
+extern void SetInterruptFlag(void);
 
 #endif

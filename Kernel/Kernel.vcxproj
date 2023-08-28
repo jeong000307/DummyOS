@@ -64,8 +64,7 @@
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AssemblerOutput>All</AssemblerOutput>
-      <AdditionalOptions>
-      </AdditionalOptions>
+      <AdditionalOptions>/Gs16384</AdditionalOptions>
       <DisableSpecificWarnings>5045</DisableSpecificWarnings>
       <CompileAs>CompileAsC</CompileAs>
       <CallingConvention>Cdecl</CallingConvention>
@@ -107,6 +106,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Console.c" />
+    <ClCompile Include="Task.c" />
+    <ClCompile Include="DataStructure.c" />
+    <ClCompile Include="Error.c" />
     <ClCompile Include="Font.c" />
     <ClCompile Include="Graphics.c" />
     <ClCompile Include="Heap.c" />
@@ -127,7 +129,9 @@
   <ItemGroup>
     <ClInclude Include="AssemblyFunction.h" />
     <ClInclude Include="Console.h" />
-    <ClInclude Include="ErrorCode.h" />
+    <ClInclude Include="Task.h" />
+    <ClInclude Include="DataStructure.h" />
+    <ClInclude Include="Error.h" />
     <ClInclude Include="Interrupt.h" />
     <ClInclude Include="Segmentation.h" />
     <ClInclude Include="Graphics.h" />

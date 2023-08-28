@@ -42,7 +42,7 @@ code InitialzeSegmentation(void)    {
     GDT[0].data = 0;
     SetCodeSegment(&GDT[1], ExecuteRead, 0, 0, 0xfffff);
     SetDataSegment(&GDT[2], ReadWrite, 0, 0, 0xfffff);
-    LoadGDT(sizeof(GDT) - 1, (uintptr)GDT);
+    LoadGDT(sizeof(GDT) - 1, (addr)GDT);
 
     InitializeSegmentRegister(1 << 3, 2 << 3, 0);
 

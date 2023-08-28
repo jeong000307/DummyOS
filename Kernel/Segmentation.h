@@ -2,7 +2,7 @@
 #define __SEGMENTATION_H__
 
 #include "AssemblyFunction.h"
-#include "ErrorCode.h"
+#include "Error.h"
 #include "Type.h"
 
 enum SegmentDescriptorType {

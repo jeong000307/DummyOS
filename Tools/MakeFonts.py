@@ -34,6 +34,7 @@ def compile(src: str) -> bytes:
 def main():
     with open("Fonts.c", 'w') as out, open("Fonts.txt") as font:
         src = font.read()
+        out.write('#include "Type.h"\n\n')
         out.write(compile(src))
 
 if __name__ == '__main__':

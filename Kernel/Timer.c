@@ -26,17 +26,17 @@ code InitializeTimer(void) {
 }
 
 static void __StartTimer(
-  IN TIMER* this) {
+  TIMER* this) {
     *this->initialCount = MAX_COUNT;
 }
 
 static uint32 __GetTime(
-  IN TIMER* this) {
+  TIMER* this) {
     return MAX_COUNT - *this->currentCount;
 }
 
 static void __StopTimer(
-  IN TIMER* this) {
+  TIMER* this) {
     *this->initialCount = 0;
 }
 

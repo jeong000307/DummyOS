@@ -3,8 +3,11 @@
 extern void TimerOnInterrupt(void);
 
 static struct InterruptDescriptor IDT[256];
+static QUEUE MessageQueue;
 
 code InitializeInterrupt(void) {
+    InitializeQueue(&MessageQueue, 'w', 256);
+
     SetIDTEntry(&IDT[TimerInterruptIndex], MakeIDTAttribute(InterruptGate, 0, true, 0), (uint64)TimerInterruptHandler, GetCS());
     LoadIDT(sizeof(IDT) - 1, (uint64)(&IDT[0]));
 
@@ -12,10 +15,10 @@ code InitializeInterrupt(void) {
 }
 
 union InterruptDescriptorAttribute MakeIDTAttribute(
-    enum DescriptorType type,
-    uint8 descriptorPrivilegeLevel,
-    bool present,
-    uint8 interruptStackTable) {
+  enum DescriptorType type,
+  byte descriptorPrivilegeLevel,
+  bool present,
+  byte interruptStackTable) {
     union InterruptDescriptorAttribute attribute = {0};
 
     attribute.bits.interruptStackTable = interruptStackTable;
@@ -27,10 +30,10 @@ union InterruptDescriptorAttribute MakeIDTAttribute(
 }
 
 void SetIDTEntry(
-    struct InterruptDescriptor* descriptor,
-    union InterruptDescriptorAttribute attribute,
-    uint64 offset,
-    uint16 segmentSelector) {
+  struct InterruptDescriptor* descriptor,
+  union  InterruptDescriptorAttribute attribute,
+  uint64 offset,
+  uint16 segmentSelector) {
     descriptor->attribute = attribute;
     descriptor->offsetLow = offset & 0xffffu;
     descriptor->offsetMiddle = (offset >> 16) & 0xffffu;
@@ -45,6 +48,6 @@ void NotifyEndOfInterrupt(void) {
 }
 
 void TimerInterruptHandler(struct InterruptFrame* frame) {
-    TimerOnInterrupt();
+    MessageQueue.Push(&MessageQueue, TimerInterruptIndex);
     NotifyEndOfInterrupt();
 }

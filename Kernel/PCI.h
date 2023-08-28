@@ -3,7 +3,7 @@
 
 #include "Type.h"
 #include "Console.h"
-#include "ErrorCode.h"
+#include "Error.h"
 
 typedef struct __PCI_DEVICES PCI_DEVICES;
 

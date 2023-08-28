@@ -3,16 +3,16 @@
 
 extern const byte fonts[];
 
-static SYSTEM_CONSOLE systemConsole;
+static CONSOLE systemConsole;
 
-SYSTEM_CONSOLE* GetSystemConsole(void) {
+CONSOLE* GetSystemConsole(void) {
     return &systemConsole;
 }
 
 code InitializeSystemConsole(
-  IN SCREEN* screen) {
-    systemConsole.rows = 25;
-    systemConsole.columns = 80;
+  SCREEN* screen) {
+    systemConsole.rows = CONSOLE_ROW;
+    systemConsole.columns = CONSOLE_COLUMN;
     systemConsole.cursor = (struct Cursor){0, 0};
 
     systemConsole.foregroundColor = (struct PixelColor){255, 255, 255};
@@ -25,9 +25,9 @@ code InitializeSystemConsole(
 }
 
 static code __Print(
-  IN SYSTEM_CONSOLE* this,
-  IN const byte*     string,
-  IN ...) {
+  CONSOLE*        this,
+  const byte*     string,
+  ...) {
     size    index;
 
     va_list list;
@@ -110,11 +110,11 @@ static code __Print(
 }
 
 static code WriteAscii(
-  IN OUT const SCREEN*           screen,
-  IN     size                    x,
-  IN     size                    y,
-  IN     const byte              character,
-  IN     const struct PixelColor color) {
+  const SCREEN*           screen,
+  size                    x,
+  size                    y,
+  const byte              character,
+  const struct PixelColor color) {
     size        dx, dy;
     const byte* font = fonts + 16 * (uint32)character;
 

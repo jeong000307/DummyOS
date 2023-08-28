@@ -1,25 +1,28 @@
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
-#include "ErrorCode.h"
+#include "Error.h"
 #include "Graphics.h"
 #include "Memory.h"
 #include "String.h"
 #include "Type.h"
 
-typedef struct __SYSTEM_CONSOLE SYSTEM_CONSOLE;
+#define CONSOLE_ROW    25
+#define CONSOLE_COLUMN 80
+
+typedef struct __CONSOLE CONSOLE;
 
 typedef code (*PRINT)(
-  IN SYSTEM_CONSOLE* this,
-  IN const byte*     string,
-  IN ...);
+  CONSOLE*        this,
+  const byte*     string,
+  ...);
 
 struct Cursor {
     size x;
     size y;
 };
 
-struct __SYSTEM_CONSOLE {
+struct __CONSOLE {
     size              rows;
     size              columns;
 
@@ -32,32 +35,30 @@ struct __SYSTEM_CONSOLE {
     PRINT             Print;
 };
 
-SYSTEM_CONSOLE* GetSystemConsole(void);
+CONSOLE* GetSystemConsole(void);
 
 code InitializeSystemConsole(
-  IN  SCREEN*         screen);
+  SCREEN*         screen);
 
 /**
     
 **/
 
 static code __Print(
-  IN SYSTEM_CONSOLE* this,
-  IN const byte*     string,
-  IN ...
-);
+  CONSOLE*        this,
+  const byte*     string,
+  ...);
 
 /**
 
 **/
 
 static code WriteAscii(
-  IN OUT const SCREEN* screen,
-  IN     size                    x,
-  IN     size                    y,
-  IN     byte                    character,
-  IN     const struct PixelColor color
-);
+  const SCREEN* screen,
+  size                    x,
+  size                    y,
+  byte                    character,
+  const struct PixelColor color);
 
 /**
 

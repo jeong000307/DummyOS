@@ -2,14 +2,14 @@
 #define __HEAP_H__
 
 #include "Type.h"
-#include "ErrorCode.h"
+#include "Error.h"
 #include "Memory.h"
 
 typedef struct __HEAP HEAP;
 
 typedef byte* (*CHANGE_PROGRAM_BREAK)(
-    IN HEAP* this,
-    IN size increment);
+  HEAP* this,
+  size increment);
 
 struct __HEAP {
     byte* programBreak;

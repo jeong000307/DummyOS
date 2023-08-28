@@ -3,7 +3,7 @@
 static PCI_DEVICES* PCIDevices;
 
 code InitializePCI(void) {
-    code status;
+    code  status;
     uint8 headerType = ReadPCIHeaderType(0, 0, 0);
 
     PCIDevices->count = 0;
@@ -38,7 +38,7 @@ static bool HasSingleFunctionPCIDevice(
 
 static code ScanPCIBus(
   PCI_DEVICES* PCIDevices,
-  uint8 bus) {
+  uint8        bus) {
     code status = SUCCESS;
 
     for (uint8 device = 0; device < PCI_DEVICE_MAX; ++device) {
@@ -58,8 +58,8 @@ static code ScanPCIBus(
 
 static code ScanPCIDevice(
   PCI_DEVICES* PCIDevices,
-  uint8 bus, 
-  uint8 device) {
+  uint8        bus, 
+  uint8        device) {
     code status;
 
     status = ScanPCIFunction(PCIDevices, bus, device, 0);
@@ -89,13 +89,14 @@ static code ScanPCIDevice(
 
 static code ScanPCIFunction(
   PCI_DEVICES* PCIDevices,
-  uint8 bus,
-  uint8 device,
-  uint8 function) {
-    code status;
-    uint8 headerType = ReadPCIHeaderType(bus, device, function);
-    uint8 baseClassCode, subClassCode;
-    uint8 secondaryBusNumber;
+  uint8        bus,
+  uint8        device,
+  uint8        function) {
+    code   status;
+    uint8  headerType = ReadPCIHeaderType(bus, device, function);
+    uint8  baseClassCode;
+    uint8  subClassCode;
+    uint8  secondaryBusNumber;
     uint32 classCode;
     uint32 busNumber;
 
@@ -122,10 +123,10 @@ static code ScanPCIFunction(
 
 static code AddPCIDevice(
   PCI_DEVICES* PCIDevices,
-  uint8 bus,
-  uint8 device,
-  uint8 function,
-  uint8 headerType) {
+  uint8        bus,
+  uint8        device,
+  uint8        function,
+  uint8        headerType) {
     if (PCIDevices->count == PCI_DEVICE_MAX) {
         return PCI_ERROR;
     }
@@ -209,7 +210,7 @@ static uint32 ReadPCIData(void) {
 
 static uint64 ReadPCIBAR(
   struct PCIDevice* device, 
-  uint64 BARIndex) {
+  uint64            BARIndex) {
     uint64 BARAddress;
     uint32 BAR;
     uint32 BARUpper;
@@ -241,7 +242,7 @@ static uint8 GetPCIBARAddress(
 
 static uint32 ReadConfigurationRegister(
   const struct PCIDevice* device, 
-  uint8 registerAddress) {
+  uint8                   registerAddress) {
     WritePCIAddress(MakePCIAddress(device->bus, device->device, device->function, registerAddress));
 
     return ReadPCIData();
@@ -249,8 +250,8 @@ static uint32 ReadConfigurationRegister(
 
 static void WriteConfigurationRegister(
   const struct PCIDevice* device, 
-  uint8 registerAddress, 
-  uint32 value) {
+  uint8                   registerAddress, 
+  uint32                  value) {
     WritePCIAddress(MakePCIAddress(device->bus, device->device, device->function, registerAddress));
     
     WritePCIData(value);
@@ -258,7 +259,7 @@ static void WriteConfigurationRegister(
 
 static union CapabilityHeader ReadCapabilityHeader(
   const struct PCIDevice* device, 
-  uint8 address) {
+  uint8                   address) {
     union CapabilityHeader header;
 
     header.data = ReadConfigurationRegister(device, address);
@@ -268,11 +269,11 @@ static union CapabilityHeader ReadCapabilityHeader(
 
 void ConfigureMSIFixedDestination(
   const struct PCIDevice* device, 
-  uint8 APICID, 
-  enum MSITriggerMode triggerMode, 
-  enum MSIDeliveryMode deliveryMode, 
-  uint8 vector, 
-  uint64 numberOfVectorExponent) {
+  uint8                   APICID, 
+  enum MSITriggerMode     triggerMode, 
+  enum MSIDeliveryMode    deliveryMode, 
+  uint8                   vector, 
+  uint64                  numberOfVectorExponent) {
     uint32 messageAddress = 0xfee00000u | (APICID << 12);
     uint32 messageData = (uint32)deliveryMode << 8 | vector;
 
@@ -285,9 +286,9 @@ void ConfigureMSIFixedDestination(
 
 void ConfigureMSI(
   const struct PCIDevice* device,
-  uint32 messageAddress,
-  uint32 messageData, 
-  uint64 numberOfVectorExponent) {
+  uint32                  messageAddress,
+  uint32                  messageData, 
+  uint64                  numberOfVectorExponent) {
     uint8 capabilityAddress = ReadConfigurationRegister(device, 0x34) & 0xffu;
     uint8 MSICapabilityAddress = 0;
     uint8 MSIXCapabilityAddress = 0;

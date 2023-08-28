@@ -1,109 +1,45 @@
 #include "Main.h"
 
 void Main(
-  IN const struct FRAME_BUFFER_CONFIG* frameBufferConfiguration,
-  IN const struct MEMORY_MAP* memoryMap) {
-    code           status;
+  const struct FrameBufferConfig* frameBufferConfiguration,
+  const struct MemoryMap* memoryMap) {
+    code            status;
 
-    SCREEN*         screen;
-    SYSTEM_CONSOLE* systemConsole;
-    PCI_DEVICES*    PCIDevices;
-    MEMORY_MANAGER* memoryManager;
-    HEAP*           systemHeap;
-    TIMER*          systemTimer;
+    SCREEN*         screen = GetScreen();
+    CONSOLE*        systemConsole = GetSystemConsole();
+    PCI_DEVICES*    PCIDevices = GetPCIDevices();
+    MEMORY_MANAGER* memoryManager = GetMemoryManager();
+    HEAP*           systemHeap = GetSystemHeap();
+    TIMER*          systemTimer = GetTimer();
+    TASK_MANAGER*   taskManager = GetTaskManager();
 
-    status = InitializeTimer();
-
-    if (status != SUCCESS) {
+    if (InitializeTimer() != SUCCESS) {
         return ;
     }
 
-    systemTimer = GetTimer();
-
-    systemTimer->StartTimer(systemTimer);
-
-    status = InitializeScreen(frameBufferConfiguration);
-
-    if (status != SUCCESS) {
+    if (InitializeScreen(frameBufferConfiguration) != SUCCESS) {
         return;
     }
 
-    screen = GetScreen();
-
-    status = InitializeSystemConsole(screen);
-
-    if (status != SUCCESS) {
+    if (InitializeSystemConsole(screen) != SUCCESS) {
         return;
     }
 
-    systemConsole = GetSystemConsole();
+    systemConsole->Print(systemConsole, "Initializing screen and system console is success.\n");
 
-    systemConsole->Print(systemConsole, "%s", "Initializing screen and system console is success.\n");
+    systemConsole->Print(systemConsole, "Initializing segmentation is %s.\n", Error(InitialzeSegmentation()));
 
-    status = InitialzeSegmentation();
+    systemConsole->Print(systemConsole, "Initializing memory manager is %s.\n", Error(InitializeMemoryManager(memoryMap)));
 
-    systemConsole->Print(systemConsole, "%s", "Initializing segmentation is ");
+    systemConsole->Print(systemConsole, "Initializing system heap is %s.\n", Error(InitializeHeap(memoryManager)));
 
-    if (status != SUCCESS) {
-        systemConsole->Print(systemConsole, "%s", "failed.\n");
-        return;
-    }
+    systemConsole->Print(systemConsole, "Initializing interrupt is %s.\n", Error(InitializeInterrupt()));
 
-    systemConsole->Print(systemConsole, "%s", "success.\n");
+    systemConsole->Print(systemConsole, "Initializing task manager is %s.\n", Error(InitializeTaskManager()));
 
-    status = InitializeMemoryManager(memoryMap);
-
-    systemConsole->Print(systemConsole, "%s", "Initializing memory manager is ");
-
-    if (status != SUCCESS) {
-        systemConsole->Print(systemConsole, "%s", "failed.\n");
-        return;
-    }
-
-    systemConsole->Print(systemConsole, "%s", "success.\n");
-
-    memoryManager = GetMemoryManager();
-
-    status = InitializeHeap(memoryManager);
-
-    systemConsole->Print(systemConsole, "%s", "Initializing system heap is ");
-
-    if (status != SUCCESS) {
-        systemConsole->Print(systemConsole, "%s", "failed.\n");
-        return;
-    }
-
-    systemConsole->Print(systemConsole, "%s", "success.\n");
-
-    systemHeap = GetSystemHeap();
-
-    status = InitializeInterrupt();
-
-    systemConsole->Print(systemConsole, "%s", "Initializing Interrupt is ");
-
-    if (status != SUCCESS) {
-        systemConsole->Print(systemConsole, "%s", "failed.\n");
-        return ;
-    }
-
-    systemConsole->Print(systemConsole, "%s", "success.\n");
-
-    status = InitializePCI();
-
-    systemConsole->Print(systemConsole, "%s", "Initializing PCI device is ");
-
-    if (status != SUCCESS) {
-        systemConsole->Print(systemConsole, "%s", "failed.\n");
-        return;
-    }
-
-    systemConsole->Print(systemConsole, "%s", "success.\n");
-
-    PCIDevices = GetPCIDevices();
+    systemConsole->Print(systemConsole, "Initializing PCI device is %s.\n", Error(InitializePCI()));
 
     systemConsole->Print(systemConsole, "%d", systemTimer->CountTime(systemTimer));
-
-    systemTimer->StopTimer(systemTimer);
 
     Pause();
 }

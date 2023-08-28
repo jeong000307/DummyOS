@@ -5,33 +5,32 @@ byte _Alignas(16) systemStack[1024 * 1024] = {0};
 static MEMORY_MANAGER memoryManager;
 
 code InitializeMemoryManager(
-  IN const struct MEMORY_MAP* memoryMap) {
-    size PDPTableIndex, pageDirectoryIndex;
-    uintptr memoryMapBase = (uintptr)memoryMap->buffer;
-    uintptr availableMemoryEnd = 0;
-    uintptr physicalEnd;
-    uintptr iterator;
+  const struct MemoryMap* memoryMap) {
+    size                     PDPTableIndex;
+    size                     pageDirectoryIndex;
+
+    addr                     memoryMapBase = (addr)memoryMap->buffer;
+    addr                     availableMemoryEnd = 0;
+    addr                     physicalEnd;
+    addr                     iterator;
 
     struct MemoryDescriptor* descriptor;
-
-    memoryManager.numberOfPDPTables = 64;
-    memoryManager.numberOfPageDirectories = 512;
 
     memoryManager.AllocateFrame = __AllocateFrame;
     memoryManager.FreeFrame = __FreeFrame;
     memoryManager.MarkAllocatedFrame = __MarkAllocatedFrame;
 
-    memoryManager.PML4Table[0] = (uintptr)(&memoryManager.PDPTable[0]) | 0x003;
+    memoryManager.PML4Table[0] = (addr)(&memoryManager.PDPTable[0]) | 0x003;
 
-    for (PDPTableIndex = 0; PDPTableIndex < memoryManager.numberOfPDPTables; ++PDPTableIndex) {
-        memoryManager.PDPTable[PDPTableIndex] = (uintptr)(&memoryManager.pageDirectory[PDPTableIndex]) | 0x003;
+    for (PDPTableIndex = 0; PDPTableIndex < PDP_TABLE_SIZE; ++PDPTableIndex) {
+        memoryManager.PDPTable[PDPTableIndex] = (addr)(&memoryManager.pageDirectory[PDPTableIndex]) | 0x003;
 
-        for (pageDirectoryIndex = 0; pageDirectoryIndex < memoryManager.numberOfPageDirectories; ++pageDirectoryIndex) {
+        for (pageDirectoryIndex = 0; pageDirectoryIndex < PAGE_DIRECTORY_SIZE; ++pageDirectoryIndex) {
             memoryManager.pageDirectory[PDPTableIndex][pageDirectoryIndex] = PDPTableIndex * GiB(1) + pageDirectoryIndex * MiB(2) | 0x083;
         }
     }
 
-    SetCR3((uintptr)&memoryManager.PML4Table[0]);
+    SetCR3((addr)&memoryManager.PML4Table[0]);
 
     for (iterator = memoryMapBase; iterator < memoryMapBase + memoryMap->mapSize; iterator += memoryMap->descriptorSize) {
         descriptor = (struct MemoryDescriptor*)iterator;
@@ -58,7 +57,7 @@ MEMORY_MANAGER* GetMemoryManager(void) {
 }
 
 static bool IsUsableMemory(enum MemoryType memoryType) {
-    size index;
+    size       index;
 
     const byte AvailableMemoryTypes[3] = {
         EfiBootServicesCode,

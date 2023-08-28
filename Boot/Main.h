@@ -6,15 +6,9 @@
 #include "AssemblyFunction.h"
 #include "PE.h"
 
-struct MEMORY_MAP {
-    UINTN  bufferSize;
-    UINTN  mapSize;
-    UINTN  mapKey;
-    UINTN  descriptorSize;
-    UINT32 descriptorVersion;
-
-    VOID*  buffer;
-};
+typedef void EntryPoint(
+  IN struct FRAME_BUFFER_CONFIG*,
+  IN struct MEMORY_MAP*);
 
 enum PIXEL_FORMAT {
     pixelRGBReserved8BitPerColor,
@@ -27,15 +21,28 @@ struct FRAME_BUFFER_CONFIG {
     UINT32            verticalResolution;
 
     enum PIXEL_FORMAT pixelFormat;
-    UINT8*            frameBuffer;
+    UINT8* frameBuffer;
 };
 
-typedef void EntryPoint(
-  IN struct FRAME_BUFFER_CONFIG*, 
-  IN struct MEMORY_MAP*);
+struct MEMORY_MAP {
+    UINTN  mapSize;
+    UINTN  mapKey;
+    UINTN  descriptorSize;
+
+    VOID*  buffer;
+};
+
+struct MEMORY_DESCRIPTOR {
+    UINT32               type;
+    UINT64               numberOfPages;
+    UINT64               attribute;
+
+    EFI_PHYSICAL_ADDRESS physicalStart;
+    EFI_VIRTUAL_ADDRESS  virtualStart;
+};
 
 static EFI_STATUS GetMemoryMap(
-  OUT struct MEMORY_MAP* map);
+  OUT struct MEMORY_MAP* memoryMap);
 
 /**
     Gets a memory map.
@@ -47,6 +54,12 @@ static EFI_STATUS GetMemoryMap(
     @retval EFI_INVALID_PARAMETER Size of map is NULL or buffer of map is not too small but map is NULL.
     @retval TBD
 **/
+
+static EFI_STATUS ConvertMemoryMap(
+  IN  UINTN              sourceSize,
+  IN  UINTN              sourceDescriptorSize,
+  IN  struct VOID*       source,
+  OUT struct MEMORY_MAP* destination);
 
 static EFI_STATUS OpenRootDirectory(
   IN  EFI_HANDLE          imageHandle,
@@ -149,6 +162,14 @@ static CONST CHAR16* GetPixelFormatUnicode(
     @retval L"InvalidPixelFormat"                       The pixel has invalid format.
 **/
 
+static void GetLoadAddressRange(
+  IN VOID* kernelBuffer,
+  OUT EFI_PHYSICAL_ADDRESS* start,
+  OUT EFI_PHYSICAL_ADDRESS* end);
+
+static void LoadKernelSegment(
+  IN VOID* kernelBuffer);
+
 // Miscellaneous Functions
 
 static UINTN AsciiStrLen(
@@ -192,13 +213,5 @@ static UINTN AsciiSPrint(
 
     @retval numberOfPrinted Size of converted string.
 **/
-
-static void CalculateLoadAddressRange(
-  IN VOID* kernelBuffer,
-  OUT EFI_PHYSICAL_ADDRESS* start,
-  OUT EFI_PHYSICAL_ADDRESS* end);
-
-static void LoadKernelSegment(
-  IN VOID* kernelBuffer);
 
 #endif

@@ -7,7 +7,7 @@ SCREEN* GetScreen(void) {
 }
 
 code InitializeScreen(
-  IN const struct FRAME_BUFFER_CONFIG* frameBufferConfiguration) {
+  const struct FrameBufferConfig* frameBufferConfiguration) {
     if (frameBufferConfiguration->pixelsPerScanLine == 0 or frameBufferConfiguration->horizontalResolution == 0 or frameBufferConfiguration->verticalResolution == 0) {
         return INVALID_PARAMETER;
     }
@@ -32,10 +32,10 @@ code InitializeScreen(
 }
 
 static void __WritePixelRGB(
-  IN const SCREEN*           this,
-  IN size                    x,
-  IN size                    y,
-  IN const struct PixelColor color) {
+  const SCREEN*           this,
+  size                    x,
+  size                    y,
+  const struct PixelColor color) {
     byte* pixel = this->GetPixelAddress(this, x, y);
 
     pixel[0] = color.red;
@@ -44,10 +44,10 @@ static void __WritePixelRGB(
 }
 
 static void __WritePixelBGR(
-    IN const SCREEN*           this,
-    IN size                    x,
-    IN size                    y,
-    IN const struct PixelColor color) {
+  const SCREEN*           this,
+  size                    x,
+  size                    y,
+  const struct PixelColor color) {
     byte* pixel = this->GetPixelAddress(this, x, y);
 
     pixel[0] = color.blue;
@@ -56,8 +56,8 @@ static void __WritePixelBGR(
 }
 
 static byte* __GetPixelAddress(
-  IN const SCREEN* this,
-  IN size          x,
-  IN size          y) {
+  const SCREEN* this,
+  size          x,
+  size          y) {
     return this->frameBuffer + 4 * sizeof(byte) * (this->pixelsPerScanLine * y + x);
 }

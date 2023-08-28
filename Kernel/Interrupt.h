@@ -2,7 +2,8 @@
 #define __INTERRUPT_H__
 
 #include "AssemblyFunction.h"
-#include "ErrorCode.h"
+#include "DataStructure.h"
+#include "Error.h"
 #include "Timer.h"
 #include "Type.h"
 
@@ -19,6 +20,8 @@ enum InterruptDescriptorType {
 enum InterruptVector {
     TimerInterruptIndex = 0x41
 };
+
+//byte* InterruptVector = { 0 };
 
 union InterruptDescriptorAttribute {
     uint16 data;

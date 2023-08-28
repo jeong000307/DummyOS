@@ -3,18 +3,18 @@
 
 #include "Interrupt.h"
 #include "Type.h"
-#include "ErrorCode.h"
+#include "Error.h"
 
 typedef struct __TIMER TIMER;
 
 typedef void (*START_TIMER)(
-  IN TIMER* this);
+  TIMER* this);
 
 typedef uint32 (*GET_TIME)(
-  IN TIMER* this);
+  TIMER* this);
 
 typedef void (*STOP_TIMER)(
-  IN TIMER* this);
+  TIMER* this);
 
 struct __TIMER {
     volatile uint32* LVTTimer;
@@ -34,13 +34,13 @@ TIMER* GetTimer(void);
 code InitializeTimer(void);
 
 static void __StartTimer(
-  IN TIMER* this);
+  TIMER* this);
 
 static uint32 __GetTime(
-  IN TIMER* this);
+  TIMER* this);
 
 static void __StopTimer(
-  IN TIMER* this);
+  TIMER* this);
 
 void TimerOnInterrupt(void);
 

@@ -3,10 +3,10 @@
 static HEAP systemHeap;
 
 code InitializeHeap(MEMORY_MANAGER* memoryManager) {
-    const int systemHeapFrames = memoryManager->numberOfPDPTables * memoryManager->numberOfPageDirectories;
+    const int   systemHeapFrames = PDP_TABLE_SIZE * PAGE_DIRECTORY_SIZE;
     const frame heapStart = memoryManager->AllocateFrame(memoryManager, systemHeapFrames);
 
-    if (heapStart == (uint64)1 << 63) {
+    if (heapStart == (addr)1 << 63) {
         return MEMORY_ERROR;
     }
 
@@ -36,7 +36,6 @@ static byte* __ChangeProgramBreak(HEAP* this, size increment) {
 
 void* AllocateMemory(size length) {
     HEAP* systemHeap = GetSystemHeap();
-
     void* startPointer = systemHeap->ChangeProgramBreak(systemHeap, 0);
     void* endPointer = systemHeap->ChangeProgramBreak(systemHeap, length);
 

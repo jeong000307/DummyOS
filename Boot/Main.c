@@ -4,9 +4,9 @@ EFI_STATUS Main(
   IN EFI_HANDLE        imageHandle,
   IN EFI_SYSTEM_TABLE* systemTable) {
     UINT32                        entryAddress;
-    UINT64                        fileInfoSize = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
-    UINT64                        kernelFileSize;
-    UINT64                        numberOfPages;
+    UINTN                        fileInfoSize = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
+    UINTN                        kernelFileSize;
+    UINTN                        numberOfPages;
     EFI_STATUS                    status;
 
     EFI_FILE_INFO*                fileInfo;
@@ -21,52 +21,41 @@ EFI_STATUS Main(
     UINT8                         fileInfoBuffer[sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12]; // VLA issue; size of array is equal to fileInfoSize
     VOID*                         kernelBuffer;
     
-    struct MEMORY_MAP             memoryMap = { sizeof(memoryMapBuffer), 0, 0, 0, 0, memoryMapBuffer };
+    struct MEMORY_MAP             memoryMap = { sizeof(memoryMapBuffer), 0, 0, memoryMapBuffer };
     struct FRAME_BUFFER_CONFIG    frameBufferConfig;
 
     EntryPoint*                   entryPoint;
 
     InitializeLib(imageHandle, systemTable);
 
-    status = GetMemoryMap(
-      &memoryMap);
+    status = GetMemoryMap(&memoryMap);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to get memory map: %r\n", status);
         Pause();
     }
 
-    status = OpenRootDirectory(
-      imageHandle,
-      &rootDirectory);
+    status = OpenRootDirectory(imageHandle, &rootDirectory);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open root directory: %r\n", status);
         Pause();
     }
 
-    status = rootDirectory->Open(
-      rootDirectory,
-      &memoryMapFile,
-      L"\\MemoryMap",
-      EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE,
-      0);
+    status = rootDirectory->Open(rootDirectory, &memoryMapFile, L"\\MemoryMap", EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
 
     if (EFI_ERROR(status)) {
         Print(L"[WARNING] Failed to open file '\\MemoryMap': %r\n", status);
     }
     else {
-        status = SaveMemoryMap(
-          &memoryMap,
-          memoryMapFile);
+        status = SaveMemoryMap(&memoryMap, memoryMapFile);
 
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to save memory map: %r\n", status);
             Pause();
         }
 
-        status = memoryMapFile->Close(
-          memoryMapFile);
+        status = memoryMapFile->Close(memoryMapFile);
 
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to close memory map: %r\n", status);
@@ -74,16 +63,9 @@ EFI_STATUS Main(
         }
     }
 
-    status = OpenGOP(
-      imageHandle,
-      &GOP);
+    status = OpenGOP(imageHandle, &GOP);
 
-    frameBufferConfig = (struct FRAME_BUFFER_CONFIG){ 
-      GOP->Mode->Info->PixelsPerScanLine,
-      GOP->Mode->Info->HorizontalResolution,
-      GOP->Mode->Info->VerticalResolution,
-      0,
-      (UINT8*)GOP->Mode->FrameBufferBase };
+    frameBufferConfig = (struct FRAME_BUFFER_CONFIG){ GOP->Mode->Info->PixelsPerScanLine, GOP->Mode->Info->HorizontalResolution, GOP->Mode->Info->VerticalResolution, 0, (UINT8*)GOP->Mode->FrameBufferBase };
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open GOP: %r\n", status);
@@ -102,23 +84,14 @@ EFI_STATUS Main(
             Pause();
     }
 
-    status = rootDirectory->Open(
-      rootDirectory,
-      &kernelFile,
-      L"\\Kernel.exe",
-      EFI_FILE_MODE_READ,
-      0);
+    status = rootDirectory->Open(rootDirectory, &kernelFile, L"\\Kernel.exe", EFI_FILE_MODE_READ, 0);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open file '\\kernel.exe': %r\n", status);
         Pause();
     }
 
-    status = kernelFile->GetInfo(
-      kernelFile,
-      &gEfiFileInfoGuid,
-      &fileInfoSize,
-      fileInfoBuffer);
+    status = kernelFile->GetInfo(kernelFile, &gEfiFileInfoGuid, &fileInfoSize, fileInfoBuffer);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to get kernel file information: %r\n", status);
@@ -129,42 +102,32 @@ EFI_STATUS Main(
 
     kernelFileSize = fileInfo->FileSize;
 
-    status = BS->AllocatePool(
-      EfiLoaderData, 
-      kernelFileSize, 
-      &kernelBuffer);
+    status = BS->AllocatePool(EfiLoaderData, kernelFileSize, &kernelBuffer);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to allocate pool: %r\n", status);
         Pause();
     }
 
-    status = kernelFile->Read(
-      kernelFile,
-      &kernelFileSize,
-      kernelBuffer);
+    status = kernelFile->Read(kernelFile, &kernelFileSize, kernelBuffer);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to read kernel file: %r\n", status);
         Pause();
     }
 
-    CalculateLoadAddressRange(kernelBuffer, &kernelStartAddress, &kernelEndAddress);
+    GetLoadAddressRange(kernelBuffer, &kernelStartAddress, &kernelEndAddress);
 
     numberOfPages = (kernelEndAddress - kernelStartAddress + 0xfff) / 0x1000;
 
-    status = BS->AllocatePages(
-      AllocateAddress,
-      EfiLoaderData,
-      numberOfPages,
-      &kernelStartAddress);
+    status = BS->AllocatePages(AllocateAddress, EfiLoaderData, numberOfPages, &kernelStartAddress);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to allocate pages: %r\n", status);
         Pause();
     }
 
-    entryAddress = *(UINT32 *)((char *)kernelBuffer + 0xA8);
+    entryAddress = *(UINT32*)((UINT8*)kernelBuffer + 0xA8);
 
     entryPoint = (EntryPoint*)(kernelStartAddress + entryAddress);
 
@@ -177,9 +140,7 @@ EFI_STATUS Main(
         Pause();
     }
 
-    status = BS->ExitBootServices(
-      imageHandle,
-      memoryMap.mapKey);
+    status = BS->ExitBootServices(imageHandle, memoryMap.mapKey);
 
     if (EFI_ERROR(status)) {
         status = GetMemoryMap(&memoryMap);
@@ -189,9 +150,7 @@ EFI_STATUS Main(
             Pause();
         }
 
-        status = BS->ExitBootServices(
-          imageHandle,
-          memoryMap.mapKey);
+        status = BS->ExitBootServices(imageHandle, memoryMap.mapKey);
 
         if (EFI_ERROR(status)) {
             Print(L"[ERROR] Failed to exit boot service: %r\n", status);
@@ -205,19 +164,53 @@ EFI_STATUS Main(
 }
 
 static EFI_STATUS GetMemoryMap(
-  OUT struct MEMORY_MAP* map) {
-    if (map->buffer == NULL) {
-        return EFI_BUFFER_TOO_SMALL;
+  OUT struct MEMORY_MAP* memoryMap) {
+    UINTN      bufferSize;
+    UINTN      descriptorSize;
+    EFI_STATUS status;
+
+    CHAR8      memoryMapBuffer[4096 * 4] = {0};
+
+    bufferSize = sizeof(memoryMapBuffer);
+
+    status = BS->GetMemoryMap(&bufferSize, (EFI_MEMORY_DESCRIPTOR*)memoryMapBuffer, &memoryMap->mapKey, &descriptorSize, NULL);
+
+    if (EFI_ERROR(status)) {
+        return status;
     }
 
-    map->mapSize = map->bufferSize;
+    return ConvertMemoryMap(bufferSize, descriptorSize, memoryMapBuffer, memoryMap);
+}
 
-    return BS->GetMemoryMap(
-      &map->mapSize,
-      (EFI_MEMORY_DESCRIPTOR*)map->buffer,
-      &map->mapKey,
-      &map->descriptorSize,
-      &map->descriptorVersion);
+static EFI_STATUS ConvertMemoryMap(
+  IN  UINTN              sourceSize,
+  IN  UINTN              sourceDescriptorSize,
+  IN  struct VOID*       source,
+  OUT struct MEMORY_MAP* destination) {
+    UINTN                     index = 0;
+
+    EFI_PHYSICAL_ADDRESS      iterator;
+
+    EFI_MEMORY_DESCRIPTOR*    sourceDescriptor;
+    struct MEMORY_DESCRIPTOR* destinationDescriptor;
+
+    for (iterator = (EFI_PHYSICAL_ADDRESS)source; iterator < (EFI_PHYSICAL_ADDRESS)source + sourceSize; iterator += sourceDescriptorSize) {
+        sourceDescriptor = (EFI_MEMORY_DESCRIPTOR*)iterator;
+        destinationDescriptor = (struct MEMORY_DESCRIPTOR*)destination->buffer + index;
+
+        destinationDescriptor->type = sourceDescriptor->Type;
+        destinationDescriptor->numberOfPages = sourceDescriptor->NumberOfPages;
+        destinationDescriptor->attribute = sourceDescriptor->Attribute;
+        destinationDescriptor->physicalStart = sourceDescriptor->PhysicalStart;
+        destinationDescriptor->virtualStart = sourceDescriptor->VirtualStart;
+
+        ++index;
+    }
+
+    destination->descriptorSize = sizeof(struct MEMORY_DESCRIPTOR);
+    destination->mapSize = destination->descriptorSize * index;
+
+    return EFI_SUCCESS;
 }
 
 static EFI_STATUS OpenRootDirectory(
@@ -228,73 +221,50 @@ static EFI_STATUS OpenRootDirectory(
     EFI_LOADED_IMAGE_PROTOCOL*       loadedImage;
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* fileSystem;
 
-    status = BS->LocateProtocol(
-      &gEfiLoadedImageProtocolGuid,
-      NULL,
-      (VOID**)&loadedImage);
+    status = BS->LocateProtocol(&gEfiLoadedImageProtocolGuid, NULL, (VOID**)&loadedImage);
 
     if (EFI_ERROR(status)) {
         return status;
     }
 
-    status = BS->LocateProtocol(
-      &gEfiSimpleFileSystemProtocolGuid,
-      NULL,
-      (VOID**)&fileSystem);
+    status = BS->LocateProtocol(&gEfiSimpleFileSystemProtocolGuid, NULL, (VOID**)&fileSystem);
 
     if (EFI_ERROR(status)) {
         return status;
     }
 
-    return fileSystem->OpenVolume(
-      fileSystem,
-      rootDirectory);
+    return fileSystem->OpenVolume(fileSystem, rootDirectory);
 }
 
 static EFI_STATUS SaveMemoryMap(
   IN  struct MEMORY_MAP* map,
   OUT EFI_FILE_PROTOCOL* file) {
-    UINT64                 length;
-    UINT32                 index;
-    EFI_STATUS             status;
+    UINTN                     length;
+    UINT32                    index = 0;
+    EFI_STATUS                status;
+                              
+    EFI_PHYSICAL_ADDRESS      iterator;
+    struct MEMORY_DESCRIPTOR* descriptor;
 
-    CHAR8                  buffer[256];
-    CHAR8*                 header = "Index, Type, Type(name), PhysicalStart, NumberOfPages, Attribute\n";
-    EFI_PHYSICAL_ADDRESS   iterator;
-    EFI_MEMORY_DESCRIPTOR* descriptor;
+    CHAR8                     buffer[256];
+    CHAR8                     header[] = "Index, Type, Type(name), PhysicalStart, NumberOfPages, Attribute\n";
 
-    length = AsciiStrLen(
-      header);
+    length = AsciiStrLen(header);
 
-    status = file->Write(
-      file,
-      &length,
-      header);
+    status = file->Write(file, &length, header);
 
     if (EFI_ERROR(status)) {
         return status;
     }
 
-    for (iterator = (EFI_PHYSICAL_ADDRESS)map->buffer, index = 0;
-      iterator < (EFI_PHYSICAL_ADDRESS)map->buffer + map->mapSize;
-      iterator += map->descriptorSize, ++index) {
-        descriptor = (EFI_MEMORY_DESCRIPTOR*)iterator;
+    for (iterator = (EFI_PHYSICAL_ADDRESS)map->buffer; iterator < (EFI_PHYSICAL_ADDRESS)map->buffer + map->mapSize; iterator += map->descriptorSize) {
+        descriptor = (struct MEMORY_DESCRIPTOR*)iterator;
 
-        length = AsciiSPrint(
-          buffer,
-          sizeof(buffer),
-          "%u, %x, %-ls, %08lx, %lx, %lx\n",
-          index,
-          descriptor->Type,
-          GetMemoryTypeUnicode(descriptor->Type),
-          descriptor->PhysicalStart,
-          descriptor->NumberOfPages,
-          descriptor->Attribute & 0xfffflu);
+        length = AsciiSPrint(buffer, sizeof(buffer), "%u, %x, %-ls, %08lx, %lx, %lx\n", index, descriptor->type, GetMemoryTypeUnicode(descriptor->type), descriptor->physicalStart, descriptor->numberOfPages, descriptor->attribute & 0xfffflu);
 
-        status = file->Write(
-          file,
-          &length,
-          buffer);
+        status = file->Write(file, &length, buffer);
+
+        ++index;
 
         if (EFI_ERROR(status)) {
             return status;
@@ -329,36 +299,24 @@ static CONST CHAR16* GetMemoryTypeUnicode(
 static EFI_STATUS OpenGOP(
   IN EFI_HANDLE                     imageHandle,
   OUT EFI_GRAPHICS_OUTPUT_PROTOCOL** GOP) {
-    UINT64      numberOfGOPHandles = 0;
+    UINTN      numberOfGOPHandles = 0;
     EFI_STATUS  status;
 
     EFI_HANDLE* GOPHandles = NULL;
 
-    status = BS->LocateHandleBuffer(
-      ByProtocol,
-      &gEfiGraphicsOutputProtocolGuid,
-      NULL,
-      &numberOfGOPHandles,
-      &GOPHandles);
+    status = BS->LocateHandleBuffer(ByProtocol, &gEfiGraphicsOutputProtocolGuid, NULL, &numberOfGOPHandles, &GOPHandles);
 
     if (EFI_ERROR(status)) {
         return status;
     }
 
-    status = BS->OpenProtocol(
-      GOPHandles[0],
-      &gEfiGraphicsOutputProtocolGuid,
-      (VOID**)GOP,
-      imageHandle,
-      NULL,
-      EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
+    status = BS->OpenProtocol(GOPHandles[0], &gEfiGraphicsOutputProtocolGuid, (VOID**)GOP, imageHandle, NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
 
     if (EFI_ERROR(status)) {
         return status;
     }
 
-    FreePool(
-      GOPHandles);
+    FreePool(GOPHandles);
 
     return EFI_SUCCESS;
 }
@@ -375,16 +333,16 @@ static CONST CHAR16* GetPixelFormatUnicode(
     }
 }
 
-static void CalculateLoadAddressRange(
+static void GetLoadAddressRange(
   IN VOID* kernelBuffer,
   OUT EFI_PHYSICAL_ADDRESS* start,
   OUT EFI_PHYSICAL_ADDRESS* end) {
-    UINT64   index;
+    UINTN               index;
 
-    DOSHeader* kernelDOSHeader = (DOSHeader*)kernelBuffer;
-    NTHeader* kernelNTHeader = (NTHeader *)((char *)kernelBuffer + kernelDOSHeader->e_lfanew);
+    DOSHeader*           kernelDOSHeader = (DOSHeader*)kernelBuffer;
+    NTHeader*            kernelNTHeader = (NTHeader *)((char *)kernelBuffer + kernelDOSHeader->e_lfanew);
     EFI_PHYSICAL_ADDRESS kernelSectionHeader = (EFI_PHYSICAL_ADDRESS)kernelBuffer + kernelDOSHeader->e_lfanew + sizeof(NTHeader) + kernelNTHeader->optionalHeader.NumberOfRvaAndSizes * sizeof(DataDirectory);
-    Section* section;
+    Section*             section;
 
     if (((EFI_PHYSICAL_ADDRESS)kernelSectionHeader - (EFI_PHYSICAL_ADDRESS)kernelBuffer) % 8 != 0) {
         kernelSectionHeader += 8 - ((EFI_PHYSICAL_ADDRESS)kernelSectionHeader - (EFI_PHYSICAL_ADDRESS)kernelBuffer) % 8;
@@ -402,12 +360,12 @@ static void CalculateLoadAddressRange(
 
 static void LoadKernelSegment(
   IN VOID* kernelBuffer) {
-    UINT64 index;
-    EFI_PHYSICAL_ADDRESS segment;
-    INT64 remain;
+    UINTN               index;
+    INT64                remain;
     
-    DOSHeader* kernelDOSHeader = (DOSHeader*)kernelBuffer;
-    NTHeader* kernelNTHeader = (NTHeader *)((char *)kernelBuffer + kernelDOSHeader->e_lfanew);
+    EFI_PHYSICAL_ADDRESS segment;
+    DOSHeader*           kernelDOSHeader = (DOSHeader*)kernelBuffer;
+    NTHeader*            kernelNTHeader = (NTHeader *)((char *)kernelBuffer + kernelDOSHeader->e_lfanew);
     EFI_PHYSICAL_ADDRESS kernelSectionHeader = (EFI_PHYSICAL_ADDRESS)kernelBuffer + kernelDOSHeader->e_lfanew + sizeof(NTHeader) + kernelNTHeader->optionalHeader.NumberOfRvaAndSizes * sizeof(DataDirectory);
     Section section;
 
@@ -420,25 +378,11 @@ static void LoadKernelSegment(
         segment = (EFI_PHYSICAL_ADDRESS)((char *)kernelBuffer + section.PointerToRawData);
 
         if (section.VirtualSize > section.SizeOfRawData) {
-            CopyMem(
-                (VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress),
-                (VOID*)segment,
-                section.SizeOfRawData);
-
-            SetMem(
-              (VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress + section.SizeOfRawData),
-              section.VirtualSize - section.SizeOfRawData,
-              0);
+            CopyMem((VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress), (VOID*)segment, section.SizeOfRawData);
+            SetMem((VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress + section.SizeOfRawData), section.VirtualSize - section.SizeOfRawData, 0);
         } else {
-            CopyMem(
-                (VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress),
-                (VOID*)segment,
-                section.VirtualSize);
-
-            SetMem(
-              (VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress + section.VirtualSize),
-              section.SizeOfRawData - section.VirtualSize,
-              0);
+            CopyMem((VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress), (VOID*)segment, section.VirtualSize);
+            SetMem((VOID*)(kernelNTHeader->optionalHeader.ImageBase + section.VirtualAddress + section.VirtualSize), section.SizeOfRawData - section.VirtualSize, 0);
         }
     }
 }
