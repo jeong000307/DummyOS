@@ -141,9 +141,9 @@ static code AddPCIDevice(
 }
 
 uint16 ReadPCIVendorID(
-    uint8 bus,
-    uint8 device,
-    uint8 function) {
+  uint8 bus,
+  uint8 device,
+  uint8 function) {
     WritePCIAddress(MakePCIAddress(bus, device, function, 0x00));
 
     return ReadPCIData() & 0xffffu;
@@ -168,9 +168,9 @@ uint32 ReadPCIClassCode(
 }
 
 uint8 ReadPCIHeaderType(
-    uint8 bus,
-    uint8 device,
-    uint8 function) {
+  uint8 bus,
+  uint8 device,
+  uint8 function) {
     WritePCIAddress(MakePCIAddress(bus, device, function, 0x0c));
 
     return (ReadPCIData() >> 16) & 0xffu;
@@ -186,24 +186,20 @@ uint32 ReadPCIBusNumber(
 }
 
 static uint32 MakePCIAddress(
-    uint8 bus,
-    uint8 device,
-    uint8 function,
-    uint8 registerAddress) {
-    return (1 << 31) 
-      | (bus << 16)
-      | (device << 11)
-      | (function << 8)
-      | (registerAddress & 0xfcu);
+  uint8 bus,
+  uint8 device,
+  uint8 function,
+  uint8 registerAddress) {
+    return (1 << 31) | (bus << 16) | (device << 11) | (function << 8) | (registerAddress & 0xfcu);
 }
 
 static void WritePCIAddress(
-    uint32 address) {
+  uint32 address) {
     IOOut32(PCI_CONFIG_ADDRESS, address);
 }
 
 static void WritePCIData(
-    uint32 value) {
+  uint32 value) {
     IOOut32(PCI_CONFIG_DATA, value);
 }
 
@@ -211,7 +207,9 @@ static uint32 ReadPCIData(void) {
     return IOIn32(PCI_CONFIG_DATA);
 }
 
-static uint64 ReadPCIBAR(struct PCIDevice* device, uint64 BARIndex) {
+static uint64 ReadPCIBAR(
+  struct PCIDevice* device, 
+  uint64 BARIndex) {
     uint64 BARAddress;
     uint32 BAR;
     uint32 BARUpper;
@@ -236,23 +234,31 @@ static uint64 ReadPCIBAR(struct PCIDevice* device, uint64 BARIndex) {
     return BAR | ((uint64)BARUpper << 32);
 }
 
-static uint8 GetPCIBARAddress(uint64 BARIndex) {
+static uint8 GetPCIBARAddress(
+  uint64 BARIndex) {
     return 0x10 + 4 * BARIndex;
 }
 
-static uint32 ReadConfigurationRegister(const struct PCIDevice* device, uint8 registerAddress) {
+static uint32 ReadConfigurationRegister(
+  const struct PCIDevice* device, 
+  uint8 registerAddress) {
     WritePCIAddress(MakePCIAddress(device->bus, device->device, device->function, registerAddress));
 
     return ReadPCIData();
 }
 
-static void WriteConfigurationRegister(const struct PCIDevice* device, uint8 registerAddress, uint32 value) {
+static void WriteConfigurationRegister(
+  const struct PCIDevice* device, 
+  uint8 registerAddress, 
+  uint32 value) {
     WritePCIAddress(MakePCIAddress(device->bus, device->device, device->function, registerAddress));
     
     WritePCIData(value);
 }
 
-static union CapabilityHeader ReadCapabilityHeader(const struct PCIDevice* device, uint8 address) {
+static union CapabilityHeader ReadCapabilityHeader(
+  const struct PCIDevice* device, 
+  uint8 address) {
     union CapabilityHeader header;
 
     header.data = ReadConfigurationRegister(device, address);
@@ -287,6 +293,6 @@ void ConfigureMSI(
     uint8 MSIXCapabilityAddress = 0;
 
     while (capabilityAddress != 0) {
-
+        // TODO
     }
 }

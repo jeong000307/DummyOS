@@ -9,7 +9,7 @@
 
 typedef struct __SYSTEM_CONSOLE SYSTEM_CONSOLE;
 
-typedef code (*SYSTEM_PRINT)(
+typedef code (*PRINT)(
   IN SYSTEM_CONSOLE* this,
   IN const byte*     string,
   IN ...);
@@ -29,7 +29,7 @@ struct __SYSTEM_CONSOLE {
 
     SCREEN*           screen;
 
-    SYSTEM_PRINT      SystemPrint;
+    PRINT             Print;
 };
 
 SYSTEM_CONSOLE* GetSystemConsole(void);
@@ -41,7 +41,7 @@ code InitializeSystemConsole(
     
 **/
 
-static code __SystemPrint(
+static code __Print(
   IN SYSTEM_CONSOLE* this,
   IN const byte*     string,
   IN ...

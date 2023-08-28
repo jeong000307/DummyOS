@@ -37,19 +37,13 @@ code InitializeMemoryManager(
         descriptor = (struct MemoryDescriptor*)iterator;
         physicalEnd = descriptor->physicalStart + descriptor->numberOfPages * EFI_PAGE_SIZE;
         if (availableMemoryEnd < descriptor->physicalStart) {
-            memoryManager.MarkAllocatedFrame(
-              &memoryManager,
-              availableMemoryEnd / BYTE_PER_FRAME,
-              (descriptor->physicalStart - availableMemoryEnd) / BYTE_PER_FRAME);
+            memoryManager.MarkAllocatedFrame(&memoryManager, availableMemoryEnd / BYTE_PER_FRAME, (descriptor->physicalStart - availableMemoryEnd) / BYTE_PER_FRAME);
         }
 
         if (IsUsableMemory(descriptor->type) == true) {
             availableMemoryEnd = physicalEnd;
         } else {
-            memoryManager.MarkAllocatedFrame(
-              &memoryManager,
-              descriptor->physicalStart / BYTE_PER_FRAME,
-              descriptor->numberOfPages * EFI_PAGE_SIZE / BYTE_PER_FRAME);
+            memoryManager.MarkAllocatedFrame(&memoryManager, descriptor->physicalStart / BYTE_PER_FRAME, descriptor->numberOfPages * EFI_PAGE_SIZE / BYTE_PER_FRAME);
         }
     }
 

@@ -6,7 +6,7 @@
 #include "Timer.h"
 #include "Type.h"
 
-static enum InterruptDescriptorType {
+enum InterruptDescriptorType {
     upper8Bytes = 0,
     LDT = 2,
     TSSAvailable = 9,
@@ -59,11 +59,12 @@ union InterruptDescriptorAttribute MakeIDTAttribute(
   uint8 interruptStackTable);
 
 void SetIDTEntry(
-    struct InterruptDescriptor* descriptor,
-    union InterruptDescriptorAttribute attribute,
-    uint64 offset,
-    uint16 segmentSelector);
+  struct InterruptDescriptor* descriptor,
+  union InterruptDescriptorAttribute attribute,
+  uint64 offset,
+  uint16 segmentSelector);
 
-void TimerInterruptHandler(struct InterruptFrame* frame);
+void TimerInterruptHandler(
+  struct InterruptFrame* frame);
 
 #endif

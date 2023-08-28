@@ -7,9 +7,9 @@ TIMER* GetTimer(void) {
 }
 
 code InitializeTimer(void) {
-    timer.LVTTimer = (uint32*)0xfee00320;
-    timer.initialCount = (uint32*)0xfee00380;
-    timer.currentCount = (uint32*)0xfee00390;
+    timer.LVTTimer = (uint32 *)0xfee00320;
+    timer.initialCount = (uint32 *)0xfee00380;
+    timer.currentCount = (uint32 *)0xfee00390;
     timer.divideConfiguration = (uint32 *)0xfee003e0;
 
     *timer.divideConfiguration = 0b1011;
@@ -19,24 +19,27 @@ code InitializeTimer(void) {
     timer.tick = 0;
 
     timer.StartTimer = __StartTimer;
-    timer.CountTime = __CountTime;
+    timer.CountTime = __GetTime;
     timer.StopTimer = __StopTimer;
 
     return SUCCESS;
 }
 
-static void __StartTimer(TIMER* this) {
+static void __StartTimer(
+  IN TIMER* this) {
     *this->initialCount = MAX_COUNT;
 }
 
-static uint32 __CountTime(TIMER* this) {
+static uint32 __GetTime(
+  IN TIMER* this) {
     return MAX_COUNT - *this->currentCount;
 }
 
-static void __StopTimer(TIMER* this) {
+static void __StopTimer(
+  IN TIMER* this) {
     *this->initialCount = 0;
 }
 
-void TimerOnInterrupt() {
+void TimerOnInterrupt(void) {
     ++timer.tick;
 }

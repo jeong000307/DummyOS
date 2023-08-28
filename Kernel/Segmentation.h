@@ -5,7 +5,7 @@
 #include "ErrorCode.h"
 #include "Type.h"
 
-static enum SegmentDescriptorType {
+enum SegmentDescriptorType {
     ReadWrite = 2,
     ExecuteRead = 10
 };
@@ -31,17 +31,17 @@ union SegmentDescriptor {
 
 static void SetCodeSegment(
   union SegmentDescriptor* descriptor, 
-  enum DescriptorType type,
-  uint64 descriptorPrivilegeLevel,
-  uint32 base,
-  uint32 limit);
+  enum DescriptorType      type,
+  uint64                   descriptorPrivilegeLevel,
+  uint32                   base,
+  uint32                   limit);
 
 static void SetDataSegment(
   union SegmentDescriptor* descriptor,
-  enum DescriptorType type,
-  uint64 descriptorPrivilegeLevel,
-  uint32 base,
-  uint32 limit);
+  enum DescriptorType      type,
+  uint64                   descriptorPrivilegeLevel,
+  uint32                   base,
+  uint32                   limit);
 
 code InitialzeSegmentation(void);
 

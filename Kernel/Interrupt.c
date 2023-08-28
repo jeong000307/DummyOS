@@ -1,14 +1,12 @@
 #include "Interrupt.h"
 
+extern void TimerOnInterrupt(void);
+
 static struct InterruptDescriptor IDT[256];
 
 code InitializeInterrupt(void) {
-    SetIDTEntry(
-      &IDT[TimerInterruptIndex], 
-      MakeIDTAttribute(InterruptGate, 0, true, 0), 
-      TimerInterruptHandler, 
-      GetCS());
-    LoadIDT(sizeof(IDT) - 1, &IDT[0]);
+    SetIDTEntry(&IDT[TimerInterruptIndex], MakeIDTAttribute(InterruptGate, 0, true, 0), (uint64)TimerInterruptHandler, GetCS());
+    LoadIDT(sizeof(IDT) - 1, (uint64)(&IDT[0]));
 
     return SUCCESS;
 }

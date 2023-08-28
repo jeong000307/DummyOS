@@ -7,9 +7,14 @@
 
 typedef struct __TIMER TIMER;
 
-typedef void (*START_TIMER)(TIMER* this);
-typedef uint32 (*COUNT_TIME)(TIMER* this);
-typedef void (*STOP_TIMER)(TIMER* this);
+typedef void (*START_TIMER)(
+  IN TIMER* this);
+
+typedef uint32 (*GET_TIME)(
+  IN TIMER* this);
+
+typedef void (*STOP_TIMER)(
+  IN TIMER* this);
 
 struct __TIMER {
     volatile uint32* LVTTimer;
@@ -20,18 +25,23 @@ struct __TIMER {
     volatile uint32 tick;
 
     START_TIMER StartTimer;
-    COUNT_TIME CountTime;
-    STOP_TIMER StopTimer;
+    GET_TIME    CountTime;
+    STOP_TIMER  StopTimer;
 };
 
 TIMER* GetTimer(void);
 
 code InitializeTimer(void);
 
-void __StartTimer(TIMER* this);
+static void __StartTimer(
+  IN TIMER* this);
 
-uint32 __CountTime(TIMER* this);
+static uint32 __GetTime(
+  IN TIMER* this);
 
-void __StopTimer(TIMER* this);
+static void __StopTimer(
+  IN TIMER* this);
+
+void TimerOnInterrupt(void);
 
 #endif

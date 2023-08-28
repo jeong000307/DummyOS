@@ -7,7 +7,7 @@
 
 typedef struct __SCREEN SCREEN;
 
-typedef code(*WRITE_PIXEL)(
+typedef void (*WRITE_PIXEL)(
     IN OUT const SCREEN* this,
     IN size                    x,
     IN size                    y,
@@ -39,10 +39,14 @@ struct FRAME_BUFFER_CONFIG {
 };
 
 struct __SCREEN {
-    struct FRAME_BUFFER_CONFIG  frameBufferConfiguration;
+    uint32            pixelsPerScanLine;
+    uint32            horizontalResolution;
+    uint32            verticalResolution;
 
-    WRITE_PIXEL                 WritePixel;
-    GET_PIXEL_ADDRESS           GetPixelAddress;
+    byte*             frameBuffer;
+
+    WRITE_PIXEL       WritePixel;
+    GET_PIXEL_ADDRESS GetPixelAddress;
 };
 
 SCREEN* GetScreen(void);
@@ -50,17 +54,17 @@ SCREEN* GetScreen(void);
 code InitializeScreen(
   IN const struct FRAME_BUFFER_CONFIG* frameBufferConfig);
 
-static code __WritePixelRGB(
-  IN OUT const SCREEN*           this,
-  IN     size                    x,
-  IN     size                    y,
-  IN     const struct PixelColor color);
+static void __WritePixelRGB(
+  IN const SCREEN*           this,
+  IN size                    x,
+  IN size                    y,
+  IN const struct PixelColor color);
 
-static code __WritePixelBGR(
-  IN OUT const SCREEN*           this,
-  IN     size                    x,
-  IN     size                    y,
-  IN     const struct PixelColor color);
+static void __WritePixelBGR(
+  IN const SCREEN*           this,
+  IN size                    x,
+  IN size                    y,
+  IN const struct PixelColor color);
 
 static byte* __GetPixelAddress(
   IN const SCREEN* this,

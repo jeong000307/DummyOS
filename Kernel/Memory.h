@@ -8,19 +8,19 @@
 
 typedef struct __MEMORY_MANAGER MEMORY_MANAGER;
 
-typedef frame (*ALLOCATE)(
-    IN MEMORY_MANAGER* this,
-    IN size numberOfFrames);
+typedef frame (*ALLOCATE_FRAME)(
+  IN MEMORY_MANAGER* this,
+  IN size numberOfFrames);
 
-typedef code (*FREE)(
-    IN MEMORY_MANAGER* this,
-    IN frame startFrame,
-    IN size numberOfFrames);
+typedef code (*FREE_FRAME)(
+  IN MEMORY_MANAGER* this,
+  IN frame startFrame,
+  IN size numberOfFrames);
 
-typedef void (*MARK_ALLOCATED)(
-    IN MEMORY_MANAGER* this,
-    IN frame startFrame,
-    IN size numberOfFrames);
+typedef void (*MARK_ALLOCATED_FRAME)(
+  IN MEMORY_MANAGER* this,
+  IN frame startFrame,
+  IN size numberOfFrames);
 
 struct MEMORY_MAP {
     uint64 bufferSize;
@@ -71,9 +71,9 @@ struct __MEMORY_MANAGER {
     uint64 _Alignas(KiB(4)) pageDirectory[64][512];
     bitmap                  allocationMap[1024 * 256];
 
-    ALLOCATE                AllocateFrame; // _FRAME 추가
-    FREE                    FreeFrame; // _FRAME 추가
-    MARK_ALLOCATED          MarkAllocatedFrame; // _FRAME 추가
+    ALLOCATE_FRAME          AllocateFrame;
+    FREE_FRAME              FreeFrame;
+    MARK_ALLOCATED_FRAME    MarkAllocatedFrame;
 };
 
 code InitializeMemoryManager(
@@ -93,11 +93,30 @@ code CopyMemory(
   size  length
 );
 
-static bool IsUsableMemory(enum MemoryType memoryType);
-static frame __AllocateFrame(MEMORY_MANAGER* this, size numberOfFrames);
-static code  __FreeFrame(MEMORY_MANAGER* this, frame startFrame, size numberOfFrames);
-static void __MarkAllocatedFrame(MEMORY_MANAGER* this, frame startFrame, size numberOfFrames);
-static void SetBit(MEMORY_MANAGER* memoryManager, frame frame, bool allocated);
-static bool GetBit(MEMORY_MANAGER* memoryManager, frame frame);
+static bool IsUsableMemory(
+  enum MemoryType memoryType);
+
+static frame __AllocateFrame(
+  MEMORY_MANAGER* this, 
+  size numberOfFrames);
+
+static code  __FreeFrame(
+  MEMORY_MANAGER* this, 
+  frame startFrame, 
+  size numberOfFrames);
+
+static void __MarkAllocatedFrame(
+  MEMORY_MANAGER* this, 
+  frame startFrame, 
+  size numberOfFrames);
+
+static void SetBit(
+  MEMORY_MANAGER* memoryManager, 
+  frame frame, 
+  bool allocated);
+
+static bool GetBit(
+  MEMORY_MANAGER* memoryManager, 
+  frame frame);
 
 #endif

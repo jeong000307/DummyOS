@@ -18,12 +18,16 @@ struct __HEAP {
     CHANGE_PROGRAM_BREAK ChangeProgramBreak;
 };
 
-code InitializeHeap(MEMORY_MANAGER* memoryManger);
+code InitializeHeap(
+  MEMORY_MANAGER* memoryManger);
 
 HEAP* GetSystemHeap(void);
 
-static byte* __ChangeProgramBreak(HEAP* this, size increment);
+static byte* __ChangeProgramBreak(
+  HEAP* this, 
+  size increment);
 
-void* AllocateMemory(size length);
+void* AllocateMemory(
+  size length);
 
 #endif
