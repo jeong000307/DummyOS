@@ -7,30 +7,30 @@ SCREEN* GetScreen(void) {
 }
 
 code InitializeScreen(
-  IN const struct FRAME_BUFFER_CONFIG* frameBufferConfig) {
-    if (frameBufferConfig->pixelsPerScanLine == 0
-      or frameBufferConfig->horizontalResolution == 0
-      or frameBufferConfig->verticalResolution == 0) {
+  IN const struct FRAME_BUFFER_CONFIG* frameBufferConfiguration) {
+    if (frameBufferConfiguration->pixelsPerScanLine == 0
+      or frameBufferConfiguration->horizontalResolution == 0
+      or frameBufferConfiguration->verticalResolution == 0) {
         return INVALID_PARAMETER;
     }
 
-    if (frameBufferConfig->frameBuffer == NULL) {
+    if (frameBufferConfiguration->frameBuffer == NULL) {
         return MEMORY_ERROR;
     }
 
-    screen.frameBufferConfig.pixelFormat = frameBufferConfig->pixelFormat;
-    screen.frameBufferConfig.frameBuffer = frameBufferConfig->frameBuffer;
+    screen.frameBufferConfiguration.pixelFormat = frameBufferConfiguration->pixelFormat;
+    screen.frameBufferConfiguration.frameBuffer = frameBufferConfiguration->frameBuffer;
 
-    screen.frameBufferConfig.pixelsPerScanLine = frameBufferConfig->pixelsPerScanLine;
-    screen.frameBufferConfig.horizontalResolution = frameBufferConfig->horizontalResolution;
-    screen.frameBufferConfig.verticalResolution = frameBufferConfig->verticalResolution;
+    screen.frameBufferConfiguration.pixelsPerScanLine = frameBufferConfiguration->pixelsPerScanLine;
+    screen.frameBufferConfiguration.horizontalResolution = frameBufferConfiguration->horizontalResolution;
+    screen.frameBufferConfiguration.verticalResolution = frameBufferConfiguration->verticalResolution;
 
     SetMemory(
-      screen.frameBufferConfig.frameBuffer,
+      screen.frameBufferConfiguration.frameBuffer,
       0, 
-      (size)screen.frameBufferConfig.horizontalResolution * (size)screen.frameBufferConfig.verticalResolution * sizeof(byte) * 4);
+      (size)screen.frameBufferConfiguration.horizontalResolution * (size)screen.frameBufferConfiguration.verticalResolution * sizeof(byte) * 4);
 
-    if (frameBufferConfig->pixelFormat == pixelRGBReserved8BitPerColor) {
+    if (frameBufferConfiguration->pixelFormat == pixelRGBReserved8BitPerColor) {
         screen.WritePixel = __WritePixelRGB;
     }
     else {
@@ -80,5 +80,5 @@ static byte* __GetPixelAddress(
   IN const SCREEN* this,
   IN size          x,
   IN size          y) {
-    return this->frameBufferConfig.frameBuffer + 4 * sizeof(byte) * (this->frameBufferConfig.pixelsPerScanLine * y + x);
+    return this->frameBufferConfiguration.frameBuffer + 4 * sizeof(byte) * (this->frameBufferConfiguration.pixelsPerScanLine * y + x);
 }

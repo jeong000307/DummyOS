@@ -39,7 +39,7 @@ struct FRAME_BUFFER_CONFIG {
 };
 
 struct __SCREEN {
-    struct FRAME_BUFFER_CONFIG  frameBufferConfig;
+    struct FRAME_BUFFER_CONFIG  frameBufferConfiguration;
 
     WRITE_PIXEL                 WritePixel;
     GET_PIXEL_ADDRESS           GetPixelAddress;

@@ -210,3 +210,83 @@ static void WritePCIData(
 static uint32 ReadPCIData(void) {
     return IOIn32(PCI_CONFIG_DATA);
 }
+
+static uint64 ReadPCIBAR(struct PCIDevice* device, uint64 BARIndex) {
+    uint64 BARAddress;
+    uint32 BAR;
+    uint32 BARUpper;
+
+    if (BARIndex >= 6) {
+        return 0;
+    }
+
+    BARAddress = GetPCIBARAddress(BARIndex);
+    BAR = ReadConfigurationRegister(device, BARAddress);
+
+    if ((BAR & 4u) == 0) {
+        return BAR;
+    }
+
+    if (BARIndex >= 5) {
+        return 0;
+    }
+
+    BARUpper = ReadConfigurationRegister(device, BARAddress + 4);
+    
+    return BAR | ((uint64)BARUpper << 32);
+}
+
+static uint8 GetPCIBARAddress(uint64 BARIndex) {
+    return 0x10 + 4 * BARIndex;
+}
+
+static uint32 ReadConfigurationRegister(const struct PCIDevice* device, uint8 registerAddress) {
+    WritePCIAddress(MakePCIAddress(device->bus, device->device, device->function, registerAddress));
+
+    return ReadPCIData();
+}
+
+static void WriteConfigurationRegister(const struct PCIDevice* device, uint8 registerAddress, uint32 value) {
+    WritePCIAddress(MakePCIAddress(device->bus, device->device, device->function, registerAddress));
+    
+    WritePCIData(value);
+}
+
+static union CapabilityHeader ReadCapabilityHeader(const struct PCIDevice* device, uint8 address) {
+    union CapabilityHeader header;
+
+    header.data = ReadConfigurationRegister(device, address);
+
+    return header;
+}
+
+void ConfigureMSIFixedDestination(
+  const struct PCIDevice* device, 
+  uint8 APICID, 
+  enum MSITriggerMode triggerMode, 
+  enum MSIDeliveryMode deliveryMode, 
+  uint8 vector, 
+  uint64 numberOfVectorExponent) {
+    uint32 messageAddress = 0xfee00000u | (APICID << 12);
+    uint32 messageData = (uint32)deliveryMode << 8 | vector;
+
+    if (triggerMode == Level) {
+        messageData |= 0xc000;
+    }
+
+    ConfigureMSI(device, messageAddress, messageData, numberOfVectorExponent);
+}
+
+void ConfigureMSI(
+  const struct PCIDevice* device,
+  uint32 messageAddress,
+  uint32 messageData, 
+  uint64 numberOfVectorExponent) {
+    uint8 capabilityAddress = ReadConfigurationRegister(device, 0x34) & 0xffu;
+    uint8 MSICapabilityAddress = 0;
+    uint8 MSIXCapabilityAddress = 0;
+
+    while (capabilityAddress != 0) {
+
+    }
+}

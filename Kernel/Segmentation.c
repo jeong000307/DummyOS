@@ -1,4 +1,4 @@
-#include "Descriptor.h"
+#include "Segmentation.h"
 
 static union SegmentDescriptor GDT[3];
 
@@ -38,7 +38,7 @@ static void SetDataSegment(
     descriptor->bits.defaultOperationSize = 1;
 }
 
-code SetupSegments(void)    {
+code InitialzeSegmentation(void)    {
     GDT[0].data = 0;
     SetCodeSegment(&GDT[1], ExecuteRead, 0, 0, 0xfffff);
     SetDataSegment(&GDT[2], ReadWrite, 0, 0, 0xfffff);
@@ -47,16 +47,4 @@ code SetupSegments(void)    {
     InitializeSegmentRegister(1 << 3, 2 << 3, 0);
 
     return SUCCESS;
-}
-
-void SetIDTEntry(
-  struct InterruptDescriptor* descriptor,
-  union InterruptDescriptorAttribute attribute,
-  uint64 offset,
-  uint16 segmentSelector) {
-    descriptor->attribute = attribute;
-    descriptor->offsetLow = offset & 0xffffu;
-    descriptor->offsetMiddle = (offset >> 16) & 0xffffu;
-    descriptor->offsetHigh = offset >> 32;
-    descriptor->segmentSelector = segmentSelector;
 }

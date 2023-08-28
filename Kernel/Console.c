@@ -44,12 +44,12 @@ static code __SystemPrint(
         if (this->cursor.y >= this->rows) {
             CopyMemory(
               this->screen->GetPixelAddress(this->screen, 0, 16),
-              this->screen->frameBufferConfig.frameBuffer,
-              this->screen->GetPixelAddress(this->screen, this->screen->frameBufferConfig.horizontalResolution, this->screen->frameBufferConfig.verticalResolution) - this->screen->frameBufferConfig.frameBuffer);
+              this->screen->frameBufferConfiguration.frameBuffer,
+              this->screen->GetPixelAddress(this->screen, this->screen->frameBufferConfiguration.horizontalResolution, this->screen->frameBufferConfiguration.verticalResolution) - this->screen->frameBufferConfiguration.frameBuffer);
             SetMemory(
               this->screen->GetPixelAddress(this->screen, 0, (this->rows - 1) * 16),
               0,
-              this->screen->GetPixelAddress(this->screen, this->screen->frameBufferConfig.horizontalResolution, this->screen->frameBufferConfig.verticalResolution) - this->screen->GetPixelAddress(this->screen, 0, (this->rows - 1) * 16));
+              this->screen->GetPixelAddress(this->screen, this->screen->frameBufferConfiguration.horizontalResolution, this->screen->frameBufferConfiguration.verticalResolution) - this->screen->GetPixelAddress(this->screen, 0, (this->rows - 1) * 16));
 
             this->cursor.y = this->rows - 1;
             this->cursor.x = 0;

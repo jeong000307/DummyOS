@@ -110,12 +110,14 @@
     <ClCompile Include="Font.c" />
     <ClCompile Include="Graphics.c" />
     <ClCompile Include="Heap.c" />
+    <ClCompile Include="Interrupt.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="Math.c" />
     <ClCompile Include="Memory.c" />
     <ClCompile Include="PCI.c" />
-    <ClCompile Include="Descriptor.c" />
+    <ClCompile Include="Segmentation.c" />
     <ClCompile Include="String.c" />
+    <ClCompile Include="Timer.c" />
   </ItemGroup>
   <ItemGroup>
     <NASM Include="AssemblyFunction.asm">
@@ -126,7 +128,8 @@
     <ClInclude Include="AssemblyFunction.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="ErrorCode.h" />
-    <ClInclude Include="Descriptor.h" />
+    <ClInclude Include="Interrupt.h" />
+    <ClInclude Include="Segmentation.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Heap.h" />
     <ClInclude Include="Main.h" />
@@ -134,6 +137,7 @@
     <ClInclude Include="Memory.h" />
     <ClInclude Include="PCI.h" />
     <ClInclude Include="String.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="Type.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

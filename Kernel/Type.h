@@ -28,6 +28,8 @@ typedef unsigned __int8*   va_list;
 #define MAX_UINT32  (uint32)((1 << 32) - 1)
 #define MAX_UINT64  (uint64)((1 << 64) - 1)
 
+#define MAX_COUNT   0xffffffffu
+
 #define NULL  0
 
 #define false 0

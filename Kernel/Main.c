@@ -1,7 +1,7 @@
 #include "Main.h"
 
 void Main(
-  IN const struct FRAME_BUFFER_CONFIG* frameBufferConfig,
+  IN const struct FRAME_BUFFER_CONFIG* frameBufferConfiguration,
   IN const struct MEMORY_MAP* memoryMap) {
     code           status;
     size           index;
@@ -10,8 +10,19 @@ void Main(
     PCI_DEVICES*    PCIDevices;
     MEMORY_MANAGER* memoryManager;
     HEAP*           systemHeap;
+    TIMER*          systemTimer;
 
-    status = InitializeScreen(frameBufferConfig);
+    status = InitializeTimer();
+
+    if (status != SUCCESS) {
+        return ;
+    }
+
+    systemTimer = GetTimer();
+
+    systemTimer->StartTimer(systemTimer);
+
+    status = InitializeScreen(frameBufferConfiguration);
 
     if (status != SUCCESS) {
         return;
@@ -27,9 +38,9 @@ void Main(
 
     systemConsole = GetSystemConsole();
 
-    systemConsole->SystemPrint(systemConsole, "%s", "Initializing screen and system console is complete.\n");
+    systemConsole->SystemPrint(systemConsole, "%s", "Initializing screen and system console is success.\n");
 
-    status = SetupSegments();
+    status = InitialzeSegmentation();
 
     if (status != SUCCESS) {
         return;
@@ -48,7 +59,7 @@ void Main(
         return;
     }
 
-    systemConsole->SystemPrint(systemConsole, "%s", "complete.\n");
+    systemConsole->SystemPrint(systemConsole, "%s", "success.\n");
 
     memoryManager = GetMemoryManager();
 
@@ -61,9 +72,20 @@ void Main(
         return;
     }
 
-    systemConsole->SystemPrint(systemConsole, "%s", "complete.\n");
+    systemConsole->SystemPrint(systemConsole, "%s", "success.\n");
 
     systemHeap = GetSystemHeap();
+
+    status = InitializeInterrupt();
+
+    systemConsole->SystemPrint(systemConsole, "%s", "Initializing Interrupt is ");
+
+    if (status != SUCCESS) {
+        systemConsole->SystemPrint(systemConsole, "%s", "failed.\n");
+        return ;
+    }
+
+    systemConsole->SystemPrint(systemConsole, "%s", "success.\n");
 
     status = InitializePCI();
 
@@ -74,7 +96,7 @@ void Main(
         return;
     }
 
-    systemConsole->SystemPrint(systemConsole, "%s", "complete.\n");
+    systemConsole->SystemPrint(systemConsole, "%s", "success.\n");
 
     PCIDevices = GetPCIDevices();
 
@@ -93,6 +115,10 @@ void Main(
             PCIDevices->devices[index]->function), 
           PCIDevices->devices[index]->headerType);
     }
+
+    systemConsole->SystemPrint(systemConsole, "%d", systemTimer->CountTime(systemTimer));
+
+    systemTimer->StopTimer(systemTimer);
 
     Pause();
 }
