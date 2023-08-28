@@ -42,15 +42,16 @@ void Main(
 
     status = InitialzeSegmentation();
 
+    systemConsole->SystemPrint(systemConsole, "%s", "Initializing segmentation is ");
+
     if (status != SUCCESS) {
+        systemConsole->SystemPrint(systemConsole, "%s", "failed.\n");
         return;
     }
+
+    systemConsole->SystemPrint(systemConsole, "%s", "success.\n");
 
     status = InitializeMemoryManager(memoryMap);
-
-    if (status != SUCCESS) {
-        return;
-    }
 
     systemConsole->SystemPrint(systemConsole, "%s", "Initializing memory manager is ");
 
