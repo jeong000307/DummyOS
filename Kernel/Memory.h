@@ -72,7 +72,7 @@ struct __MEMORY_MANAGER {
 };
 
 code InitializeMemoryManager(
-  const struct MEMORY_MAP* memoryMap);
+  const struct MemoryMap* memoryMap);
 
 MEMORY_MANAGER* GetMemoryManager(void);
 

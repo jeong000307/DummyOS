@@ -42,6 +42,6 @@ static uint32 __GetTime(
 static void __StopTimer(
   TIMER* this);
 
-void TimerOnInterrupt(void);
+//void TimerOnInterrupt(void);
 
 #endif

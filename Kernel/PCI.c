@@ -1,15 +1,15 @@
 #include "PCI.h"
 
-static PCI_DEVICES* PCIDevices;
+static PCI_DEVICES PCIDevices;
 
 code InitializePCI(void) {
     code  status;
     uint8 headerType = ReadPCIHeaderType(0, 0, 0);
 
-    PCIDevices->count = 0;
+    PCIDevices.count = 0;
 
     if (HasSingleFunctionPCIDevice(headerType)) {
-        return ScanPCIBus(PCIDevices, 0);
+        return ScanPCIBus(&PCIDevices, 0);
     }
 
     for (uint8 function = 1; function < PCI_FUNCTION_MAX; ++function) {
@@ -17,7 +17,7 @@ code InitializePCI(void) {
             continue;
         }
 
-        status = ScanPCIBus(PCIDevices, function);
+        status = ScanPCIBus(&PCIDevices, function);
 
         if (status == PCI_ERROR) {
             return PCI_ERROR;
@@ -28,7 +28,7 @@ code InitializePCI(void) {
 }
 
 PCI_DEVICES* GetPCIDevices(void) {
-    return PCIDevices;
+    return &PCIDevices;
 }
 
 static bool HasSingleFunctionPCIDevice(

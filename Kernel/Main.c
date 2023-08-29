@@ -3,8 +3,6 @@
 void Main(
   const struct FrameBufferConfig* frameBufferConfiguration,
   const struct MemoryMap* memoryMap) {
-    code            status;
-
     SCREEN*         screen = GetScreen();
     CONSOLE*        systemConsole = GetSystemConsole();
     PCI_DEVICES*    PCIDevices = GetPCIDevices();
@@ -12,9 +10,11 @@ void Main(
     HEAP*           systemHeap = GetSystemHeap();
     TIMER*          systemTimer = GetTimer();
     TASK_MANAGER*   taskManager = GetTaskManager();
+    MESSAGE_QUEUE*  messageQueue = GetMessageQueue();
+    struct Message  message;
 
     if (InitializeTimer() != SUCCESS) {
-        return ;
+        return;
     }
 
     if (InitializeScreen(frameBufferConfiguration) != SUCCESS) {
@@ -33,13 +33,29 @@ void Main(
 
     systemConsole->Print(systemConsole, "Initializing system heap is %s.\n", Error(InitializeHeap(memoryManager)));
 
-    systemConsole->Print(systemConsole, "Initializing interrupt is %s.\n", Error(InitializeInterrupt()));
+    systemConsole->Print(systemConsole, "Initializing interrupt is %s.\n", Error(InitializeInterrupt(messageQueue)));
 
     systemConsole->Print(systemConsole, "Initializing task manager is %s.\n", Error(InitializeTaskManager()));
 
     systemConsole->Print(systemConsole, "Initializing PCI device is %s.\n", Error(InitializePCI()));
 
-    systemConsole->Print(systemConsole, "%d", systemTimer->CountTime(systemTimer));
+    while(true) {
+        ClearInterruptFlag();
+
+        if (messageQueue->count == 0) {
+            SetInterruptFlag();
+            continue;
+        }
+
+        message = messageQueue->Pop(messageQueue);
+        SetInterruptFlag();
+
+        switch (message.type) {
+            case TimerInterruptIndex:
+                systemConsole->Print(systemConsole, "INTERRUPT\n");
+                break;
+        }
+    }
 
     Pause();
 }

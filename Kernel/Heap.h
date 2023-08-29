@@ -7,13 +7,13 @@
 
 typedef struct __HEAP HEAP;
 
-typedef byte* (*CHANGE_PROGRAM_BREAK)(
+typedef addr (*CHANGE_PROGRAM_BREAK)(
   HEAP* this,
   size increment);
 
 struct __HEAP {
-    byte* programBreak;
-    byte* programBreakLimit;
+    addr programBreak;
+    addr programBreakLimit;
 
     CHANGE_PROGRAM_BREAK ChangeProgramBreak;
 };
@@ -23,7 +23,7 @@ code InitializeHeap(
 
 HEAP* GetSystemHeap(void);
 
-static byte* __ChangeProgramBreak(
+static addr __ChangeProgramBreak(
   HEAP* this, 
   size increment);
 

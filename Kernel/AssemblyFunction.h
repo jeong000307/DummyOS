@@ -66,4 +66,6 @@ extern void ClearInterruptFlag(void);
 
 extern void SetInterruptFlag(void);
 
+extern void TimerInterruptHandler(void);
+
 #endif

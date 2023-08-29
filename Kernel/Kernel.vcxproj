@@ -67,9 +67,8 @@
       <AdditionalOptions>/Gs16384</AdditionalOptions>
       <DisableSpecificWarnings>5045</DisableSpecificWarnings>
       <CompileAs>CompileAsC</CompileAs>
-      <CallingConvention>Cdecl</CallingConvention>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
-      <OmitFramePointers>true</OmitFramePointers>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

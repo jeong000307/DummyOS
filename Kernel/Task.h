@@ -10,7 +10,7 @@
 
 typedef struct __TASK_MANAGER TASK_MANAGER;
 
-typedef struct Context* (*CREATE_TASK)(
+typedef void (*CREATE_TASK)(
   TASK_MANAGER* this,
   addr          function,
   int64         data);

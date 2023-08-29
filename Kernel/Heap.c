@@ -21,11 +21,11 @@ HEAP* GetSystemHeap(void) {
     return &systemHeap;
 }
 
-static byte* __ChangeProgramBreak(HEAP* this, size increment) {
-    byte* previousBreak;
+static addr __ChangeProgramBreak(HEAP* this, size increment) {
+   addr previousBreak;
 
     if (this->programBreak == 0 or this->programBreak + increment >= this->programBreakLimit) {
-        return (byte*)-1;
+        return -1;
     }
 
     previousBreak = this->programBreak;
@@ -36,8 +36,8 @@ static byte* __ChangeProgramBreak(HEAP* this, size increment) {
 
 void* AllocateMemory(size length) {
     HEAP* systemHeap = GetSystemHeap();
-    void* startPointer = systemHeap->ChangeProgramBreak(systemHeap, 0);
-    void* endPointer = systemHeap->ChangeProgramBreak(systemHeap, length);
+    void* startPointer = (void *)systemHeap->ChangeProgramBreak(systemHeap, 0);
+    void* endPointer = (void*)systemHeap->ChangeProgramBreak(systemHeap, length);
 
     if (endPointer == (void*)-1 or startPointer == endPointer) {
         return NULL;

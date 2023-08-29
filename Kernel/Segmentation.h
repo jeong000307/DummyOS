@@ -13,19 +13,19 @@ enum SegmentDescriptorType {
 union SegmentDescriptor {
     uint64 data;
     struct {
-        unsigned limitLow : 16;
-        unsigned baseLow : 16;
-        unsigned baseMiddle : 8;
-        enum DescriptorType type : 4;
-        unsigned systemSegment : 1;
-        unsigned descriptorPrivilegeLvel : 2;
-        unsigned present : 1;
-        unsigned limitHigh : 4;
-        unsigned available : 1;
-        unsigned longMode : 1;
-        unsigned defaultOperationSize : 1;
-        unsigned granularity : 1;
-        unsigned baseHigh : 8;
+        uint64 limitLow : 16;
+        uint64 baseLow : 16;
+        uint64 baseMiddle : 8;
+        uint64 type : 4;
+        uint64 systemSegment : 1;
+        uint64 descriptorPrivilegeLvel : 2;
+        uint64 present : 1;
+        uint64 limitHigh : 4;
+        uint64 available : 1;
+        uint64 longMode : 1;
+        uint64 defaultOperationSize : 1;
+        uint64 granularity : 1;
+        uint64 baseHigh : 8;
     } bits;
 };
 

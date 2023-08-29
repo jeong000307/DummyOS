@@ -2,6 +2,7 @@
 
 extern systemStack
 extern Main
+extern TimerOnInterrupt
 
 GLOBAL Enter
 GLOBAL Test
@@ -18,6 +19,7 @@ GLOBAL SetCR3
 GLOBAL SwitchContext
 GLOBAL ClearInterruptFlag
 GLOBAL SetInterruptFlag
+GLOBAL TimerInterruptHandler
 
 [SECTION .text]
 
@@ -72,15 +74,16 @@ LoadIDT:
     ret
 
 InitializeSegmentRegister:
+    push rbp
+    mov rbp, rsp
+
     mov ds, r8w
     mov es, r8w
     mov fs, r8w
     mov gs, r8w
-
-    push rbp
-    mov rbp, rsp
     mov ss, dx
     mov rax, .next
+
     push rcx
     push rax
     o64 retf
@@ -91,12 +94,12 @@ InitializeSegmentRegister:
     ret
 
 GetCS:
-    xor eax, eax
+    xor rax, rax
     mov ax, cs
     ret
 
 GetSS:
-    xor eax, eax
+    xor rax, rax
     mov ax, ss
     ret
 
@@ -188,3 +191,14 @@ ClearInterruptFlag:
 SetInterruptFlag:
     sti
     ret
+
+NotifyEndOfInterrupt:
+    mov ecx, 0xfee000b0
+    mov edx, 0
+    mov [ecx], edx
+    ret
+
+TimerInterruptHandler:
+    call NotifyEndOfInterrupt
+    call TimerOnInterrupt
+    iretq

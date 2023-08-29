@@ -13,7 +13,7 @@ code InitializeTimer(void) {
     timer.divideConfiguration = (uint32 *)0xfee003e0;
 
     *timer.divideConfiguration = 0b1011;
-    *timer.LVTTimer = (0b001 << 16) | TimerInterruptIndex;
+    *timer.LVTTimer = (0b010 << 16) | TimerInterruptIndex;
     *timer.initialCount = 0x1000000u;
 
     timer.tick = 0;
@@ -40,6 +40,6 @@ static void __StopTimer(
     *this->initialCount = 0;
 }
 
-void TimerOnInterrupt(void) {
-    ++timer.tick;
-}
+//void TimerOnInterrupt(void) {
+//    ++timer.tick;
+//}

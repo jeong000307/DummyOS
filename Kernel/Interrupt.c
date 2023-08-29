@@ -1,15 +1,67 @@
 #include "Interrupt.h"
 
-extern void TimerOnInterrupt(void);
-
 static struct InterruptDescriptor IDT[256];
-static QUEUE MessageQueue;
+static MESSAGE_QUEUE messageQueue;
 
-code InitializeInterrupt(void) {
-    InitializeQueue(&MessageQueue, 'w', 256);
+MESSAGE_QUEUE* GetMessageQueue(void) {
+    return &messageQueue;
+}
 
-    SetIDTEntry(&IDT[TimerInterruptIndex], MakeIDTAttribute(InterruptGate, 0, true, 0), (uint64)TimerInterruptHandler, GetCS());
-    LoadIDT(sizeof(IDT) - 1, (uint64)(&IDT[0]));
+void InitializeMessageQueue(
+  MESSAGE_QUEUE* meesageQueue) {
+    meesageQueue->count = 0;
+    meesageQueue->capacity = 256;
+
+    meesageQueue->Push = __MessageQueuePush;
+    meesageQueue->Pop = __MessageQueuePop;
+
+    meesageQueue->front = 0;
+    meesageQueue->end = 0;
+
+    return;
+}
+
+static code __MessageQueuePush(
+  MESSAGE_QUEUE* messageQueue,
+  struct Message value) {
+    if (messageQueue->count >= messageQueue->capacity) {
+        return QUEUE_ERROR;
+    }
+
+    messageQueue->messages[messageQueue->end++] = value;
+    ++messageQueue->count;
+
+    if (messageQueue->end >= messageQueue->capacity) {
+        messageQueue->end = 0;
+    }
+
+    return SUCCESS;
+}
+
+static struct Message __MessageQueuePop(
+  MESSAGE_QUEUE* messageQueue) {
+  struct Message value;
+
+    if (messageQueue->count <= 0) {
+        return;
+    }
+
+    value = messageQueue->messages[messageQueue->front++];
+    --messageQueue->count;
+
+    if (messageQueue->front >= messageQueue->capacity) {
+        messageQueue->front = 0;
+    }
+
+    return value;
+}
+
+code InitializeInterrupt(
+  MESSAGE_QUEUE* messageQueue) {
+    InitializeMessageQueue(messageQueue);
+
+    SetIDTEntry(&IDT[TimerInterruptIndex], MakeIDTAttribute(InterruptGate, 0, true, 0), (addr)TimerInterruptHandler, 1 << 3);
+    LoadIDT(sizeof(IDT) - 1, &IDT[0]);
 
     return SUCCESS;
 }
@@ -19,7 +71,9 @@ union InterruptDescriptorAttribute MakeIDTAttribute(
   byte descriptorPrivilegeLevel,
   bool present,
   byte interruptStackTable) {
-    union InterruptDescriptorAttribute attribute = {0};
+    union InterruptDescriptorAttribute attribute;
+
+    attribute.data = 0;
 
     attribute.bits.interruptStackTable = interruptStackTable;
     attribute.bits.type = type;
@@ -41,13 +95,6 @@ void SetIDTEntry(
     descriptor->segmentSelector = segmentSelector;
 }
 
-void NotifyEndOfInterrupt(void) {
-    volatile uint32* endOfInterrupt = (uint32 *)0xfee000b0;
-
-    *endOfInterrupt = 0;
-}
-
-void TimerInterruptHandler(struct InterruptFrame* frame) {
-    MessageQueue.Push(&MessageQueue, TimerInterruptIndex);
-    NotifyEndOfInterrupt();
+void TimerOnInterrupt(void) {
+    messageQueue.Push(&messageQueue, (struct Message) { TimerInterruptIndex });
 }

@@ -77,6 +77,8 @@ static int8 __QueuePopByte(
         queue->front = (addr)queue->data;
     }
 
+    --queue->count;
+
     return value;
 }
 
@@ -114,6 +116,8 @@ static int16 __QueuePopWord(
     if (queue->front >= (int16*)queue->data + queue->capacity) {
         queue->front = (addr)queue->data;
     }
+
+    --queue->count;
 
     return value;
 }
@@ -153,6 +157,8 @@ static int32 __QueuePopDword(
         queue->front = (addr)queue->data;
     }
 
+    --queue->count;
+
     return value;
 }
 
@@ -190,6 +196,8 @@ static int64 __QueuePopQword(
     if (queue->front >= (int64*)queue->data + queue->capacity) {
         queue->front = (addr)queue->data;
     }
+
+    --queue->count;
 
     return value;
 }
