@@ -77,7 +77,7 @@
       <GenerateMapFile>true</GenerateMapFile>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <BaseAddress>0x1000000</BaseAddress>
+      <BaseAddress>0x100000</BaseAddress>
       <FixedBaseAddress>true</FixedBaseAddress>
       <AdditionalOptions>/emittoolversioninfo:no %(AdditionalOptions)</AdditionalOptions>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -104,7 +104,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ACPI.c" />
     <ClCompile Include="Console.c" />
+    <ClCompile Include="Memory.c" />
     <ClCompile Include="Task.c" />
     <ClCompile Include="DataStructure.c" />
     <ClCompile Include="Error.c" />
@@ -114,7 +116,7 @@
     <ClCompile Include="Interrupt.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="Math.c" />
-    <ClCompile Include="Memory.c" />
+    <ClCompile Include="MemoryManager.c" />
     <ClCompile Include="PCI.c" />
     <ClCompile Include="Segmentation.c" />
     <ClCompile Include="String.c" />
@@ -126,8 +128,10 @@
     </NASM>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ACPI.h" />
     <ClInclude Include="AssemblyFunction.h" />
     <ClInclude Include="Console.h" />
+    <ClInclude Include="Memory.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="DataStructure.h" />
     <ClInclude Include="Error.h" />
@@ -137,7 +141,7 @@
     <ClInclude Include="Heap.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Math.h" />
-    <ClInclude Include="Memory.h" />
+    <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="PCI.h" />
     <ClInclude Include="String.h" />
     <ClInclude Include="Timer.h" />

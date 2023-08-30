@@ -40,6 +40,9 @@ static void __StopTimer(
     *this->initialCount = 0;
 }
 
-//void TimerOnInterrupt(void) {
-//    ++timer.tick;
-//}
+void TimerOnInterrupt(void) {
+    MESSAGE_QUEUE* messageQueue = GetMessageQueue();
+
+    ++timer.tick;
+    messageQueue->Push(messageQueue, (struct Message) { TimerInterruptIndex });
+}

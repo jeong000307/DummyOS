@@ -1,23 +1,39 @@
 #include "Main.h"
 
+static struct SystemConfiguration systemConfiguration;
+
 void Main(
-  const struct FrameBufferConfig* frameBufferConfiguration,
+  const struct FrameBufferConfiguration* frameBufferConfiguration,
   const struct MemoryMap* memoryMap) {
-    SCREEN*         screen = GetScreen();
-    CONSOLE*        systemConsole = GetSystemConsole();
-    PCI_DEVICES*    PCIDevices = GetPCIDevices();
-    MEMORY_MANAGER* memoryManager = GetMemoryManager();
-    HEAP*           systemHeap = GetSystemHeap();
-    TIMER*          systemTimer = GetTimer();
-    TASK_MANAGER*   taskManager = GetTaskManager();
-    MESSAGE_QUEUE*  messageQueue = GetMessageQueue();
-    struct Message  message;
+    struct SystemConfiguration* systemConfiguration = GetSystemConfiguration(frameBufferConfiguration, memoryMap);
+    SCREEN*                     screen = GetScreen();
+    CONSOLE*                    systemConsole = GetSystemConsole();
+    PCI_DEVICES*                PCIDevices = GetPCIDevices();
+    MEMORY_MANAGER*             memoryManager = GetMemoryManager();
+    HEAP*                       systemHeap = GetSystemHeap();
+    TIMER*                      systemTimer = GetTimer();
+    TASK_MANAGER*               taskManager = GetTaskManager();
+    MESSAGE_QUEUE*              messageQueue = GetMessageQueue();
+
+    ClearInterruptFlag();
+
+    if (InitialzeSegmentation() != SUCCESS) {
+        return;
+    }
+
+    if (InitializeMemoryManager(&systemConfiguration->memoryMap) != SUCCESS) {
+        return;
+    }
+
+    if (InitializeHeap(memoryManager) != SUCCESS) {
+        return;
+    }
 
     if (InitializeTimer() != SUCCESS) {
         return;
     }
 
-    if (InitializeScreen(frameBufferConfiguration) != SUCCESS) {
+    if (InitializeScreen(&systemConfiguration->frameBufferConfiguration) != SUCCESS) {
         return;
     }
 
@@ -25,13 +41,7 @@ void Main(
         return;
     }
 
-    systemConsole->Print(systemConsole, "Initializing screen and system console is success.\n");
-
-    systemConsole->Print(systemConsole, "Initializing segmentation is %s.\n", Error(InitialzeSegmentation()));
-
-    systemConsole->Print(systemConsole, "Initializing memory manager is %s.\n", Error(InitializeMemoryManager(memoryMap)));
-
-    systemConsole->Print(systemConsole, "Initializing system heap is %s.\n", Error(InitializeHeap(memoryManager)));
+    systemConsole->Print(systemConsole, "Booting...\n");
 
     systemConsole->Print(systemConsole, "Initializing interrupt is %s.\n", Error(InitializeInterrupt(messageQueue)));
 
@@ -47,15 +57,17 @@ void Main(
             continue;
         }
 
-        message = messageQueue->Pop(messageQueue);
         SetInterruptFlag();
-
-        switch (message.type) {
-            case TimerInterruptIndex:
-                systemConsole->Print(systemConsole, "INTERRUPT\n");
-                break;
-        }
     }
 
     Pause();
+}
+
+struct SystemConfiguration* GetSystemConfiguration(
+  struct FrameBufferConfiguration* frameBufferConfiguration,
+  struct MemoryMap*                memoryMap) {
+    systemConfiguration.frameBufferConfiguration = *frameBufferConfiguration;
+    systemConfiguration.memoryMap = *memoryMap;
+
+    return &systemConfiguration;
 }

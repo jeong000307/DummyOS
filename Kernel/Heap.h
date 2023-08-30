@@ -3,7 +3,7 @@
 
 #include "Type.h"
 #include "Error.h"
-#include "Memory.h"
+#include "MemoryManager.h"
 
 typedef struct __HEAP HEAP;
 

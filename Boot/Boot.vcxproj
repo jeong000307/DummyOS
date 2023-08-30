@@ -96,7 +96,7 @@
       <EntryPointSymbol>Main</EntryPointSymbol>
       <RandomizedBaseAddress />
       <DataExecutionPrevention>false</DataExecutionPrevention>
-      <AdditionalOptions>/emittoolversioninfo:no /VERBOSE %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/emittoolversioninfo:no %(AdditionalOptions)</AdditionalOptions>
       <GenerateMapFile>true</GenerateMapFile>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>

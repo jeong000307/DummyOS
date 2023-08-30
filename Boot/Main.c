@@ -3,26 +3,26 @@
 EFI_STATUS Main(
   IN EFI_HANDLE        imageHandle,
   IN EFI_SYSTEM_TABLE* systemTable) {
-    UINT32                        entryAddress;
-    UINTN                        fileInfoSize = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
-    UINTN                        kernelFileSize;
-    UINTN                        numberOfPages;
-    EFI_STATUS                    status;
+    UINT32                               entryAddress;
+    UINTN                                fileInfoSize = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
+    UINTN                                kernelFileSize;
+    UINTN                                numberOfPages;
+    EFI_STATUS                           status;
 
-    EFI_FILE_INFO*                fileInfo;
-    EFI_FILE_PROTOCOL*            kernelFile;
-    EFI_FILE_PROTOCOL*            memoryMapFile;
-    EFI_FILE_PROTOCOL*            rootDirectory;
-    EFI_GRAPHICS_OUTPUT_PROTOCOL* GOP;
-    EFI_PHYSICAL_ADDRESS          kernelStartAddress;
-    EFI_PHYSICAL_ADDRESS          kernelEndAddress;
+    EFI_FILE_INFO*                       fileInfo;
+    EFI_FILE_PROTOCOL*                   kernelFile;
+    EFI_FILE_PROTOCOL*                   memoryMapFile;
+    EFI_FILE_PROTOCOL*                   rootDirectory;
+    EFI_GRAPHICS_OUTPUT_PROTOCOL*        GOP;
+    EFI_PHYSICAL_ADDRESS                 kernelStartAddress;
+    EFI_PHYSICAL_ADDRESS                 kernelEndAddress;
 
-    CHAR8                         memoryMapBuffer[4096 * 4];
-    UINT8                         fileInfoBuffer[sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12]; // VLA issue; size of array is equal to fileInfoSize
-    VOID*                         kernelBuffer;
-    
-    struct MEMORY_MAP             memoryMap = { sizeof(memoryMapBuffer), 0, 0, memoryMapBuffer };
-    struct FRAME_BUFFER_CONFIG    frameBufferConfig;
+    CHAR8                                memoryMapBuffer[4096 * 4];
+    UINT8                                fileInfoBuffer[sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12]; // VLA issue; size of array is equal to fileInfoSize
+    VOID*                                kernelBuffer;
+
+    struct MEMORY_MAP                    memoryMap = { sizeof(memoryMapBuffer), 0, 0, memoryMapBuffer };
+    struct FRAME_BUFFER_CONFIGURATION    frameBufferConfiguration;
 
     EntryPoint*                   entryPoint;
 
@@ -65,7 +65,7 @@ EFI_STATUS Main(
 
     status = OpenGOP(imageHandle, &GOP);
 
-    frameBufferConfig = (struct FRAME_BUFFER_CONFIG){ GOP->Mode->Info->PixelsPerScanLine, GOP->Mode->Info->HorizontalResolution, GOP->Mode->Info->VerticalResolution, 0, (UINT8*)GOP->Mode->FrameBufferBase };
+    frameBufferConfiguration = (struct FRAME_BUFFER_CONFIGURATION){ GOP->Mode->Info->HorizontalResolution, GOP->Mode->Info->VerticalResolution, 0, (UINT8*)GOP->Mode->FrameBufferBase };
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open GOP: %r\n", status);
@@ -74,10 +74,10 @@ EFI_STATUS Main(
 
     switch (GOP->Mode->Info->PixelFormat) {
         case PixelRedGreenBlueReserved8BitPerColor:
-            frameBufferConfig.pixelFormat = pixelRGBReserved8BitPerColor;
+            frameBufferConfiguration.pixelFormat = pixelRGBReserved8BitPerColor;
             break;
         case PixelBlueGreenRedReserved8BitPerColor:
-            frameBufferConfig.pixelFormat = pixelBGRReserved8BitPerColor;
+            frameBufferConfiguration.pixelFormat = pixelBGRReserved8BitPerColor;
             break;
         default:
             Print(L"[ERROR] Graphics output protocol does not support RGB mode. GOP supports %d mode.\n", GOP->Mode->Info->PixelFormat);
@@ -158,7 +158,7 @@ EFI_STATUS Main(
         }
     }
 
-    entryPoint(&frameBufferConfig, &memoryMap);
+    entryPoint(&frameBufferConfiguration, &memoryMap);
 
     return EFI_SUCCESS;
 }

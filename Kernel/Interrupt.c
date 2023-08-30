@@ -94,7 +94,3 @@ void SetIDTEntry(
     descriptor->offsetHigh = offset >> 32;
     descriptor->segmentSelector = segmentSelector;
 }
-
-void TimerOnInterrupt(void) {
-    messageQueue.Push(&messageQueue, (struct Message) { TimerInterruptIndex });
-}

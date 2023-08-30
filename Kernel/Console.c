@@ -24,7 +24,7 @@ code InitializeSystemConsole(
     return SUCCESS;
 }
 
-static code __Print(
+static void __Print(
   CONSOLE*        this,
   const byte*     string,
   ...) {
@@ -42,8 +42,8 @@ static code __Print(
         }
 
         if (this->cursor.y >= this->rows) {
-            CopyMemory(this->screen->GetPixelAddress(this->screen, 0, 16), this->screen->frameBuffer, this->screen->GetPixelAddress(this->screen, this->screen->horizontalResolution, this->screen->verticalResolution) - this->screen->frameBuffer);
-            SetMemory(this->screen->GetPixelAddress(this->screen, 0, (this->rows - 1) * 16), 0, this->screen->GetPixelAddress(this->screen, this->screen->horizontalResolution, this->screen->verticalResolution) - this->screen->GetPixelAddress(this->screen, 0, (this->rows - 1) * 16));
+            CopyMemory(this->screen->GetPixelAddress(this->screen, 0, 16), this->screen->screenBuffer, this->screen->horizontalResolution * (this->screen->verticalResolution - 16) * 4 * sizeof(byte));
+            SetMemory(this->screen->GetPixelAddress(this->screen, 0, (this->rows - 1) * 16), 0, this->screen->horizontalResolution * 16 * 4 * sizeof(byte));
 
             --this->cursor.y;
             this->cursor.x = 0;
@@ -106,7 +106,7 @@ static code __Print(
 
     va_end(list);
 
-    return SUCCESS;
+    this->screen->Refresh(this->screen);
 }
 
 static code WriteAscii(
@@ -121,7 +121,7 @@ static code WriteAscii(
     for (dy = 0; dy < 16; ++dy) {
         for (dx = 0; dx < 8; ++dx) {
             if ((font[dy] << dx) & 0x80u) {
-                screen->WritePixel(screen, x + dx, y + dy, color);
+                screen->WriteBuffer(screen, x + dx, y + dy, color);
             }
         }
     }

@@ -36,7 +36,7 @@
     <ClCompile Include="Font.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Memory.c">
+    <ClCompile Include="MemoryManager.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Heap.c">
@@ -58,6 +58,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Task.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ACPI.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -92,7 +98,7 @@
     <ClInclude Include="Segmentation.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Memory.h">
+    <ClInclude Include="MemoryManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Heap.h">
@@ -108,6 +114,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Task.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ACPI.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

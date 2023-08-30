@@ -7,7 +7,7 @@
 #include "PE.h"
 
 typedef void EntryPoint(
-  IN struct FRAME_BUFFER_CONFIG*,
+  IN struct FRAME_BUFFER_CONFIGURATION*,
   IN struct MEMORY_MAP*);
 
 enum PIXEL_FORMAT {
@@ -15,8 +15,7 @@ enum PIXEL_FORMAT {
     pixelBGRReserved8BitPerColor
 };
 
-struct FRAME_BUFFER_CONFIG {
-    UINT32            pixelsPerScanLine;
+struct FRAME_BUFFER_CONFIGURATION {
     UINT32            horizontalResolution;
     UINT32            verticalResolution;
 

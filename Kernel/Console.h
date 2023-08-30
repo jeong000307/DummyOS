@@ -12,7 +12,7 @@
 
 typedef struct __CONSOLE CONSOLE;
 
-typedef code (*PRINT)(
+typedef void (*PRINT)(
   CONSOLE*        this,
   const byte*     string,
   ...);
@@ -44,7 +44,7 @@ code InitializeSystemConsole(
     
 **/
 
-static code __Print(
+static void __Print(
   CONSOLE*        this,
   const byte*     string,
   ...);

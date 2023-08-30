@@ -7,8 +7,8 @@ SCREEN* GetScreen(void) {
 }
 
 code InitializeScreen(
-  const struct FrameBufferConfig* frameBufferConfiguration) {
-    if (frameBufferConfiguration->pixelsPerScanLine == 0 or frameBufferConfiguration->horizontalResolution == 0 or frameBufferConfiguration->verticalResolution == 0) {
+  const struct FrameBufferConfiguration* frameBufferConfiguration) {
+    if (frameBufferConfiguration->horizontalResolution == 0 or frameBufferConfiguration->verticalResolution == 0) {
         return INVALID_PARAMETER;
     }
 
@@ -16,25 +16,28 @@ code InitializeScreen(
         return MEMORY_ERROR;
     }
 
-    screen.frameBuffer = frameBufferConfiguration->frameBuffer;
-
-    screen.pixelsPerScanLine = frameBufferConfiguration->pixelsPerScanLine;
     screen.horizontalResolution = frameBufferConfiguration->horizontalResolution;
     screen.verticalResolution = frameBufferConfiguration->verticalResolution;
 
-    SetMemory(screen.frameBuffer, 0, (size)screen.horizontalResolution * (size)screen.verticalResolution * sizeof(byte) * 4);
+    screen.frameBuffer = frameBufferConfiguration->frameBuffer;
+    screen.screenBuffer = AllocateMemory(screen.horizontalResolution * screen.verticalResolution * sizeof(byte) * 4);
 
-    screen.WritePixel = frameBufferConfiguration->pixelFormat == pixelRGBReserved8BitPerColor? __WritePixelRGB: __WritePixelBGR;
+    SetMemory(screen.screenBuffer, 0, screen.horizontalResolution * screen.verticalResolution * sizeof(byte) * 4);
+
+    screen.WriteBuffer = frameBufferConfiguration->pixelFormat == pixelRGBReserved8BitPerColor? __WriteBufferRGB: __WriteBufferBGR;
     
     screen.GetPixelAddress = __GetPixelAddress;
+    screen.Refresh = __Refresh;
+
+    screen.Refresh(&screen);
 
     return SUCCESS;
 }
 
-static void __WritePixelRGB(
+static void __WriteBufferRGB(
   const SCREEN*           this,
-  size                    x,
-  size                    y,
+  const size              x,
+  const size              y,
   const struct PixelColor color) {
     byte* pixel = this->GetPixelAddress(this, x, y);
 
@@ -43,10 +46,10 @@ static void __WritePixelRGB(
     pixel[2] = color.blue;
 }
 
-static void __WritePixelBGR(
+static void __WriteBufferBGR(
   const SCREEN*           this,
-  size                    x,
-  size                    y,
+  const size              x,
+  const size              y,
   const struct PixelColor color) {
     byte* pixel = this->GetPixelAddress(this, x, y);
 
@@ -57,7 +60,14 @@ static void __WritePixelBGR(
 
 static byte* __GetPixelAddress(
   const SCREEN* this,
-  size          x,
-  size          y) {
-    return this->frameBuffer + 4 * sizeof(byte) * (this->pixelsPerScanLine * y + x);
+  const size    x,
+  const size    y) {
+    return this->screenBuffer + 4 * sizeof(byte) * (this->horizontalResolution * y + x);
+}
+
+static void __Refresh(
+  const SCREEN* this) {
+    CopyMemory(this->screenBuffer, this->frameBuffer, this->horizontalResolution * this->verticalResolution * sizeof(byte) * 4);
+
+    return;
 }
