@@ -52,7 +52,7 @@ code CopyMemory(
         return MEMORY_ERROR;
     }
 
-    if (sourcePointer < destinationPointer) {
+    if (sourcePointer > destinationPointer) {
         while (length > 0) {
             *destinationPointer++ = *sourcePointer++;
 

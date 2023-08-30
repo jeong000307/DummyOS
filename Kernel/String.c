@@ -38,7 +38,7 @@ void ConvertDecimalToString(byte* string, uint64 number, bool sign) {
 
     if (sign and number > MAX_INT64) {
         buffer[0] = '-';
-        number = -(int)number;
+        number = -(int64)number;
         ++index;
     }
 

@@ -2,114 +2,200 @@
 #define __DATASTRUCTURE_H__
 
 #include "Error.h"
+#include "Memory.h"
 #include "Type.h"
 
-typedef struct __QUEUE QUEUE;
-typedef struct __STACK STACK;
+typedef struct __MESSAGE_QUEUE MESSAGE_QUEUE;
 
-typedef code (*QUEUE_PUSH)(
-  QUEUE* this,
-  void* value);
+typedef code (*MESSAGE_QUEUE_PUSH)(
+  MESSAGE_QUEUE* this,
+  struct Message value);
 
-typedef void* (*QUEUE_POP)(
-  QUEUE* this);
+typedef struct Message (*MESSAGE_QUEUE_POP)(
+  MESSAGE_QUEUE* this);
 
-typedef code (*STACK_PUSH)(
-  STACK* this,
-  void* value);
+struct __MESSAGE_QUEUE {
+    size               count;
+    size               capacity;
+    size               front;
+    size               end;
 
-typedef void* (*STACK_POP)(
-  STACK* this);
+    struct Message*    messages;
 
-struct __QUEUE {
-    size       count;
-    size       capacity;
-
-    addr       front;
-    addr       end;
-
-    void*      data;
-
-    QUEUE_PUSH Push;
-    QUEUE_POP  Pop;
+    MESSAGE_QUEUE_PUSH Push;
+    MESSAGE_QUEUE_POP  Pop;
 };
 
-struct __STACK {
-    size       count;
-    size       capacity;
+struct Message {
+    byte type;
 
-    addr       end;
-
-    void*      data;
-
-    STACK_PUSH Push;
-    STACK_POP  Pop;
+    union {
+        struct {
+            size  timeOut;
+            int64 value;
+        } timer;
+    } argument;
 };
 
-void InitializeQueue(
-    QUEUE* queue,
-    byte type,
-    size capacity);
+typedef struct __TIMER_QUEUE TIMER_QUEUE;
 
-static code __QueuePushByte(
-    QUEUE* queue,
-    int8  value);
+typedef code (*TIMER_QUEUE_PUSH)(
+  TIMER_QUEUE* this,
+  struct Timer value);
 
-static int8 __QueuePopByte(
-    QUEUE* queue);
+typedef struct Timer (*TIMER_QUEUE_POP)(
+  TIMER_QUEUE* this);
 
-static code __QueuePushWord(
-    QUEUE* queue,
-    int16 value);
+typedef struct Timer* (*TIMER_QUEUE_TOP)(
+  TIMER_QUEUE* this);
 
-static int16 __QueuePopWord(
-    QUEUE* queue);
+struct __TIMER_QUEUE {
+    size             count;
+    size             capacity;
 
-static code __QueuePushDword(
-    QUEUE* queue,
-    int32 value);
+    struct Timer     *timers;
 
-static int32 __QueuePopDword(
-    QUEUE* queue);
+    TIMER_QUEUE_PUSH Push;
+    TIMER_QUEUE_POP  Pop;
+    TIMER_QUEUE_TOP  Top;
+};
 
-static code __QueuePushQword(
-    QUEUE* queue,
-    int64 value);
+struct Timer {
+    size  timeOut;
+    int64 value;
+};
 
-static int64 __QueuePopQword(
-    QUEUE* queue);
+void InitializeMessageQueue(
+  MESSAGE_QUEUE* meesageQueue,
+  size           capacity);
 
-void InitializeStack(
-    STACK* stack,
-    byte type,
-    size capacity);
+static code __MessageQueuePush(
+  MESSAGE_QUEUE* messageQueue,
+  struct Message value);
 
-static code __StackPushByte(
-    STACK* stack,
-    int8 value);
+static struct Message __MessageQueuePop(
+  MESSAGE_QUEUE* messageQueue);
 
-static int8 __StackPopByte(
-    STACK* stack);
+void InitializeTimerQueue(
+  TIMER_QUEUE* this,
+  size         capacity);
 
-static code __StackPushWord(
-    STACK* stack,
-    int16 value);
+static code __TimerQueuePush(
+  TIMER_QUEUE*  this,
+  struct Timer value);
 
-static int16 __StackPopWord(
-    STACK* stack);
+static struct Timer __TimerQueuePop(
+  TIMER_QUEUE* this);
 
-static code __StackPushDword(
-    STACK* stack,
-    int32 value);
+static struct Timer* __TimerQueueTop(
+  TIMER_QUEUE* this);
 
-static int32 __StackPopDword(
-    STACK* stack);
-
-static code __StackPushQword(
-    STACK* stack,
-    int64 value);
-
-static int64 __StackPopQword(
-    STACK* stack);
+//typedef struct __QUEUE QUEUE;
+//typedef struct __STACK STACK;
+//
+//typedef code (*QUEUE_PUSH)(
+//  QUEUE* this,
+//  void* value);
+//
+//typedef void* (*QUEUE_POP)(
+//  QUEUE* this);
+//
+//typedef code (*STACK_PUSH)(
+//  STACK* this,
+//  void* value);
+//
+//typedef void* (*STACK_POP)(
+//  STACK* this);
+//
+//struct __QUEUE {
+//    size       count;
+//    size       capacity;
+//
+//    addr       front;
+//    addr       end;
+//
+//    void*      data;
+//
+//    QUEUE_PUSH Push;
+//    QUEUE_POP  Pop;
+//};
+//
+//struct __STACK {
+//    size       count;
+//    size       capacity;
+//
+//    addr       end;
+//
+//    void*      data;
+//
+//    STACK_PUSH Push;
+//    STACK_POP  Pop;
+//};
+//
+//void InitializeQueue(
+//    QUEUE* queue,
+//    byte type,
+//    size capacity);
+//
+//static code __QueuePushByte(
+//    QUEUE* queue,
+//    int8  value);
+//
+//static int8 __QueuePopByte(
+//    QUEUE* queue);
+//
+//static code __QueuePushWord(
+//    QUEUE* queue,
+//    int16 value);
+//
+//static int16 __QueuePopWord(
+//    QUEUE* queue);
+//
+//static code __QueuePushDword(
+//    QUEUE* queue,
+//    int32 value);
+//
+//static int32 __QueuePopDword(
+//    QUEUE* queue);
+//
+//static code __QueuePushQword(
+//    QUEUE* queue,
+//    int64 value);
+//
+//static int64 __QueuePopQword(
+//    QUEUE* queue);
+//
+//void InitializeStack(
+//    STACK* stack,
+//    byte type,
+//    size capacity);
+//
+//static code __StackPushByte(
+//    STACK* stack,
+//    int8 value);
+//
+//static int8 __StackPopByte(
+//    STACK* stack);
+//
+//static code __StackPushWord(
+//    STACK* stack,
+//    int16 value);
+//
+//static int16 __StackPopWord(
+//    STACK* stack);
+//
+//static code __StackPushDword(
+//    STACK* stack,
+//    int32 value);
+//
+//static int32 __StackPopDword(
+//    STACK* stack);
+//
+//static code __StackPushQword(
+//    STACK* stack,
+//    int64 value);
+//
+//static int64 __StackPopQword(
+//    STACK* stack);
 
 #endif

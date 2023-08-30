@@ -6,6 +6,13 @@
 #include "Error.h"
 #include "AssemblyFunction.h"
 
+#define EFI_PAGE_SIZE       4096
+#define PDP_TABLE_SIZE      64
+#define PAGE_DIRECTORY_SIZE 512
+#define MAX_PHYSICAL_MEMORY GiB(PDP_TABLE_SIZE)
+#define BYTE_PER_FRAME      KiB(4)
+#define NULL_FRAME          MAX_UINT64
+
 typedef struct __MEMORY_MANAGER MEMORY_MANAGER;
 
 typedef frame (*ALLOCATE_FRAME)(

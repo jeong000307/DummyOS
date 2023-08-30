@@ -86,7 +86,7 @@ InitializeSegmentRegister:
     mov fs, r8w
     mov gs, r8w
     mov ss, dx
-    mov rax, .next
+    mov rax, InitializeSegmentRegister.next
 
     push rcx
     push rax

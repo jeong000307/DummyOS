@@ -3,6 +3,7 @@
 
 #include "AssemblyFunction.h"
 #include "Console.h"
+#include "DataStructure.h"
 #include "Error.h"
 #include "Graphics.h"
 #include "Heap.h"

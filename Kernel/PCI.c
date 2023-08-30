@@ -1,10 +1,15 @@
 #include "PCI.h"
+#include "Timer.h"
 
 static PCI_DEVICES PCIDevices;
+
+TIMER_MANAGER* timerManager;
 
 code InitializePCI(void) {
     code  status;
     uint8 headerType = ReadPCIHeaderType(0, 0, 0);
+
+    timerManager = GetTimerManager();
 
     PCIDevices.count = 0;
 
@@ -131,10 +136,10 @@ static code AddPCIDevice(
         return PCI_ERROR;
     }
 
-    PCIDevices->devices[PCIDevices->count]->bus = bus;
-    PCIDevices->devices[PCIDevices->count]->device = device;
-    PCIDevices->devices[PCIDevices->count]->function = function;
-    PCIDevices->devices[PCIDevices->count]->headerType = headerType;
+    PCIDevices->devices[PCIDevices->count].bus = bus;
+    PCIDevices->devices[PCIDevices->count].device = device;
+    PCIDevices->devices[PCIDevices->count].function = function;
+    PCIDevices->devices[PCIDevices->count].headerType = headerType;
 
     ++PCIDevices->count;
 

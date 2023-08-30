@@ -33,11 +33,11 @@ enum PixelFormat {
 };
 
 struct FrameBufferConfiguration {
-    uint32            horizontalResolution;
-    uint32            verticalResolution;
+    uint32           horizontalResolution;
+    uint32           verticalResolution;
 
-    enum PixelFormat  pixelFormat;
-    byte*             frameBuffer;
+    enum PixelFormat pixelFormat;
+    byte*            frameBuffer;
 };
 
 struct __SCREEN {

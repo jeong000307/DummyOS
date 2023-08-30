@@ -9,11 +9,11 @@ typedef struct __HEAP HEAP;
 
 typedef addr (*CHANGE_PROGRAM_BREAK)(
   HEAP* this,
-  size increment);
+  size  increment);
 
 struct __HEAP {
-    addr programBreak;
-    addr programBreakLimit;
+    addr                 programBreak;
+    addr                 programBreakLimit;
 
     CHANGE_PROGRAM_BREAK ChangeProgramBreak;
 };
@@ -25,7 +25,7 @@ HEAP* GetSystemHeap(void);
 
 static addr __ChangeProgramBreak(
   HEAP* this, 
-  size increment);
+  size  increment);
 
 void* AllocateMemory(
   size length);

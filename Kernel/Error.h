@@ -9,6 +9,7 @@
 #define PCI_ERROR         3
 #define QUEUE_ERROR       4
 #define STACK_ERROR       5
+#define TIMER_ERROR       6
 
 char* Error(
   code status);

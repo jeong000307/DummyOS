@@ -5,6 +5,11 @@
 #include "Console.h"
 #include "Error.h"
 
+#define PCI_CONFIG_ADDRESS 0x0cf8
+#define PCI_CONFIG_DATA    0x0cfc
+#define PCI_DEVICE_MAX     32
+#define PCI_FUNCTION_MAX   8
+
 typedef struct __PCI_DEVICES PCI_DEVICES;
 
 struct PCIDevice {
@@ -12,7 +17,7 @@ struct PCIDevice {
 };
 
 struct __PCI_DEVICES {
-    struct PCIDevice* devices[32];
+    struct PCIDevice  devices[PCI_DEVICE_MAX];
     size              count;
 };
 

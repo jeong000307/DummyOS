@@ -2,18 +2,11 @@
 #define __INTERRUPT_H__
 
 #include "AssemblyFunction.h"
+#include "DataStructure.h"
 #include "Error.h"
+#include "Memory.h"
 #include "Timer.h"
 #include "Type.h"
-
-typedef struct __MESSAGE_QUEUE MESSAGE_QUEUE;
-
-typedef code (*MESSAGE_QUEUE_PUSH)(
-  MESSAGE_QUEUE* this,
-  struct Message value);
-
-typedef struct Message (*MESSAGE_QUEUE_POP)(
-  MESSAGE_QUEUE* this);
 
 enum InterruptDescriptorType {
     upper8Bytes = 0,
@@ -24,7 +17,6 @@ enum InterruptDescriptorType {
     InterruptGate = 14,
     TrapGate = 15,
 };
-
 
 enum InterruptVector {
     TimerInterruptIndex = 0x41
@@ -60,33 +52,7 @@ struct InterruptFrame {
     uint64 ss;
 };
 
-struct Message {
-    byte type;
-};
-
-struct __MESSAGE_QUEUE {
-    size               count;
-    size               capacity;
-    size               front;
-    size               end;
-
-    struct Message     messages[256];
-
-    MESSAGE_QUEUE_PUSH Push;
-    MESSAGE_QUEUE_POP  Pop;
-};
-
 MESSAGE_QUEUE* GetMessageQueue(void);
-
-void InitializeMessageQueue(
-  MESSAGE_QUEUE* meesageQueue);
-
-static code __MessageQueuePush(
-  MESSAGE_QUEUE* messageQueue,
-  struct Message value);
-
-static struct Message __MessageQueuePop(
-  MESSAGE_QUEUE* messageQueue);
 
 code InitializeInterrupt(
   MESSAGE_QUEUE* messageQueue);
@@ -104,7 +70,5 @@ void SetIDTEntry(
   uint16 segmentSelector);
 
 void TimerOnInterrupt(void);
-
-//void NotifyEndOfInterrupt(void);
 
 #endif
