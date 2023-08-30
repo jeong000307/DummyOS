@@ -109,14 +109,4 @@ static bool GetBit(
   MEMORY_MANAGER* memoryManager, 
   frame           frame);
 
-code SetMemory(
-  void* destination,
-  byte  value,
-  size  length);
-
-code CopyMemory(
-  void* source,
-  void* destination,
-  size  length);
-
 #endif

@@ -27,7 +27,4 @@ static addr __ChangeProgramBreak(
   HEAP* this, 
   size  increment);
 
-void* AllocateMemory(
-  size length);
-
 #endif

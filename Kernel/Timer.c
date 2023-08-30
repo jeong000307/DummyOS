@@ -60,35 +60,3 @@ void TimerOnInterrupt(void) {
         
     }
 }
-
-//TIMER* GetTimer(void) {
-//    return &timer;
-//}
-//
-//code InitializeTimer(void) {
-//
-//
-//
-//    timer.tick = 0;
-//
-//    timer.StartTimer = __StartTimer;
-//    timer.CountTime = __GetTime;
-//    timer.StopTimer = __StopTimer;
-//
-//    return SUCCESS;
-//}
-//
-//static void __StartTimer(
-//    TIMER* this) {
-//    *this->initialCount = MAX_COUNT;
-//}
-//
-//static uint32 __GetTime(
-//    TIMER* this) {
-//    return MAX_COUNT - *this->currentCount;
-//}
-//
-//static void __StopTimer(
-//    TIMER* this) {
-//    *this->initialCount = 0;
-//}

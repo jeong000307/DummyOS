@@ -42,27 +42,6 @@ EFI_STATUS Main(
         Pause();
     }
 
-    status = rootDirectory->Open(rootDirectory, &memoryMapFile, L"\\MemoryMap", EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
-
-    if (EFI_ERROR(status)) {
-        Print(L"[WARNING] Failed to open file '\\MemoryMap': %r\n", status);
-    }
-    else {
-        status = SaveMemoryMap(&memoryMap, memoryMapFile);
-
-        if (EFI_ERROR(status)) {
-            Print(L"[ERROR] Failed to save memory map: %r\n", status);
-            Pause();
-        }
-
-        status = memoryMapFile->Close(memoryMapFile);
-
-        if (EFI_ERROR(status)) {
-            Print(L"[ERROR] Failed to close memory map: %r\n", status);
-            Pause();
-        }
-    }
-
     status = OpenGOP(imageHandle, &GOP);
 
     frameBufferConfiguration = (struct FRAME_BUFFER_CONFIGURATION){ GOP->Mode->Info->HorizontalResolution, GOP->Mode->Info->VerticalResolution, 0, (UINT8*)GOP->Mode->FrameBufferBase };

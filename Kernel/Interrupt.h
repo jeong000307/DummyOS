@@ -69,6 +69,4 @@ void SetIDTEntry(
   uint64 offset,
   uint16 segmentSelector);
 
-void TimerOnInterrupt(void);
-
 #endif
