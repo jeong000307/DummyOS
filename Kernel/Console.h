@@ -38,7 +38,7 @@ struct __CONSOLE {
 CONSOLE* GetSystemConsole(void);
 
 code InitializeSystemConsole(
-  SCREEN*         screen);
+  SCREEN* screen);
 
 /**
     

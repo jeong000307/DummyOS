@@ -5,6 +5,25 @@
 #include "Memory.h"
 #include "Type.h"
 
+struct FrameBufferConfiguration {
+    uint32           horizontalResolution;
+    uint32           verticalResolution;
+
+    enum PixelFormat pixelFormat;
+    byte*            frameBuffer;
+};
+
+enum PixelFormat {
+    pixelRGBReserved8BitPerColor,
+    pixelBGRReserved8BitPerColor
+};
+
+struct PixelColor {
+    byte red;
+    byte green;
+    byte blue;
+};
+
 typedef struct __SCREEN SCREEN;
 
 typedef void (*WRITE_BUFFER)(
@@ -21,28 +40,9 @@ typedef byte* (*GET_PIXEL_ADDRESS)(
 typedef void (*REFRESH)(
   const SCREEN* this);
 
-struct PixelColor {
-    byte red;
-    byte green;
-    byte blue;
-};
-
-enum PixelFormat {
-    pixelRGBReserved8BitPerColor,
-    pixelBGRReserved8BitPerColor
-};
-
-struct FrameBufferConfiguration {
-    uint32           horizontalResolution;
-    uint32           verticalResolution;
-
-    enum PixelFormat pixelFormat;
-    byte*            frameBuffer;
-};
-
 struct __SCREEN {
-    uint32            horizontalResolution;
-    uint32            verticalResolution;
+    size              horizontalResolution;
+    size              verticalResolution;
 
     byte*             screenBuffer;
     byte*             frameBuffer;

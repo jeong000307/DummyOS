@@ -5,6 +5,22 @@
 #include "Memory.h"
 #include "Type.h"
 
+struct Message {
+    byte type;
+
+    union {
+        struct {
+            size  timeOut;
+            int64 value;
+        } timer;
+    } argument;
+};
+
+struct Timer {
+    size  timeOut;
+    int64 value;
+};
+
 typedef struct __MESSAGE_QUEUE MESSAGE_QUEUE;
 
 typedef code (*MESSAGE_QUEUE_PUSH)(
@@ -24,17 +40,6 @@ struct __MESSAGE_QUEUE {
 
     MESSAGE_QUEUE_PUSH Push;
     MESSAGE_QUEUE_POP  Pop;
-};
-
-struct Message {
-    byte type;
-
-    union {
-        struct {
-            size  timeOut;
-            int64 value;
-        } timer;
-    } argument;
 };
 
 typedef struct __TIMER_QUEUE TIMER_QUEUE;
@@ -58,11 +63,6 @@ struct __TIMER_QUEUE {
     TIMER_QUEUE_PUSH Push;
     TIMER_QUEUE_POP  Pop;
     TIMER_QUEUE_TOP  Top;
-};
-
-struct Timer {
-    size  timeOut;
-    int64 value;
 };
 
 void InitializeMessageQueue(

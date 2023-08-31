@@ -5,7 +5,7 @@ extern Main
 extern TimerOnInterrupt
 
 GLOBAL Enter
-GLOBAL Test
+GLOBAL Assert
 GLOBAL Pause
 GLOBAL IOOut32
 GLOBAL IOIn32
@@ -28,17 +28,18 @@ Enter:
     call Main
     ret
 
-Test:
+Assert:
     cli
     mov rax, rcx
 .rep:
     hlt
-    jmp Test.rep
+    jmp Assert.rep
     ret
+
 
 Pause:
     cli
-.rep
+.rep:
     hlt
     jmp Pause.rep
     ret
@@ -50,9 +51,9 @@ IOOut32:
     ret
 
 IOIn32:
+    xor rax, rax
     mov dx, cx
     in eax, dx
-    and rax, 0000FFFFh
     ret
 
 LoadGDT:

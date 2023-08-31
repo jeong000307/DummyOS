@@ -4,10 +4,10 @@ static union SegmentDescriptor GDT[3];
 
 static void SetCodeSegment(
   union SegmentDescriptor* descriptor,
-  enum DescriptorType type,
-  uint64 descriptorPrivilegeLevel,
-  uint32 base,
-  uint32 limit) {
+  uint16                   type,
+  uint64                   descriptorPrivilegeLevel,
+  uint32                   base,
+  uint32                   limit) {
     descriptor->data = 0;
 
     descriptor->bits.baseLow = base & 0xffffu;
@@ -29,10 +29,10 @@ static void SetCodeSegment(
 
 static void SetDataSegment(
   union SegmentDescriptor* descriptor,
-  enum DescriptorType type,
-  uint64 descriptorPrivilegeLevel,
-  uint32 base,
-  uint32 limit) {
+  uint16                   type,
+  uint64                   descriptorPrivilegeLevel,
+  uint32                   base,
+  uint32                   limit) {
     SetCodeSegment(descriptor, type, descriptorPrivilegeLevel, base, limit);
     descriptor->bits.longMode = 0;
     descriptor->bits.defaultOperationSize = 1;

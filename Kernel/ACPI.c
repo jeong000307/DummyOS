@@ -1,41 +1,34 @@
 #include "ACPI.h"
-#include "Console.h"
 
-struct XSDP ACPITable;
+static struct FADT FADT;
 
-struct FADT* FADT;
-
-struct XSDP* GetACPITable(void) {
-    return &ACPITable;
+struct FADT* GetFADT(void) {
+    return &FADT;
 }
 
 code InitializeACPI(
-  struct XSDP* XSDP) {
-    size         index;
-    struct XSDT* XSDT = (addr)(XSDP->XSDTAddress);
-    struct FADT* FADT = NULL;
+  const struct XSDP* XSDP) {
+    struct XSDT* XSDT = (struct XSDT*)(XSDP->XSDTAddress);
 
     if (CheckXSDP(XSDP) != true) {
-        return ACPI_ERROR;
+        Assert(ACPI_INVALID_XSDP);
     }
 
     if (CheckSDT(&XSDT->header, "XSDT") != true) {
-        return ACPI_ERROR;
+        Assert(ACPI_INVALID_XSDT);
     }
 
-    FADT = (struct FADT*)FindFADT(XSDT);
-
-    if (FADT == NULL) {
-        return ACPI_ERROR;
-    }
+    FADT = *(struct FADT*)FindFADT(XSDT);
 
     return SUCCESS;
 }
 
-void WaitMilliSeconds(uint32 milliSeconds) {
-    const size PMTimerFreqeuncy = 3579545;
-    const bool PMTimer32 = (FADT->flags >> 8) & 1;
-    const uint32 start = IOIn32(FADT->PMTimerBlock);
+void WaitMilliSeconds(
+  const uint32 milliSeconds) {
+    const uint32 PMTimerFreqeuncy = 3579545;
+    const bool PMTimer32 = (FADT.flags >> 8) & 1;
+    const uint16 PMTimerPort = FADT.PMTimerBlock & 0xffff;
+    const uint32 start = IOIn32(PMTimerPort);
     uint32 end = start + PMTimerFreqeuncy * milliSeconds / 1000;
 
     if (PMTimer32 != true) {
@@ -43,31 +36,31 @@ void WaitMilliSeconds(uint32 milliSeconds) {
     }
 
     if (end < start) {
-        while(IOIn32(FADT->PMTimerBlock) >= start);
+        while(IOIn32(PMTimerPort) >= start);
     }
-    while(IOIn32(FADT->PMTimerBlock) < end);
+    while(IOIn32(PMTimerPort) < end);
 
     return;
 }
 
-void* FindFADT(struct XSDT* XSDT) {
+static void* FindFADT(
+  const struct XSDT* XSDT) {
     size length = (XSDT->header.length - sizeof(XSDT->header)) / sizeof(addr);
     size index;
-    struct ACPI_SDT_HEADER* header = NULL;
-    CONSOLE* con = GetSystemConsole();
+    struct ACPISDTHeader* header = NULL;
 
     for (index = 0; index < length; ++index) {
-        header = (struct ACPI_SDT_HEADER*)(XSDT->OtherSDTPointer + 8 * index);
+        header = (struct ACPISDTHeader*)(XSDT->SDTPointer + index);
 
-        if (CheckSDT(header, "FACP")) {
+        if (CheckSDT(header, "FACP") == true) {
             return (void *)header;
         }
     }
 
-    return NULL;
+    Assert(ACPI_FADT_NOT_FOUND);
 }
 
-bool CheckXSDP(
+static bool CheckXSDP(
   const struct XSDP* XSDP) {
     size index;
     byte sum;
@@ -97,8 +90,8 @@ bool CheckXSDP(
     return true;
 }
 
-bool CheckSDT(
-  const struct ACPI_SDT_HEADER* header,
+static bool CheckSDT(
+  const struct ACPISDTHeader* header,
   const byte* expectedSignature) {
     size index;
     byte sum;

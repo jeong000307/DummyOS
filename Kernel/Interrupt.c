@@ -7,24 +7,21 @@ MESSAGE_QUEUE* GetMessageQueue(void) {
     return &messageQueue;
 }
 
-code InitializeInterrupt(
-  MESSAGE_QUEUE* messageQueue) {
-    InitializeMessageQueue(messageQueue, 256);
+code InitializeInterrupt(void) {
+    InitializeMessageQueue(&messageQueue, 256);
 
     SetIDTEntry(&IDT[TimerInterruptIndex], MakeIDTAttribute(InterruptGate, 0, true, 0), (addr)TimerInterruptHandler, 1 << 3);
-    LoadIDT(sizeof(IDT) - 1, &IDT[0]);
+    LoadIDT(sizeof(IDT) - 1, (addr)&IDT[0]);
 
     return SUCCESS;
 }
 
 union InterruptDescriptorAttribute MakeIDTAttribute(
-  enum DescriptorType type,
-  byte descriptorPrivilegeLevel,
-  bool present,
-  byte interruptStackTable) {
-    union InterruptDescriptorAttribute attribute;
-
-    attribute.data = 0;
+  uint16 type,
+  byte   descriptorPrivilegeLevel,
+  bool   present,
+  byte   interruptStackTable) {
+    union InterruptDescriptorAttribute attribute = { 0 };
 
     attribute.bits.interruptStackTable = interruptStackTable;
     attribute.bits.type = type;

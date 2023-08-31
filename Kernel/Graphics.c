@@ -16,13 +16,13 @@ code InitializeScreen(
         return MEMORY_ERROR;
     }
 
-    screen.horizontalResolution = frameBufferConfiguration->horizontalResolution;
-    screen.verticalResolution = frameBufferConfiguration->verticalResolution;
+    screen.horizontalResolution = (size)frameBufferConfiguration->horizontalResolution;
+    screen.verticalResolution = (size)frameBufferConfiguration->verticalResolution;
 
     screen.frameBuffer = frameBufferConfiguration->frameBuffer;
-    screen.screenBuffer = AllocateMemory(screen.horizontalResolution * screen.verticalResolution * sizeof(byte) * 4);
+    screen.screenBuffer = AllocateMemory(screen.horizontalResolution * screen.verticalResolution * 4ull * sizeof(byte));
 
-    SetMemory(screen.screenBuffer, 0, screen.horizontalResolution * screen.verticalResolution * sizeof(byte) * 4);
+    SetMemory(screen.screenBuffer, 0, screen.horizontalResolution * screen.verticalResolution * 4ull * sizeof(byte));
 
     screen.WriteBuffer = frameBufferConfiguration->pixelFormat == pixelRGBReserved8BitPerColor? __WriteBufferRGB: __WriteBufferBGR;
     
@@ -67,7 +67,8 @@ static byte* __GetPixelAddress(
 
 static void __Refresh(
   const SCREEN* this) {
-    CopyMemory(this->screenBuffer, this->frameBuffer, this->horizontalResolution * this->verticalResolution * sizeof(byte) * 4);
+    const size screenSize = (size)this->horizontalResolution * (size)this->verticalResolution * sizeof(byte) * 4;
+    CopyMemory(this->screenBuffer, this->frameBuffer, screenSize);
 
     return;
 }

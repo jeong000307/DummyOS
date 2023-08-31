@@ -5,7 +5,7 @@
 
 extern void Enter(void);
 
-extern void Test(uint64 value);
+extern void Assert(uint64 value);
 
 extern void Pause(void);
 

@@ -20,7 +20,7 @@ static void InitializeTask(
   struct Task* this,
   addr function, 
   int64 data) {
-    addr stackEnd = &this->stack[STACK_SIZE];
+    addr stackEnd = this->stack[STACK_SIZE - 1];
 
     SetMemory(this->stack, 0, sizeof(this->stack));
 

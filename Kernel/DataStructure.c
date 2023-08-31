@@ -39,7 +39,7 @@ static struct Message __MessageQueuePop(
     struct Message value;
 
     if (messageQueue->count <= 0) {
-        return;
+        Assert(MESSAGE_QUEUE_EMPTY);
     }
 
     value = messageQueue->messages[messageQueue->front++];
@@ -103,7 +103,7 @@ static struct Timer __TimerQueuePop(
     struct Timer value;
 
     if (this->count <= 0) {
-        return;
+        Assert(TIMER_QUEUE_EMPTY);
     }
 
     value = this->timers[index];

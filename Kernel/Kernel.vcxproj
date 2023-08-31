@@ -77,11 +77,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <BaseAddress>0x1000000</BaseAddress>
-      <FixedBaseAddress>true</FixedBaseAddress>
-      <AdditionalOptions>/emittoolversioninfo:no %(AdditionalOptions)</AdditionalOptions>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <AdditionalOptions>/emittoolversioninfo:no /DRIVER %(AdditionalOptions)</AdditionalOptions>
       <EntryPointSymbol>Enter</EntryPointSymbol>
-      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
       <SectionAlignment>4096</SectionAlignment>
     </Link>
     <NASM />

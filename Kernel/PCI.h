@@ -12,6 +12,28 @@
 
 typedef struct __PCI_DEVICES PCI_DEVICES;
 
+typedef code (*SCAN_PCI_BUS)(
+  PCI_DEVICES* this,
+  uint8        bus);
+
+typedef code (*SCAN_PCI_DEVICE)(
+  PCI_DEVICES* this,
+  uint8        bus,
+  uint8        device);
+
+typedef code (*SCAN_PCI_FUNCTION)(
+  PCI_DEVICES* this,
+  uint8        bus,
+  uint8        device,
+  uint8        function);
+
+typedef code (*ADD_PCI_DEVICE)(
+  PCI_DEVICES* this,
+  uint8        bus,
+  uint8        device,
+  uint8        function,
+  uint8        headerType);
+
 struct PCIDevice {
     uint8 bus, device, function, headerType;
 };
@@ -19,6 +41,11 @@ struct PCIDevice {
 struct __PCI_DEVICES {
     struct PCIDevice  devices[PCI_DEVICE_MAX];
     size              count;
+
+    SCAN_PCI_BUS      ScanPCIBus;
+    SCAN_PCI_DEVICE   ScanPCIDevice;
+    SCAN_PCI_FUNCTION ScanPCIFunction;
+    ADD_PCI_DEVICE    AddPCIDevice;
 };
 
 #pragma pack(push, 1)
@@ -77,27 +104,7 @@ PCI_DEVICES* GetPCIDevices(void);
 static bool HasSingleFunctionPCIDevice(
   uint8 headerType);
 
-static code ScanPCIBus(
-  PCI_DEVICES* PCIDevice,
-  uint8 bus);
 
-static code ScanPCIDevice(
-  PCI_DEVICES* PCIDevice,
-  uint8 bus,
-  uint8 device);
-
-static code ScanPCIFunction(
-  PCI_DEVICES* PCIDevice,
-  uint8 bus,
-  uint8 device,
-  uint8 function);
-
-static code AddPCIDevice(
-  PCI_DEVICES* PCIDevice,
-  uint8 bus,
-  uint8 device,
-  uint8 function,
-  uint8 headerType);
 
 uint16 ReadPCIVendorID(
   uint8 bus,
@@ -138,38 +145,26 @@ static void WritePCIData(
 
 static uint32 ReadPCIData(void);
 
-static uint64 ReadPCIBAR(
-  struct PCIDevice* device, 
-  uint64 BARIndex);
+static code __ScanPCIBus(
+    PCI_DEVICES* this,
+    uint8 bus);
 
-static uint8 GetPCIBARAddress(
-  uint64 BARIndex);
+static code __ScanPCIDevice(
+    PCI_DEVICES* this,
+    uint8 bus,
+    uint8 device);
 
-static uint32 ReadConfigurationRegister(
-  const struct PCIDevice* device, 
-  uint8 registerAddress);
+static code __ScanPCIFunction(
+    PCI_DEVICES* this,
+    uint8 bus,
+    uint8 device,
+    uint8 function);
 
-static void WriteConfigurationRegister(
-  const struct PCIDevice* device, 
-  uint8 registerAddress, 
-  uint32 value);
-
-static union CapabilityHeader ReadCapabilityHeader(
-  const struct PCIDevice* device, 
-  uint8 address);
-
-void ConfigureMSIFixedDestination(
-  const struct PCIDevice* device,
-  uint8 APICID,
-  enum MSITriggerMode triggerMode,
-  enum MSIDeliveryMode deliveryMode,
-  uint8 vector,
-  uint64 numberOfVectorExponent);
-
-void ConfigureMSI(
-  const struct PCIDevice* device,
-  uint32 messageAddress,
-  uint32 messageData,
-  uint64 numberOfVectorExponent);
+static code __AddPCIDevice(
+    PCI_DEVICES* this,
+    uint8 bus,
+    uint8 device,
+    uint8 function,
+    uint8 headerType);
 
 #endif

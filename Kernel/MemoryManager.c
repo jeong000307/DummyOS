@@ -55,16 +55,17 @@ MEMORY_MANAGER* GetMemoryManager(void) {
     return &memoryManager;
 }
 
-static bool IsUsableMemory(byte memoryType) {
+static bool IsUsableMemory(
+  uint32 memoryType) {
     size       index;
 
-    const byte AvailableMemoryTypes[3] = {
+    const uint32 AvailableMemoryTypes[3] = {
         EfiBootServicesCode,
         EfiBootServicesData,
         EfiConventionalMemory
     };
 
-    for (index = 0; index < sizeof(AvailableMemoryTypes) / sizeof(byte); ++index) {
+    for (index = 0; index < sizeof(AvailableMemoryTypes) / sizeof(uint32); ++index) {
         if (memoryType == AvailableMemoryTypes[index]) {
             return true;
         }

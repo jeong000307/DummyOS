@@ -33,14 +33,14 @@ union SegmentDescriptor {
 
 static void SetCodeSegment(
   union SegmentDescriptor* descriptor, 
-  enum DescriptorType      type,
+  uint16                   type,
   uint64                   descriptorPrivilegeLevel,
   uint32                   base,
   uint32                   limit);
 
 static void SetDataSegment(
   union SegmentDescriptor* descriptor,
-  enum DescriptorType      type,
+  uint16                   type,
   uint64                   descriptorPrivilegeLevel,
   uint32                   base,
   uint32                   limit);

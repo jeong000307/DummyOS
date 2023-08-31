@@ -58,18 +58,17 @@ struct InterruptFrame {
 
 MESSAGE_QUEUE* GetMessageQueue(void);
 
-code InitializeInterrupt(
-  MESSAGE_QUEUE* messageQueue);
+code InitializeInterrupt(void);
 
 union InterruptDescriptorAttribute MakeIDTAttribute(
-  enum DescriptorType type,
-  byte descriptorPrivilegeLevel,
-  bool present,
-  byte interruptStackTable);
+  uint16 type,
+  byte   descriptorPrivilegeLevel,
+  bool   present,
+  byte   interruptStackTable);
 
 void SetIDTEntry(
   struct InterruptDescriptor* descriptor,
-  union InterruptDescriptorAttribute attribute,
+  union  InterruptDescriptorAttribute attribute,
   uint64 offset,
   uint16 segmentSelector);
 

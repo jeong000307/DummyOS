@@ -23,9 +23,9 @@ struct SystemConfiguration {
     struct XSDP                     XSDP;
 };
 
-struct SystemConfiguration* GetSystemConfiguration(
-  struct FrameBufferConfiguration* frameBufferConfiguration,
-  struct MemoryMap*                memoryMap,
-  struct XSDP*                     XSDP);
+void SetSystemConfiguration(
+  const struct FrameBufferConfiguration* frameBufferConfiguration,
+  const struct MemoryMap*                memoryMap,
+  const struct XSDP*                     XSDP);
 
 #endif

@@ -27,7 +27,7 @@ static addr __ChangeProgramBreak(
     addr previousBreak;
 
     if (this->programBreak == 0 or this->programBreak + increment >= this->programBreakLimit) {
-        return -1;
+        Assert(PROGRAM_BREAK_ERROR);
     }
 
     previousBreak = this->programBreak;

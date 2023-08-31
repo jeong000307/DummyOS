@@ -87,7 +87,7 @@ code InitializeMemoryManager(
 MEMORY_MANAGER* GetMemoryManager(void);
 
 static bool IsUsableMemory(
-  byte memoryType);
+  uint32 memoryType);
 
 static frame __AllocateFrame(
   MEMORY_MANAGER* this, 

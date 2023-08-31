@@ -28,7 +28,7 @@ typedef unsigned __int8* va_list;
 #define MAX_UINT32  0xFFFFFFFF
 #define MAX_UINT64  0xFFFFFFFFFFFFFFFF
 
-#define NULL  0
+#define NULL  (void*)0
 
 #define false 0
 #define true  1

@@ -116,7 +116,7 @@ static code WriteAscii(
   const byte              character,
   const struct PixelColor color) {
     size        dx, dy;
-    const byte* font = fonts + 16 * (uint32)character;
+    const byte* font = fonts + 16ull * (addr)character;
 
     for (dy = 0; dy < 16; ++dy) {
         for (dx = 0; dx < 8; ++dx) {

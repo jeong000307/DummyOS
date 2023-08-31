@@ -4,14 +4,12 @@ static struct SystemConfiguration systemConfiguration;
 
 void Main(
   const struct FrameBufferConfiguration* frameBufferConfiguration,
-  const struct MemoryMap* memoryMap,
-  const struct XSDP*             XSDP) {
+  const struct MemoryMap*                memoryMap,
+  const struct XSDP*                     XSDP) {
     code                        status;
 
     struct Message              message;
 
-    struct SystemConfiguration* systemConfiguration = GetSystemConfiguration(frameBufferConfiguration, memoryMap, XSDP);
-    struct XSDP*                ACPITable = GetACPITable();
     SCREEN*                     screen = GetScreen();
     CONSOLE*                    systemConsole = GetSystemConsole();
     PCI_DEVICES*                PCIDevices = GetPCIDevices();
@@ -23,11 +21,13 @@ void Main(
 
     ClearInterruptFlag();
 
+    SetSystemConfiguration(frameBufferConfiguration, memoryMap, XSDP);
+
     if (InitialzeSegmentation() != SUCCESS) {
         return;
     }
 
-    if (InitializeMemoryManager(&systemConfiguration->memoryMap) != SUCCESS) {
+    if (InitializeMemoryManager(&systemConfiguration.memoryMap) != SUCCESS) {
         return;
     }
 
@@ -35,7 +35,7 @@ void Main(
         return;
     }
 
-    if (InitializeScreen(&systemConfiguration->frameBufferConfiguration) != SUCCESS) {
+    if (InitializeScreen(&systemConfiguration.frameBufferConfiguration) != SUCCESS) {
         return;
     }
 
@@ -43,9 +43,9 @@ void Main(
         return;
     }
 
-    systemConsole->Print(systemConsole, "Booting...\n");
+    systemConsole->Print(systemConsole, "DummyOS Booting...\n");
 
-    status = InitializeACPI(&systemConfiguration->XSDP);
+    status = InitializeACPI(&systemConfiguration.XSDP);
 
     systemConsole->Print(systemConsole, "Initializing ACPI is %s.\n", Error(status));
 
@@ -61,7 +61,7 @@ void Main(
         Pause();
     }
 
-    status = InitializeInterrupt(messageQueue);
+    status = InitializeInterrupt();
 
     systemConsole->Print(systemConsole, "Initializing interrupt is %s.\n", Error(status));
 
@@ -85,8 +85,7 @@ void Main(
         Pause();
     }
 
-    timerManager->CreateTimer(timerManager, 20, 2);
-    timerManager->CreateTimer(timerManager, 60, -1);
+    timerManager->CreateTimer(timerManager, 10, 1);
 
     while(true) {
         ClearInterruptFlag();
@@ -114,13 +113,13 @@ void Main(
     Pause();
 }
 
-struct SystemConfiguration* GetSystemConfiguration(
-  struct FrameBufferConfiguration* frameBufferConfiguration,
-  struct MemoryMap*                memoryMap,
-  struct XSDP*                     XSDP) {
+void SetSystemConfiguration(
+  const struct FrameBufferConfiguration* frameBufferConfiguration,
+  const struct MemoryMap*                memoryMap,
+  const struct XSDP*                     XSDP) {
     systemConfiguration.frameBufferConfiguration = *frameBufferConfiguration;
     systemConfiguration.memoryMap = *memoryMap;
     systemConfiguration.XSDP = *XSDP;
 
-    return &systemConfiguration;
+    return;
 }
