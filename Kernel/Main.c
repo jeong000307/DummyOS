@@ -4,10 +4,14 @@ static struct SystemConfiguration systemConfiguration;
 
 void Main(
   const struct FrameBufferConfiguration* frameBufferConfiguration,
-  const struct MemoryMap* memoryMap) {
-    struct Message message;
+  const struct MemoryMap* memoryMap,
+  const struct XSDP*             XSDP) {
+    code                        status;
 
-    struct SystemConfiguration* systemConfiguration = GetSystemConfiguration(frameBufferConfiguration, memoryMap);
+    struct Message              message;
+
+    struct SystemConfiguration* systemConfiguration = GetSystemConfiguration(frameBufferConfiguration, memoryMap, XSDP);
+    struct XSDP*                ACPITable = GetACPITable();
     SCREEN*                     screen = GetScreen();
     CONSOLE*                    systemConsole = GetSystemConsole();
     PCI_DEVICES*                PCIDevices = GetPCIDevices();
@@ -41,13 +45,45 @@ void Main(
 
     systemConsole->Print(systemConsole, "Booting...\n");
 
-    systemConsole->Print(systemConsole, "Initializing timer manager is %s.\n", Error(InitializeTimerManager()));
+    status = InitializeACPI(&systemConfiguration->XSDP);
 
-    systemConsole->Print(systemConsole, "Initializing interrupt is %s.\n", Error(InitializeInterrupt(messageQueue)));
+    systemConsole->Print(systemConsole, "Initializing ACPI is %s.\n", Error(status));
 
-    systemConsole->Print(systemConsole, "Initializing task manager is %s.\n", Error(InitializeTaskManager()));
+    if (status != SUCCESS) {
+        Pause();
+    }
 
-    systemConsole->Print(systemConsole, "Initializing PCI device is %s.\n", Error(InitializePCI()));
+    status = InitializeTimerManager();
+
+    systemConsole->Print(systemConsole, "Initializing timer manager is %s.\n", Error(status));
+
+    if (status != SUCCESS) {
+        Pause();
+    }
+
+    status = InitializeInterrupt(messageQueue);
+
+    systemConsole->Print(systemConsole, "Initializing interrupt is %s.\n", Error(status));
+
+    if (status != SUCCESS) {
+        Pause();
+    }
+
+    status = InitializeTaskManager();
+
+    systemConsole->Print(systemConsole, "Initializing task manager is %s.\n", Error(status));
+
+    if (status != SUCCESS) {
+        Pause();
+    }
+
+    status = InitializePCI();
+
+    systemConsole->Print(systemConsole, "Initializing PCI device is %s.\n", Error(status));
+
+    if (status != SUCCESS) {
+        Pause();
+    }
 
     timerManager->CreateTimer(timerManager, 20, 2);
     timerManager->CreateTimer(timerManager, 60, -1);
@@ -80,9 +116,11 @@ void Main(
 
 struct SystemConfiguration* GetSystemConfiguration(
   struct FrameBufferConfiguration* frameBufferConfiguration,
-  struct MemoryMap*                memoryMap) {
+  struct MemoryMap*                memoryMap,
+  struct XSDP*                     XSDP) {
     systemConfiguration.frameBufferConfiguration = *frameBufferConfiguration;
     systemConfiguration.memoryMap = *memoryMap;
+    systemConfiguration.XSDP = *XSDP;
 
     return &systemConfiguration;
 }

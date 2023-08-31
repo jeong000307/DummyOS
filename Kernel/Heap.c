@@ -10,8 +10,8 @@ code InitializeHeap(MEMORY_MANAGER* memoryManager) {
         return MEMORY_ERROR;
     }
 
-    systemHeap.programBreak = (heapStart * BYTE_PER_FRAME);
-    systemHeap.programBreakLimit = systemHeap.programBreak + systemHeapFrames * BYTE_PER_FRAME;
+    systemHeap.programBreak = (heapStart * BYTES_PER_FRAME);
+    systemHeap.programBreakLimit = systemHeap.programBreak + systemHeapFrames * BYTES_PER_FRAME;
     systemHeap.ChangeProgramBreak = __ChangeProgramBreak;
 
     return SUCCESS;

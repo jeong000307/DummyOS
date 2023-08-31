@@ -10,7 +10,8 @@
 #define PDP_TABLE_SIZE      64
 #define PAGE_DIRECTORY_SIZE 512
 #define MAX_PHYSICAL_MEMORY GiB(PDP_TABLE_SIZE)
-#define BYTE_PER_FRAME      KiB(4)
+#define BYTES_PER_FRAME     KiB(4)
+#define BITS_PER_LINE       (8 * sizeof(bitmap))
 #define NULL_FRAME          MAX_UINT64
 
 typedef struct __MEMORY_MANAGER MEMORY_MANAGER;
@@ -30,20 +31,22 @@ typedef void (*MARK_ALLOCATED_FRAME)(
   size            numberOfFrames);
 
 struct MemoryMap {
+    uint64 bufferSize;
     uint64 mapSize;
     uint64 mapKey;
     uint64 descriptorSize;
+    uint32 descriptorVersion;
 
     void*  buffer;
 };
 
 struct MemoryDescriptor {
     uint32  type;
-    size    numberOfPages;
-    uint64  attribute;
-
+    uint32  pad;
     addr    physicalStart;
     addr    virtualStart;
+    size    numberOfPages;
+    uint64  attribute;
 };
 
 enum MemoryType {
@@ -84,7 +87,7 @@ code InitializeMemoryManager(
 MEMORY_MANAGER* GetMemoryManager(void);
 
 static bool IsUsableMemory(
-  enum MemoryType memoryType);
+  byte memoryType);
 
 static frame __AllocateFrame(
   MEMORY_MANAGER* this, 
@@ -100,13 +103,8 @@ static void __MarkAllocatedFrame(
   frame           startFrame, 
   size            numberOfFrames);
 
-static void SetBit(
-  MEMORY_MANAGER* memoryManager, 
-  frame           frame, 
-  bool            allocated);
+static bool GetBit(MEMORY_MANAGER* this, frame frame);
 
-static bool GetBit(
-  MEMORY_MANAGER* memoryManager, 
-  frame           frame);
+static void SetBit(MEMORY_MANAGER* this, frame frame, bool allocated);
 
 #endif

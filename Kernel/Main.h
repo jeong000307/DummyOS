@@ -1,6 +1,7 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
+#include "ACPI.h"
 #include "AssemblyFunction.h"
 #include "Console.h"
 #include "DataStructure.h"
@@ -19,10 +20,12 @@
 struct SystemConfiguration {
     struct FrameBufferConfiguration frameBufferConfiguration;
     struct MemoryMap                memoryMap;
+    struct XSDP                     XSDP;
 };
 
 struct SystemConfiguration* GetSystemConfiguration(
   struct FrameBufferConfiguration* frameBufferConfiguration,
-  struct MemoryMap*                memoryMap);
+  struct MemoryMap*                memoryMap,
+  struct XSDP*                     XSDP);
 
 #endif

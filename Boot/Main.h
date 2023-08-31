@@ -1,14 +1,11 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
-#include <efi.h>
-#include <efilib.h>
+#include "efi.h"
+#include "efilib.h"
+
 #include "AssemblyFunction.h"
 #include "PE.h"
-
-typedef void EntryPoint(
-  IN struct FRAME_BUFFER_CONFIGURATION*,
-  IN struct MEMORY_MAP*);
 
 enum PIXEL_FORMAT {
     pixelRGBReserved8BitPerColor,
@@ -20,25 +17,23 @@ struct FRAME_BUFFER_CONFIGURATION {
     UINT32            verticalResolution;
 
     enum PIXEL_FORMAT pixelFormat;
-    UINT8* frameBuffer;
+    UINT8*            frameBuffer;
 };
 
 struct MEMORY_MAP {
+    UINTN  bufferSize;
     UINTN  mapSize;
     UINTN  mapKey;
     UINTN  descriptorSize;
+    UINT32 descriptorVersion;
 
     VOID*  buffer;
 };
 
-struct MEMORY_DESCRIPTOR {
-    UINT32               type;
-    UINT64               numberOfPages;
-    UINT64               attribute;
-
-    EFI_PHYSICAL_ADDRESS physicalStart;
-    EFI_VIRTUAL_ADDRESS  virtualStart;
-};
+typedef void EntryPoint(
+  IN const struct FRAME_BUFFER_CONFIGURATION*,
+  IN const struct MEMORY_MAP*,
+  IN const VOID*);
 
 static EFI_STATUS GetMemoryMap(
   OUT struct MEMORY_MAP* memoryMap);
@@ -54,14 +49,7 @@ static EFI_STATUS GetMemoryMap(
     @retval TBD
 **/
 
-static EFI_STATUS ConvertMemoryMap(
-  IN  UINTN              sourceSize,
-  IN  UINTN              sourceDescriptorSize,
-  IN  struct VOID*       source,
-  OUT struct MEMORY_MAP* destination);
-
 static EFI_STATUS OpenRootDirectory(
-  IN  EFI_HANDLE          imageHandle,
   OUT EFI_FILE_PROTOCOL** rootDirectory);
 
 /**

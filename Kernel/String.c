@@ -23,6 +23,25 @@ void CopyString(
     destination[0] = source[0];
 }
 
+int64 CompareString(
+  const byte* source1,
+  const byte* source2,
+  size        length) {
+    size    index;
+
+    for (index = 0; index < length; ++index) {
+        if (source1[index] > source2[index] or source2[index] == NULL) {
+            return 1;
+        }
+        
+        if (source1[index] < source2[index] or source1[index] == NULL) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 void ConvertDecimalToString(byte* string, uint64 number, bool sign) {
     uint64 index = 0;
     uint64 length = 0;

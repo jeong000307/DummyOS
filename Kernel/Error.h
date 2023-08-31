@@ -10,6 +10,7 @@
 #define QUEUE_ERROR       4
 #define STACK_ERROR       5
 #define TIMER_ERROR       6
+#define ACPI_ERROR        7
 
 char* Error(
   code status);

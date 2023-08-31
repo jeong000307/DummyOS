@@ -9,7 +9,6 @@ code InitializeMemoryManager(
     size                     PDPTableIndex;
     size                     pageDirectoryIndex;
 
-    addr                     memoryMapBase = (addr)memoryMap->buffer;
     addr                     availableMemoryEnd = 0;
     addr                     physicalEnd;
     addr                     iterator;
@@ -32,22 +31,22 @@ code InitializeMemoryManager(
 
     SetCR3((addr)&memoryManager.PML4Table[0]);
 
-    for (iterator = memoryMapBase; iterator < memoryMapBase + memoryMap->mapSize; iterator += memoryMap->descriptorSize) {
+    for (iterator = (addr)memoryMap->buffer; iterator < (addr)memoryMap->buffer + memoryMap->mapSize; iterator += memoryMap->descriptorSize) {
         descriptor = (struct MemoryDescriptor*)iterator;
         physicalEnd = descriptor->physicalStart + descriptor->numberOfPages * EFI_PAGE_SIZE;
         if (availableMemoryEnd < descriptor->physicalStart) {
-            memoryManager.MarkAllocatedFrame(&memoryManager, availableMemoryEnd / BYTE_PER_FRAME, (descriptor->physicalStart - availableMemoryEnd) / BYTE_PER_FRAME);
+            memoryManager.MarkAllocatedFrame(&memoryManager, availableMemoryEnd / BYTES_PER_FRAME, (descriptor->physicalStart - availableMemoryEnd) / BYTES_PER_FRAME);
         }
 
         if (IsUsableMemory(descriptor->type) == true) {
             availableMemoryEnd = physicalEnd;
         } else {
-            memoryManager.MarkAllocatedFrame(&memoryManager, descriptor->physicalStart / BYTE_PER_FRAME, descriptor->numberOfPages * EFI_PAGE_SIZE / BYTE_PER_FRAME);
+            memoryManager.MarkAllocatedFrame(&memoryManager, descriptor->physicalStart / BYTES_PER_FRAME, descriptor->numberOfPages * EFI_PAGE_SIZE / BYTES_PER_FRAME);
         }
     }
 
     memoryManager.beginFrame = 1;
-    memoryManager.endFrame = availableMemoryEnd / BYTE_PER_FRAME;
+    memoryManager.endFrame = availableMemoryEnd / BYTES_PER_FRAME;
 
     return SUCCESS;
 }
@@ -56,7 +55,7 @@ MEMORY_MANAGER* GetMemoryManager(void) {
     return &memoryManager;
 }
 
-static bool IsUsableMemory(enum MemoryType memoryType) {
+static bool IsUsableMemory(byte memoryType) {
     size       index;
 
     const byte AvailableMemoryTypes[3] = {
@@ -115,20 +114,20 @@ static void __MarkAllocatedFrame(MEMORY_MANAGER* this, frame startFrame, size nu
     }
 }
 
-static bool GetBit(MEMORY_MANAGER* memoryManager, frame frame) {
-    size lineIndex = frame / (8 * sizeof(frame));
-    size bitIndex = frame % (8 * sizeof(frame));
+static bool GetBit(MEMORY_MANAGER* this, frame frame) {
+    size lineIndex = frame / BITS_PER_LINE;
+    size bitIndex = frame % BITS_PER_LINE;
 
-    return (memoryManager->allocationMap[lineIndex] & (1 << bitIndex)) != 0;
+    return (this->allocationMap[lineIndex] & ((bitmap)1 << bitIndex)) != 0;
 }
 
-static void SetBit(MEMORY_MANAGER* memoryManager, frame frame, bool allocated) {
-    size lineIndex = frame / (8 * sizeof(frame));
-    size bitIndex = frame % (8 * sizeof(frame));
+static void SetBit(MEMORY_MANAGER* this, frame frame, bool allocated) {
+    size lineIndex = frame / BITS_PER_LINE;
+    size bitIndex = frame % BITS_PER_LINE;
 
     if (allocated) {
-        memoryManager->allocationMap[lineIndex] |= 1 << bitIndex;
+        this->allocationMap[lineIndex] |= (bitmap)1 << bitIndex;
     } else {
-        memoryManager->allocationMap[lineIndex] &= 1 << bitIndex;
+        this->allocationMap[lineIndex] &= (bitmap)1 << bitIndex;
     }
 }

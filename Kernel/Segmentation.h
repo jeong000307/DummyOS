@@ -10,6 +10,7 @@ enum SegmentDescriptorType {
     ExecuteRead = 10
 };
 
+#pragma pack(push, 1)
 union SegmentDescriptor {
     uint64 data;
     struct {
@@ -28,6 +29,7 @@ union SegmentDescriptor {
         uint64 baseHigh : 8;
     } bits;
 };
+#pragma pack(pop)
 
 static void SetCodeSegment(
   union SegmentDescriptor* descriptor, 

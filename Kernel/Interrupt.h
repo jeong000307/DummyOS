@@ -22,6 +22,7 @@ enum InterruptVector {
     TimerInterruptIndex = 0x41
 };
 
+#pragma pack(push, 1)
 union InterruptDescriptorAttribute {
     uint16 data;
 
@@ -34,7 +35,9 @@ union InterruptDescriptorAttribute {
         uint16 present : 1;
     } bits;
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 struct InterruptDescriptor {
     uint16 offsetLow;
     uint16 segmentSelector;
@@ -43,6 +46,7 @@ struct InterruptDescriptor {
     uint32 offsetHigh;
     uint32 reserved;
 };
+#pragma pack(pop)
 
 struct InterruptFrame {
     uint64 rip;

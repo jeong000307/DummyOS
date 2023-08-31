@@ -7,6 +7,7 @@ EFI_STATUS Main(
     UINTN                                fileInfoSize = sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12;
     UINTN                                kernelFileSize;
     UINTN                                numberOfPages;
+    UINTN                                index = 0;
     EFI_STATUS                           status;
 
     EFI_FILE_INFO*                       fileInfo;
@@ -18,13 +19,14 @@ EFI_STATUS Main(
     EFI_PHYSICAL_ADDRESS                 kernelEndAddress;
 
     CHAR8                                memoryMapBuffer[4096 * 4];
-    UINT8                                fileInfoBuffer[sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12]; // VLA issue; size of array is equal to fileInfoSize
+    UINT8                                fileInfoBuffer[sizeof(EFI_FILE_INFO) + sizeof(CHAR16) * 12]; // VLA issue; fileInfoSize
     VOID*                                kernelBuffer;
+    VOID*                                ACPITable = NULL;
 
-    struct MEMORY_MAP                    memoryMap = { sizeof(memoryMapBuffer), 0, 0, memoryMapBuffer };
+    struct MEMORY_MAP                    memoryMap = { sizeof(memoryMapBuffer), 0, 0, 0, 0, memoryMapBuffer };
     struct FRAME_BUFFER_CONFIGURATION    frameBufferConfiguration;
 
-    EntryPoint*                   entryPoint;
+    EntryPoint*                          entryPoint;
 
     InitializeLib(imageHandle, systemTable);
 
@@ -35,11 +37,39 @@ EFI_STATUS Main(
         Pause();
     }
 
-    status = OpenRootDirectory(imageHandle, &rootDirectory);
+    status = OpenRootDirectory(&rootDirectory);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to open root directory: %r\n", status);
         Pause();
+    }
+
+    status = rootDirectory->Open(rootDirectory, &memoryMapFile, L"\\MemoryMap", EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
+
+    if (EFI_ERROR(status)) {
+        Print(L"[WARNING] Failed to open file '\\MemoryMap': %r\n", status);
+    }
+    else {
+        status = SaveMemoryMap(&memoryMap, memoryMapFile);
+
+        if (EFI_ERROR(status)) {
+            Print(L"[ERROR] Failed to save memory map: %r\n", status);
+            Pause();
+        }
+
+        status = memoryMapFile->Close(memoryMapFile);
+
+        if (EFI_ERROR(status)) {
+            Print(L"[ERROR] Failed to close memory map: %r\n", status);
+            Pause();
+        }
+    }
+
+    for (index = 0; index < systemTable->NumberOfTableEntries; ++index) {
+        if (CompareGuid(&(EFI_GUID)ACPI_20_TABLE_GUID, &systemTable->ConfigurationTable[index].VendorGuid) == 0) {
+            ACPITable = systemTable->ConfigurationTable[index].VendorTable;
+            break;
+        }
     }
 
     status = OpenGOP(imageHandle, &GOP);
@@ -137,63 +167,23 @@ EFI_STATUS Main(
         }
     }
 
-    entryPoint(&frameBufferConfiguration, &memoryMap);
+    entryPoint(&frameBufferConfiguration, &memoryMap, ACPITable);
 
     return EFI_SUCCESS;
 }
 
 static EFI_STATUS GetMemoryMap(
-  OUT struct MEMORY_MAP* memoryMap) {
-    UINTN      bufferSize;
-    UINTN      descriptorSize;
-    EFI_STATUS status;
-
-    CHAR8      memoryMapBuffer[4096 * 4] = {0};
-
-    bufferSize = sizeof(memoryMapBuffer);
-
-    status = BS->GetMemoryMap(&bufferSize, (EFI_MEMORY_DESCRIPTOR*)memoryMapBuffer, &memoryMap->mapKey, &descriptorSize, NULL);
-
-    if (EFI_ERROR(status)) {
-        return status;
+  OUT struct MEMORY_MAP* map) {
+    if (map->buffer == NULL) {
+        return EFI_BUFFER_TOO_SMALL;
     }
 
-    return ConvertMemoryMap(bufferSize, descriptorSize, memoryMapBuffer, memoryMap);
-}
+    map->mapSize = map->bufferSize;
 
-static EFI_STATUS ConvertMemoryMap(
-  IN  UINTN              sourceSize,
-  IN  UINTN              sourceDescriptorSize,
-  IN  struct VOID*       source,
-  OUT struct MEMORY_MAP* destination) {
-    UINTN                     index = 0;
-
-    EFI_PHYSICAL_ADDRESS      iterator;
-
-    EFI_MEMORY_DESCRIPTOR*    sourceDescriptor;
-    struct MEMORY_DESCRIPTOR* destinationDescriptor;
-
-    for (iterator = (EFI_PHYSICAL_ADDRESS)source; iterator < (EFI_PHYSICAL_ADDRESS)source + sourceSize; iterator += sourceDescriptorSize) {
-        sourceDescriptor = (EFI_MEMORY_DESCRIPTOR*)iterator;
-        destinationDescriptor = (struct MEMORY_DESCRIPTOR*)destination->buffer + index;
-
-        destinationDescriptor->type = sourceDescriptor->Type;
-        destinationDescriptor->numberOfPages = sourceDescriptor->NumberOfPages;
-        destinationDescriptor->attribute = sourceDescriptor->Attribute;
-        destinationDescriptor->physicalStart = sourceDescriptor->PhysicalStart;
-        destinationDescriptor->virtualStart = sourceDescriptor->VirtualStart;
-
-        ++index;
-    }
-
-    destination->descriptorSize = sizeof(struct MEMORY_DESCRIPTOR);
-    destination->mapSize = destination->descriptorSize * index;
-
-    return EFI_SUCCESS;
+    return BS->GetMemoryMap(&map->mapSize, (EFI_MEMORY_DESCRIPTOR*)map->buffer, &map->mapKey, &map->descriptorSize, &map->descriptorVersion);
 }
 
 static EFI_STATUS OpenRootDirectory(
-  IN  EFI_HANDLE          imageHandle,
   OUT EFI_FILE_PROTOCOL** rootDirectory) {
     EFI_STATUS                       status;
 
@@ -216,17 +206,16 @@ static EFI_STATUS OpenRootDirectory(
 }
 
 static EFI_STATUS SaveMemoryMap(
-  IN  struct MEMORY_MAP* map,
-  OUT EFI_FILE_PROTOCOL* file) {
-    UINTN                     length;
-    UINT32                    index = 0;
-    EFI_STATUS                status;
-                              
-    EFI_PHYSICAL_ADDRESS      iterator;
-    struct MEMORY_DESCRIPTOR* descriptor;
+    IN  struct MEMORY_MAP* map,
+    OUT EFI_FILE_PROTOCOL* file) {
+    UINT32                 index;
+    UINTN                  length;
+    EFI_STATUS             status;
 
-    CHAR8                     buffer[256];
-    CHAR8                     header[] = "Index, Type, Type(name), PhysicalStart, NumberOfPages, Attribute\n";
+    CHAR8                  buffer[256];
+    CHAR8*                 header = "Index, Type, Type(name), PhysicalStart, NumberOfPages, Attribute\n";
+    EFI_PHYSICAL_ADDRESS   iterator;
+    EFI_MEMORY_DESCRIPTOR* descriptor;
 
     length = AsciiStrLen(header);
 
@@ -236,14 +225,12 @@ static EFI_STATUS SaveMemoryMap(
         return status;
     }
 
-    for (iterator = (EFI_PHYSICAL_ADDRESS)map->buffer; iterator < (EFI_PHYSICAL_ADDRESS)map->buffer + map->mapSize; iterator += map->descriptorSize) {
-        descriptor = (struct MEMORY_DESCRIPTOR*)iterator;
+    for (iterator = (EFI_PHYSICAL_ADDRESS)map->buffer, index = 0; iterator < (EFI_PHYSICAL_ADDRESS)map->buffer + map->mapSize; iterator += map->descriptorSize, ++index) {
+        descriptor = (EFI_MEMORY_DESCRIPTOR*)iterator;
 
-        length = AsciiSPrint(buffer, sizeof(buffer), "%u, %x, %-ls, %08lx, %lx, %lx\n", index, descriptor->type, GetMemoryTypeUnicode(descriptor->type), descriptor->physicalStart, descriptor->numberOfPages, descriptor->attribute & 0xfffflu);
+        length = AsciiSPrint(buffer, sizeof(buffer), "%u, %x, %-ls, %08lx, %lx, %lx\n", index, descriptor->Type, GetMemoryTypeUnicode(descriptor->Type), descriptor->PhysicalStart, descriptor->NumberOfPages, descriptor->Attribute & 0xfffflu);
 
         status = file->Write(file, &length, buffer);
-
-        ++index;
 
         if (EFI_ERROR(status)) {
             return status;
@@ -340,7 +327,6 @@ static void GetLoadAddressRange(
 static void LoadKernelSegment(
   IN VOID* kernelBuffer) {
     UINTN               index;
-    INT64                remain;
     
     EFI_PHYSICAL_ADDRESS segment;
     DOSHeader*           kernelDOSHeader = (DOSHeader*)kernelBuffer;

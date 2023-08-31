@@ -1,7 +1,7 @@
 #ifndef __ASSEMBLYFUNCTION_H__
 #define __ASSEMBLYFUNCTION_H__
 
-#include <efilib.h>
+#include "efi.h"
 
 extern void Test(UINT64 value);
 

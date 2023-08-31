@@ -3,6 +3,7 @@
 
 #include "efi.h"
 
+#pragma pack(push, 1)
 typedef struct {
     UINT16 e_magic;
     UINT16 e_cblp;
@@ -24,7 +25,9 @@ typedef struct {
     UINT16 e_res2[10];
     UINT16 e_lfanew;
 } DOSHeader;
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 typedef struct {
     UINT16 Machine;
     UINT16 NumberOfSections;
@@ -34,7 +37,9 @@ typedef struct {
     UINT16 SizeOfOptionalHeader;
     UINT16 Characteristics;
 } FileHeader;
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 typedef struct {
     UINT16 Magic;
     UINT8 MajorLinkerVersion;
@@ -66,18 +71,24 @@ typedef struct {
     UINT32 LoaderFlags;
     UINT32 NumberOfRvaAndSizes;
 } OptionalHeader;
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 typedef struct {
     UINT32 Signature;
     FileHeader fileHeader;
     OptionalHeader optionalHeader;
 } NTHeader;
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 typedef struct {
     UINT32   VirtualAddress;
     UINT32   Size;
 } DataDirectory;
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 typedef struct {
     UINT64 Name;
     UINT32 VirtualSize;
@@ -90,5 +101,6 @@ typedef struct {
     UINT16 NumberOfLinenumbers;
     UINT32 Characteristics;
 } Section;
+#pragma pack(pop)
 
 #endif

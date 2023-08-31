@@ -21,6 +21,7 @@ struct __PCI_DEVICES {
     size              count;
 };
 
+#pragma pack(push, 1)
 union CapabilityHeader {
     uint32 data;
     struct {
@@ -29,7 +30,9 @@ union CapabilityHeader {
         unsigned capability: 16;
     } bits;
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 struct MSICapability {
     union {
         uint32 data;
@@ -51,6 +54,7 @@ struct MSICapability {
     uint32 maskBits;
     uint32 pendingBits;
 };
+#pragma pack(pop)
 
 enum MSITriggerMode {
     Edge = 0,
