@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\ACPI">
+      <UniqueIdentifier>{777673c7-6d05-4450-a7e1-de06595cfc92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\ACPI">
+      <UniqueIdentifier>{220dc4fa-a656-4386-8dda-ec513bdd9f9d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.c">
@@ -51,20 +57,29 @@
     <ClCompile Include="Interrupt.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Error.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DataStructure.c">
+    <ClCompile Include="Type.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Task.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ACPI.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Memory.c">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Descriptor.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemConfiguration.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiProcessor.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ACPI\ACPI.c">
+      <Filter>소스 파일\ACPI</Filter>
+    </ClCompile>
+    <ClCompile Include="ACPI\APIC.c">
+      <Filter>소스 파일\ACPI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,17 +125,26 @@
     <ClInclude Include="Interrupt.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="DataStructure.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Task.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ACPI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Memory.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Descriptor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemConfiguration.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiProcessor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ACPI\ACPI.h">
+      <Filter>헤더 파일\ACPI</Filter>
+    </ClInclude>
+    <ClInclude Include="ACPI\APIC.h">
+      <Filter>헤더 파일\ACPI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

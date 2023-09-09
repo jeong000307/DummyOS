@@ -1,9 +1,10 @@
-#ifndef __ASSEMBLYFUNCTION_H__
-#define __ASSEMBLYFUNCTION_H__
+#pragma once
 
 #include "Type.h"
 
-extern void Enter(void);
+extern void Enter32(void);
+
+extern void Enter64(void);
 
 extern void Assert(uint64 value);
 
@@ -62,10 +63,8 @@ extern void SwitchContext(
   void* nextContext,
   void* currentContext);
 
-extern void ClearInterruptFlag(void);
+extern void EnableApplicationProcessor(void);
 
-extern void SetInterruptFlag(void);
+extern void SetInterruptFlag(bool flag);
 
 extern void TimerInterruptHandler(void);
-
-#endif

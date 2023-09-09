@@ -10,15 +10,15 @@ code InitializeTaskManager(void) {
     taskManager.CreateTask = __CreateTask;
     taskManager.SwitchTask = __SwitchTask;
 
-    ClearInterruptFlag();
-    SetInterruptFlag();
+    SetInterruptFlag(false);
+    SetInterruptFlag(true);
 
     return SUCCESS;
 }
 
 static void InitializeTask(
   struct Task* this,
-  addr function, 
+  addr function,
   int64 data) {
     addr stackEnd = this->stack[STACK_SIZE - 1];
 

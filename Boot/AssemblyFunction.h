@@ -1,14 +1,13 @@
-#ifndef __ASSEMBLYFUNCTION_H__
-#define __ASSEMBLYFUNCTION_H__
+#pragma once
 
-#include "efi.h"
+#include  "efi.h"
 
-extern void Test(UINT64 value);
+extern void AP(void);
+
+extern void Assert(UINT64 value);
 
 extern void Pause(void);
 
 /**
     Halt the processor.
 **/
-
-#endif

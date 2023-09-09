@@ -1,6 +1,6 @@
 #include "MemoryManager.h"
 
-byte _Alignas(16) systemStack[1024 * 1024] = {0};
+byte _Alignas(16) systemStack[1024 * 1024 * MAX_CPU_CORE];
 
 static MEMORY_MANAGER memoryManager;
 

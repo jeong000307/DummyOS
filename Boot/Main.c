@@ -111,7 +111,7 @@ EFI_STATUS Main(
 
     kernelFileSize = fileInfo->FileSize;
 
-    status = BS->AllocatePool(EfiLoaderData, kernelFileSize, &kernelBuffer);
+    status = gBS->AllocatePool(EfiLoaderData, kernelFileSize, &kernelBuffer);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to allocate pool: %r\n", status);
@@ -129,7 +129,7 @@ EFI_STATUS Main(
 
     numberOfPages = (kernelEndAddress - kernelStartAddress + 0xfff) / 0x1000;
 
-    status = BS->AllocatePages(AllocateAddress, EfiLoaderData, numberOfPages, &kernelStartAddress);
+    status = gBS->AllocatePages(AllocateAddress, EfiLoaderData, numberOfPages, &kernelStartAddress);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to allocate pages: %r\n", status);
@@ -142,29 +142,25 @@ EFI_STATUS Main(
 
     LoadKernelSegment(kernelBuffer);
 
-    status = BS->FreePool(kernelBuffer);
+    status = gBS->FreePool(kernelBuffer);
 
     if (EFI_ERROR(status)) {
         Print(L"[ERROR] Failed to free pool: %r\n", status);
         Pause();
     }
 
-    status = BS->ExitBootServices(imageHandle, memoryMap.mapKey);
+    status = GetMemoryMap(&memoryMap);
 
     if (EFI_ERROR(status)) {
-        status = GetMemoryMap(&memoryMap);
+        Print(L"[ERROR] Failed to get memory map: %r\n", status);
+        Pause();
+    }
 
-        if (EFI_ERROR(status)) {
-            Print(L"[ERROR] Failed to get memory map: %r\n", status);
-            Pause();
-        }
+    status = gBS->ExitBootServices(imageHandle, memoryMap.mapKey);
 
-        status = BS->ExitBootServices(imageHandle, memoryMap.mapKey);
-
-        if (EFI_ERROR(status)) {
-            Print(L"[ERROR] Failed to exit boot service: %r\n", status);
-            Pause();
-        }
+    if (EFI_ERROR(status)) {
+        Print(L"[ERROR] Failed to exit boot service: %r\n", status);
+        Pause();
     }
 
     entryPoint(&frameBufferConfiguration, &memoryMap, ACPITable);
@@ -180,7 +176,7 @@ static EFI_STATUS GetMemoryMap(
 
     map->mapSize = map->bufferSize;
 
-    return BS->GetMemoryMap(&map->mapSize, (EFI_MEMORY_DESCRIPTOR*)map->buffer, &map->mapKey, &map->descriptorSize, &map->descriptorVersion);
+    return gBS->GetMemoryMap(&map->mapSize, (EFI_MEMORY_DESCRIPTOR*)map->buffer, &map->mapKey, &map->descriptorSize, &map->descriptorVersion);
 }
 
 static EFI_STATUS OpenRootDirectory(
@@ -190,13 +186,13 @@ static EFI_STATUS OpenRootDirectory(
     EFI_LOADED_IMAGE_PROTOCOL*       loadedImage;
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* fileSystem;
 
-    status = BS->LocateProtocol(&gEfiLoadedImageProtocolGuid, NULL, (VOID**)&loadedImage);
+    status = gBS->LocateProtocol(&gEfiLoadedImageProtocolGuid, NULL, (VOID**)&loadedImage);
 
     if (EFI_ERROR(status)) {
         return status;
     }
 
-    status = BS->LocateProtocol(&gEfiSimpleFileSystemProtocolGuid, NULL, (VOID**)&fileSystem);
+    status = gBS->LocateProtocol(&gEfiSimpleFileSystemProtocolGuid, NULL, (VOID**)&fileSystem);
 
     if (EFI_ERROR(status)) {
         return status;
@@ -270,13 +266,13 @@ static EFI_STATUS OpenGOP(
 
     EFI_HANDLE* GOPHandles = NULL;
 
-    status = BS->LocateHandleBuffer(ByProtocol, &gEfiGraphicsOutputProtocolGuid, NULL, &numberOfGOPHandles, &GOPHandles);
+    status = gBS->LocateHandleBuffer(ByProtocol, &gEfiGraphicsOutputProtocolGuid, NULL, &numberOfGOPHandles, &GOPHandles);
 
     if (EFI_ERROR(status)) {
         return status;
     }
 
-    status = BS->OpenProtocol(GOPHandles[0], &gEfiGraphicsOutputProtocolGuid, (VOID**)GOP, imageHandle, NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
+    status = gBS->OpenProtocol(GOPHandles[0], &gEfiGraphicsOutputProtocolGuid, (VOID**)GOP, imageHandle, NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
 
     if (EFI_ERROR(status)) {
         return status;

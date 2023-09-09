@@ -1,13 +1,19 @@
-#ifndef __TIMER_H__
-#define __TIMER_H__
+#pragma once
 
-#include "ACPI.h"
-#include "DataStructure.h"
+#include "ACPI/ACPI.h"
 #include "Error.h"
 #include "Interrupt.h"
 #include "Type.h"
 
 #define MAX_COUNT 0xffffffffu
+
+enum TimerPeriod {
+    taskTimerPeriod = 2
+};
+
+enum TimerValue {
+    taskTimerValue = MIN_INT32
+};
 
 typedef struct __TIMER_MANAGER TIMER_MANAGER;
 
@@ -59,6 +65,7 @@ static uint32 __CountTime(
 static void __StopTimer(
   TIMER_MANAGER* this);
 
-void TimerOnInterrupt(void);
+bool TimerOnInterrupt(void);
 
-#endif
+void WaitMilliSeconds(
+  const uint32 milliSeconds);

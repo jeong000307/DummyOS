@@ -1,10 +1,37 @@
-[BITS 64]
+align 4096
+[BITS 32]
+
+[SECTION .text]
 
 extern systemStack
-extern Main
+extern MainAP
+
+GLOBAL Enter32
+
+Enter32:
+    cli
+
+    mov rax, 1024 * 1024
+    mul rdx
+    mov rcx, systemStack
+    add rcx, rax
+    mov rsp, rcx
+
+    sti
+    call MainAP
+
+    ret
+
+
+[BITS 64]
+
+[SECTION .text]
+
+extern systemStack
+extern MainBSP
 extern TimerOnInterrupt
 
-GLOBAL Enter
+GLOBAL Enter64
 GLOBAL Assert
 GLOBAL Pause
 GLOBAL IOOut32
@@ -17,15 +44,19 @@ GLOBAL GetSS
 GLOBAL GetCR3
 GLOBAL SetCR3
 GLOBAL SwitchContext
-GLOBAL ClearInterruptFlag
 GLOBAL SetInterruptFlag
 GLOBAL TimerInterruptHandler
 
-[SECTION .text]
+Enter64:
+    cli
 
-Enter:
+    mov eax, 0bh
+    cpuid
     mov rsp, systemStack + 1024 * 1024
-    call Main
+
+    sti
+    call MainBSP
+
     ret
 
 Assert:
@@ -34,35 +65,40 @@ Assert:
 .rep:
     hlt
     jmp Assert.rep
-    ret
 
+    ret
 
 Pause:
     cli
 .rep:
     hlt
     jmp Pause.rep
+
     ret
 
 IOOut32:
     mov eax, edx
     mov dx, cx
     out dx, eax
+
     ret
 
 IOIn32:
     xor rax, rax
     mov dx, cx
     in eax, dx
+
     ret
 
 LoadGDT:
     push rbp
     mov rbp, rsp
+
     sub rsp, 10
     mov [rsp], cx
     mov [rsp + 2], rdx
     lgdt [rsp]
+
     mov rsp, rbp
     pop rbp
     ret
@@ -70,12 +106,15 @@ LoadGDT:
 LoadIDT:
     push rbp
     mov rbp, rsp
+
     sub rsp, 10
     mov [rsp], cx
     mov [rsp + 2], rdx
     lidt [rsp]
+
     mov rsp, rbp
     pop rbp
+
     ret
 
 InitializeSegmentRegister:
@@ -91,69 +130,75 @@ InitializeSegmentRegister:
 
     push rcx
     push rax
+
     o64 retf
 
 .next:
     mov rsp, rbp
     pop rbp
+
     ret
 
 GetCS:
     xor rax, rax
     mov ax, cs
+
     ret
 
 GetSS:
     xor rax, rax
     mov ax, ss
+
     ret
 
 GetCR3:
     mov rax, cr3
+
     ret
 
 SetCR3:
     mov cr3, rcx
+
     ret
 
 SwitchContext:
-    mov [rbx + 0x40], rax
-    mov [rbx + 0x48], rbx
-    mov [rbx + 0x50], rcx
-    mov [rbx + 0x58], rdx
-    mov [rbx + 0x60], rdi
-    mov [rbx + 0x68], rsi
+    mov [rdx + 0x40], rax
+    mov [rdx + 0x48], rbx
+    mov [rdx + 0x50], rcx
+    mov [rdx + 0x58], rdx
+    mov [rdx + 0x60], rdi
+    mov [rdx + 0x68], rsi
 
     lea rax, [rsp + 8]
-    mov [rbx + 0x70], rax
-    mov [rbx + 0x78], rbp
+    mov [rdx + 0x70], rax
+    mov [rdx + 0x78], rbp
 
-    mov [rbx + 0x80], r8
-    mov [rbx + 0x88], r9
-    mov [rbx + 0x90], r10
-    mov [rbx + 0x98], r11
-    mov [rbx + 0xa0], r12
-    mov [rbx + 0xa8], r13
-    mov [rbx + 0xb0], r14
-    mov [rbx + 0xb8], r15
+    mov [rdx + 0x80], r8
+    mov [rdx + 0x88], r9
+    mov [rdx + 0x90], r10
+    mov [rdx + 0x98], r11
+    mov [rdx + 0xa0], r12
+    mov [rdx + 0xa8], r13
+    mov [rdx + 0xb0], r14
+    mov [rdx + 0xb8], r15
 
     mov rax, cr3
-    mov [rbx + 0x00], rax
+    mov [rdx + 0x00], rax
     mov rax, [rsp]
-    mov [rbx + 0x08], rax
+    mov [rdx + 0x08], rax
     pushfq
-    pop qword [rbx + 0x10]
+    pop qword [rdx + 0x10]
 
     mov ax, cs
-    mov [rbx + 0x20], rax
+    mov [rdx + 0x20], rax
     mov bx, ss
-    mov [rbx + 0x28], rbx
+    mov [rdx + 0x28], rbx
     mov cx, fs
-    mov [rbx + 0x30], rcx
+    mov [rdx + 0x30], rcx
     mov dx, gs
-    mov [rbx + 0x38], rdx
+    mov [rdx + 0x38], rdx
 
-    fxsave [rbx + 0xc0]
+    fxsave [rdx + 0xc0]
 
     push qword [rcx + 0x28]
     push qword [rcx + 0x70]
@@ -172,7 +217,6 @@ SwitchContext:
 
     mov rax, [rcx + 0x40]
     mov rbx, [rcx + 0x48]
-    mov rcx, [rcx + 0x50]
     mov rdx, [rcx + 0x58]
     mov rdi, [rcx + 0x60]
     mov rsi, [rcx + 0x68]
@@ -186,23 +230,33 @@ SwitchContext:
     mov r14, [rcx + 0xb0]
     mov r15, [rcx + 0xb8]
 
+    mov rcx, [rcx + 0x50]
+
     o64 iret
 
-ClearInterruptFlag:
-    cli
-    ret
-
 SetInterruptFlag:
+    and rcx, 1b
+    cmp rcx, 1b
+    je  SetInterruptFlag.set
+    jne SetInterruptFlag.clr
+.set:
     sti
+
+    ret
+.clr:
+    cli
+
     ret
 
 NotifyEndOfInterrupt:
     mov ecx, 0xfee000b0
     mov edx, 0
     mov [ecx], edx
+
     ret
 
 TimerInterruptHandler:
     call TimerOnInterrupt
     call NotifyEndOfInterrupt
+
     iretq

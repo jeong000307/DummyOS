@@ -1,17 +1,11 @@
-#ifndef __GRAPHICS_H__
-#define __GRAPHICS_H__
+// 나중에 비디오 드라이버로 이전할 계획
+
+#pragma once
 
 #include "Error.h"
 #include "Memory.h"
+#include "SystemConfiguration.h"
 #include "Type.h"
-
-struct FrameBufferConfiguration {
-    uint32           horizontalResolution;
-    uint32           verticalResolution;
-
-    enum PixelFormat pixelFormat;
-    byte*            frameBuffer;
-};
 
 enum PixelFormat {
     pixelRGBReserved8BitPerColor,
@@ -76,5 +70,3 @@ static byte* __GetPixelAddress(
 
 static void __Refresh(
   const SCREEN* this);
-
-#endif

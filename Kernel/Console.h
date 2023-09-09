@@ -1,5 +1,6 @@
-#ifndef __CONSOLE_H__
-#define __CONSOLE_H__
+// 나중에 시스템 애플리케이션으로 이전할 계획
+
+#pragma once
 
 #include "Error.h"
 #include "Graphics.h"
@@ -63,5 +64,3 @@ static code WriteAscii(
 /**
 
 **/
-
-#endif

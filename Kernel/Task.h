@@ -18,13 +18,15 @@ typedef void (*CREATE_TASK)(
 typedef void (*SWITCH_TASK)(
   TASK_MANAGER* this);
 
+#pragma pack(push, 1)
 struct Context {
-    uint64 CR3, RIP, RFLAGS, Reserved1;
+    uint64 CR3, RIP, RFLAGS, reserved;
     uint64 CS, SS, FS, GS;
     uint64 RAX, RBX, RCX, RDX, RDI, RSI, RSP, RBP;
     uint64 R8, R9, R10, R11, R12, R13, R14, R15;
-    byte FXSAVE[512];
+    byte   FXSAVE[512];
 };
+#pragma pack(pop)
 
 struct Task {
     uint64                      id;

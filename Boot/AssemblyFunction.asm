@@ -1,14 +1,25 @@
 [BITS 64]
 
-GLOBAL Test
+GLOBAL AP
+GLOBAL Assert
 GLOBAL Pause
 
 [SECTION .text]
 
-Test:
+AP:
+    mov rax, 0x101000
+    mov rsp, 0x0
+    mov rsi, 0x0
+    mov rdi, 0x0
+    jmp rax
+
+Assert:
+    cli
     mov rax, rcx
+.rep:
     hlt
-    jmp Test
+    jmp Assert.rep
+    ret
 
 Pause:
     hlt

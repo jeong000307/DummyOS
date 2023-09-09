@@ -1,7 +1,6 @@
-#ifndef __PE_H__
-#define __PE_H__
+#pragma once
 
-#include "efi.h"
+#include  "efi.h"
 
 #pragma pack(push, 1)
 typedef struct {
@@ -102,5 +101,3 @@ typedef struct {
     UINT32 Characteristics;
 } Section;
 #pragma pack(pop)
-
-#endif

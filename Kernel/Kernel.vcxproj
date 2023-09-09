@@ -65,7 +65,8 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AssemblerOutput>All</AssemblerOutput>
       <AdditionalOptions>/Gs16384</AdditionalOptions>
-      <DisableSpecificWarnings>5045</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
       <CompileAs>CompileAsC</CompileAs>
       <Optimization>Disabled</Optimization>
     </ClCompile>
@@ -76,11 +77,12 @@
       <GenerateMapFile>true</GenerateMapFile>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <BaseAddress>0x1000000</BaseAddress>
-      <AdditionalOptions>/emittoolversioninfo:no /DRIVER %(AdditionalOptions)</AdditionalOptions>
-      <EntryPointSymbol>Enter</EntryPointSymbol>
-      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <BaseAddress>0x100000</BaseAddress>
+      <AdditionalOptions>/emittoolversioninfo:no %(AdditionalOptions)</AdditionalOptions>
+      <EntryPointSymbol>MainBSP</EntryPointSymbol>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
       <SectionAlignment>4096</SectionAlignment>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
     </Link>
     <NASM />
   </ItemDefinitionGroup>
@@ -101,12 +103,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ACPI.c" />
+    <ClCompile Include="ACPI\ACPI.c" />
+    <ClCompile Include="ACPI\APIC.c" />
     <ClCompile Include="Console.c" />
+    <ClCompile Include="Descriptor.c" />
     <ClCompile Include="Memory.c" />
+    <ClCompile Include="MultiProcessor.c" />
+    <ClCompile Include="SystemConfiguration.c" />
     <ClCompile Include="Task.c" />
-    <ClCompile Include="DataStructure.c" />
-    <ClCompile Include="Error.c" />
+    <ClCompile Include="Type.c" />
     <ClCompile Include="Font.c" />
     <ClCompile Include="Graphics.c" />
     <ClCompile Include="Heap.c" />
@@ -125,12 +130,15 @@
     </NASM>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ACPI.h" />
+    <ClInclude Include="ACPI\ACPI.h" />
+    <ClInclude Include="ACPI\APIC.h" />
     <ClInclude Include="AssemblyFunction.h" />
     <ClInclude Include="Console.h" />
+    <ClInclude Include="Descriptor.h" />
     <ClInclude Include="Memory.h" />
+    <ClInclude Include="MultiProcessor.h" />
+    <ClInclude Include="SystemConfiguration.h" />
     <ClInclude Include="Task.h" />
-    <ClInclude Include="DataStructure.h" />
     <ClInclude Include="Error.h" />
     <ClInclude Include="Interrupt.h" />
     <ClInclude Include="Segmentation.h" />

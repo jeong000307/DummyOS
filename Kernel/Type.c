@@ -1,4 +1,4 @@
-#include "DataStructure.h"
+#include "Type.h"
 
 void InitializeMessageQueue(
   MESSAGE_QUEUE* meesageQueue,

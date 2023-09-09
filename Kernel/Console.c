@@ -1,3 +1,5 @@
+// 나중에 시스템 애플리케이션으로 이전할 계획
+
 #include "Console.h"
 #include "AssemblyFunction.h"
 

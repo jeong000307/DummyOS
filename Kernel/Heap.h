@@ -1,5 +1,4 @@
-#ifndef __HEAP_H__
-#define __HEAP_H__
+#pragma once
 
 #include "Type.h"
 #include "Error.h"
@@ -19,12 +18,10 @@ struct __HEAP {
 };
 
 code InitializeHeap(
-  MEMORY_MANAGER* memoryManger);
+  MEMORY_MANAGER* memoryManager);
 
 HEAP* GetSystemHeap(void);
 
 static addr __ChangeProgramBreak(
   HEAP* this, 
   size  increment);
-
-#endif

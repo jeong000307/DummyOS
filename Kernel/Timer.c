@@ -62,10 +62,12 @@ static void __StopTimer(TIMER_MANAGER* this) {
     *this->initialCount = 0;
 }
 
-void TimerOnInterrupt(void) {
-    struct Message message;
+bool TimerOnInterrupt(void) {
+    bool isTimeOut = false;
 
+    struct Message message;
     struct Timer prioritizedTimer;
+
     MESSAGE_QUEUE* messageQueue = GetMessageQueue();
 
     ++timerManager.tick;
@@ -73,17 +75,51 @@ void TimerOnInterrupt(void) {
     while (true) {
         prioritizedTimer = *timerManager.timersQueue->Top(timerManager.timersQueue);
 
-        if (prioritizedTimer.timeOut == 0 or prioritizedTimer.timeOut > timerManager.tick) {
+        if (prioritizedTimer.timeOut > timerManager.tick) {
             break;
         }
 
-        prioritizedTimer = timerManager.timersQueue->Pop(timerManager.timersQueue);
-
+        if (prioritizedTimer.value == taskTimerValue) {
+            isTimeOut = true;
+            prioritizedTimer = timerManager.timersQueue->Pop(timerManager.timersQueue);
+            timerManager.timersQueue->Push(timerManager.timersQueue, (struct Timer){ timerManager.tick + taskTimerPeriod, taskTimerValue});
+            continue;
+        }
+        
         message.type = TimerInterruptIndex;
         message.argument.timer.timeOut = prioritizedTimer.timeOut;
         message.argument.timer.value = prioritizedTimer.value;
 
         messageQueue->Push(messageQueue, message);
-        
     }
+
+    return isTimeOut;
+}
+
+void WaitMilliSeconds(
+  const uint32 milliSeconds) {
+    const uint32 PMTimerFreqeuncy = 3579545;
+    bool PMTimer32;
+    uint16 PMTimerPort;
+    uint32 start;
+    uint32 end;
+
+    struct FADT* FADT;
+
+    FADT = GetFADT();
+    PMTimer32 = (FADT->flags >> 8) & 1;
+    PMTimerPort = FADT->PMTimerBlock & 0xffff;
+    start = IOIn32(PMTimerPort);
+    end = start + PMTimerFreqeuncy * milliSeconds / 1000;
+
+    if (PMTimer32 != true) {
+        end &= 0x00ffffffu;
+    }
+
+    if (end < start) {
+        while (IOIn32(PMTimerPort) >= start);
+    }
+    while (IOIn32(PMTimerPort) < end);
+
+    return;
 }

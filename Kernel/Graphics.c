@@ -1,3 +1,5 @@
+// 나중에 비디오 드라이버로 이전할 계획
+
 #include "Graphics.h"
 
 static SCREEN screen;

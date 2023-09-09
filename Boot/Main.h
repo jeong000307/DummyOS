@@ -1,11 +1,12 @@
-#ifndef __MAIN_H__
-#define __MAIN_H__
+#pragma once
 
 #include "efi.h"
 #include "efilib.h"
 
 #include "AssemblyFunction.h"
 #include "PE.h"
+
+#define MAX_CPU_CORE 16
 
 enum PIXEL_FORMAT {
     pixelRGBReserved8BitPerColor,
@@ -177,7 +178,7 @@ static UINTN AsciiStrLen(
 **/
 
 static UINTN AsciiSPrint(
-  OUT CHAR8*       buffer,
+  OUT CHAR8* buffer,
   IN  UINTN        bufferSize,
   IN  CONST CHAR8* formatString,
   IN  ...) {
@@ -200,5 +201,3 @@ static UINTN AsciiSPrint(
 
     @retval numberOfPrinted Size of converted string.
 **/
-
-#endif

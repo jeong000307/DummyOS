@@ -1,11 +1,12 @@
-#ifndef __MEMORYMANAGER_H__
-#define __MEMORYMANAGER_H__
+#pragma once
 
-#include "Type.h"
-#include "Math.h"
-#include "Error.h"
 #include "AssemblyFunction.h"
+#include "Error.h"
+#include "Math.h"
+#include "SystemConfiguration.h"
+#include "Type.h"
 
+#define MAX_CPU_CORE        16
 #define EFI_PAGE_SIZE       4096
 #define PDP_TABLE_SIZE      64
 #define PAGE_DIRECTORY_SIZE 512
@@ -29,16 +30,6 @@ typedef void (*MARK_ALLOCATED_FRAME)(
   MEMORY_MANAGER* this,
   frame           startFrame,
   size            numberOfFrames);
-
-struct MemoryMap {
-    uint64 bufferSize;
-    uint64 mapSize;
-    uint64 mapKey;
-    uint64 descriptorSize;
-    uint32 descriptorVersion;
-
-    void*  buffer;
-};
 
 struct MemoryDescriptor {
     uint32  type;
@@ -106,5 +97,3 @@ static void __MarkAllocatedFrame(
 static bool GetBit(MEMORY_MANAGER* this, frame frame);
 
 static void SetBit(MEMORY_MANAGER* this, frame frame, bool allocated);
-
-#endif
