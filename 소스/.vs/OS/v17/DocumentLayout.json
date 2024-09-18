@@ -1,0 +1,45 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\User\\OneDrive\\\uBB38\uC11C\\\uAC1C\uBC1C\\\uC6B4\uC601\uCCB4\uC81C\\\uC18C\uC2A4\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D9A28EFF-B56F-4B81-B02C-4054C841539D}|Kernel\\Kernel.vcxproj|C:\\Users\\User\\OneDrive\\\uBB38\uC11C\\\uAC1C\uBC1C\\\uC6B4\uC601\uCCB4\uC81C\\\uC18C\uC2A4\\Kernel\\Main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{D9A28EFF-B56F-4B81-B02C-4054C841539D}|Kernel\\Kernel.vcxproj|solutionrelative:Kernel\\Main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Main.c",
+              "DocumentMoniker": "C:\\Users\\User\\OneDrive\\\uBB38\uC11C\\\uAC1C\uBC1C\\\uC6B4\uC601\uCCB4\uC81C\\\uC18C\uC2A4\\Kernel\\Main.c",
+              "RelativeDocumentMoniker": "Kernel\\Main.c",
+              "ToolTip": "C:\\Users\\User\\OneDrive\\\uBB38\uC11C\\\uAC1C\uBC1C\\\uC6B4\uC601\uCCB4\uC81C\\\uC18C\uC2A4\\Kernel\\Main.c",
+              "RelativeToolTip": "Kernel\\Main.c",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABkAAAACAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2024-04-17T10:04:53.539Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
