@@ -55,38 +55,42 @@ DUMMYAPI Main (
 
 	systemConsole->Print(systemConsole, "Interrupt manager is initialized.\n");
 
-	//status = InitializeTaskManager();
+	// status = InitializeTaskManager();
 
-	//systemConsole->Print(systemConsole, "Task manager is initialized.\n");
+	// systemConsole->Print(systemConsole, "Task manager is initialized.\n");
 
-	status = InitializePCI();
+	// status = InitializePCI();
 
-	systemConsole->Print(systemConsole, "PCI devices are initialized.\n");
+	// systemConsole->Print(systemConsole, "PCI devices are initialized.\n");
 
-	timerManager->CreateTimer(timerManager, 10, taskTimerValue);
+	// timerManager->CreateTimer(timerManager, 10, taskTimerValue);
 
-	for(;;)	{
-		SetInterruptFlag(FALSE);
+	// for(;;)	{
+	// 	SetInterruptFlag(FALSE);
 
-		if (messageQueue->count == 0) {
-			SetInterruptFlag(TRUE);
-			continue;
-		}
+	// 	if (messageQueue->count == 0) {
+	// 		SetInterruptFlag(TRUE);
+	// 		continue;
+	// 	}
 
-		SetInterruptFlag(TRUE);
+	// 	SetInterruptFlag(TRUE);
 
-		WaitMilliSeconds(100);
+	// 	WaitMilliSeconds(100);
 
-		message = messageQueue->Pop(messageQueue);
+	// 	message = messageQueue->Pop(messageQueue);
 
-		switch (message.type) {
-			case TimerInterruptIndex:
-				systemConsole->Print(systemConsole, "Timer: timeout = %u, value = %d\n", message.argument.timer.timeOut, message.argument.timer.value);
+	// 	switch (message.type) {
+	// 		case TimerInterruptIndex:
+	// 			systemConsole->Print(systemConsole, "Timer: timeout = %u, value = %d\n", message.argument.timer.timeOut, message.argument.timer.value);
 
-				if (message.argument.timer.value > 0) {
-					timerManager->CreateTimer(timerManager, message.argument.timer.timeOut + 10, message.argument.timer.value + 1);
-				}
-				break;
-		}
+	// 			if (message.argument.timer.value > 0) {
+	// 				timerManager->CreateTimer(timerManager, message.argument.timer.timeOut + 10, message.argument.timer.value + 1);
+	// 			}
+	// 			break;
+	// 	}
+	// }
+
+	while (TRUE) {
+		// Main loop
 	}
 }

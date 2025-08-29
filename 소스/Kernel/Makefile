@@ -4,7 +4,7 @@ LD = lld-link
 
 ASMFLAGS = -f win64
 CFLAGS = -Werror -target x86_64-unknown-windows -std=c11 -ffreestanding -fshort-wchar -mno-red-zone -O
-LDFLAGS = -nologo -entry:Start -subsystem:console
+LDFLAGS = -nologo -entry:Start -subsystem:console /BASE:0x100000
 
 ASMSOURCES = $(wildcard *.asm)
 ASMOBJECTS = $(patsubst %.asm, Build/Object/%.o, $(ASMSOURCES))
@@ -23,7 +23,7 @@ Build/Object/%.o: %.asm
 	$(AS) $(ASMFLAGS) -o $@ $^
 
 Build/Kernel.exe: $(COBJECTS) $(ASMOBJECTS)
-	$(LD) $(LDFLAGS) -out:Build/Kernel.exe $^
+	$(LD) $(LDFLAGS) -map:Build/Kernel.map -out:Build/Kernel.exe $^
 
 clean:
 	rm -rf Build

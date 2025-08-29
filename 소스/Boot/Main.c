@@ -119,7 +119,9 @@ EFIAPI LoadKernel(
 	Status = SystemTable->BootServices->AllocatePages(AllocateAnyPages, EfiLoaderData, NumberOfPages, &FileStartAddress);
 	Assert(L"Allocating pages", Status);
 
-	EntryAddress = *(UINT32*)((INT8*)FileBuffer + 0xE0);
+	GetLoadAddressRange(FileBuffer, &FileStartAddress, &FileEndAddress);
+
+	EntryAddress = *(UINT32*)((INT8*)FileBuffer + 0xA0);
 
 	EntryPoint = (ENTRY_POINT)(FileStartAddress + EntryAddress);
 

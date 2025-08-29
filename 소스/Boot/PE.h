@@ -22,7 +22,7 @@ typedef struct __attribute__((packed)) {
     UINT16 e_oemid;
     UINT16 e_oeminfo;
     UINT16 e_res2[10];
-    UINT16 e_lfanew;
+    UINT32 e_lfanew;
 } DOSHeader;
 
 typedef struct __attribute__((packed)) {

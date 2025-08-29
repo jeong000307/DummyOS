@@ -23,6 +23,8 @@ GLOBAL	TimerInterruptHandler
 [SECTION .text]
 
 Start:
+	;JMP Inspect
+
 	CLI
 	LEA	RSP, systemStack + 1024 * 1024
 	STI
