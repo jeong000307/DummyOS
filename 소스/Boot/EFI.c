@@ -90,7 +90,7 @@ EFIAPI Assert(
 	SystemTable->ConOut->OutputString(SystemTable->ConOut, L"\n\r");
 
 	if (EFI_ERROR(_Status)) {
-		while (1);
+		Halt();
 	}
 
 	return EFI_SUCCESS;

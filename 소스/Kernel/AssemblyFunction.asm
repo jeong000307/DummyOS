@@ -18,13 +18,11 @@ GLOBAL	GetCR3
 GLOBAL	SetCR3
 GLOBAL	SwitchContext
 GLOBAL	SetInterruptFlag
-GLOBAL	TimerInterruptHandler
+GLOBAL	NotifyEndOfInterrupt
 
 [SECTION .text]
 
 Start:
-	;JMP Inspect
-
 	CLI
 	LEA	RSP, systemStack + 1024 * 1024
 	STI
@@ -224,9 +222,3 @@ NotifyEndOfInterrupt:
 	MOV [ECX], EDX
 
 	RET
-
-TimerInterruptHandler:
-	JMP		TimerOnInterrupt
-	JMP		NotifyEndOfInterrupt
-
-	IRETQ

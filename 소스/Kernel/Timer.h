@@ -125,7 +125,7 @@ DUMMYAPI _StopTimer(
 	OUT	TIMER_MANAGER* _this
 );
 
-BOOLEAN 
+BOOLEAN
 DUMMYAPI TimerOnInterrupt(
 	VOID
 );

@@ -5,6 +5,7 @@
 #include "Descriptor.h"
 #include "Error.h"
 #include "Message.h"
+#include "Timer.h"
 #include "Type.h"
 
 typedef enum {
@@ -37,6 +38,14 @@ typedef struct {
 } INTERRUPT_DESCRIPTOR;
 #pragma pack(pop)
 
+typedef struct {
+	UINT64	rip;
+	UINT64	cs;
+	UINT64	rflags;
+	UINT64	rsp;
+	UINT64	ss;
+} INTERRUPT_FRAME;
+
 STATUS
 DUMMYAPI InitializeInterrupt(
     VOID
@@ -57,6 +66,11 @@ DUMMYAPI SetIDTEntry(
 	IN CONST	INTERRUPT_DESCRIPTOR_ATTRIBUTE	_attribute,
 	IN CONST	UINT64							_offset,
 	IN CONST	UINT16							_segmentSelector
+);
+
+VOID
+DUMMYAPI TimerInterruptHandler(
+	IN	INTERRUPT_FRAME* _frame
 );
 
 #endif

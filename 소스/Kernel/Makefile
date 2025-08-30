@@ -3,7 +3,7 @@ CC = clang
 LD = lld-link
 
 ASMFLAGS = -f win64
-CFLAGS = -Werror -target x86_64-unknown-windows -std=c11 -ffreestanding -fshort-wchar -mno-red-zone -O
+CFLAGS = -Werror -target x86_64-unknown-windows -std=c11 -ffreestanding -fshort-wchar -mno-red-zone -O -mgeneral-regs-only
 LDFLAGS = -nologo -entry:Start -subsystem:console /BASE:0x100000
 
 ASMSOURCES = $(wildcard *.asm)

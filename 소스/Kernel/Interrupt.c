@@ -42,8 +42,18 @@ DUMMYAPI SetIDTEntry(
 	IN CONST	UINT16							_segmentSelector
 ) {
 	_descriptor->attribute = _attribute;
-	_descriptor->offsetLow = _offset & 0xffffu;
-	_descriptor->offsetMiddle = (_offset >> 16) & 0xffffu;
+	_descriptor->offsetLow = _offset & 0xFFFFU;
+	_descriptor->offsetMiddle = (_offset >> 16) & 0xFFFFU;
 	_descriptor->offsetHigh = _offset >> 32;
 	_descriptor->segmentSelector = _segmentSelector;
+}
+
+__attribute__((interrupt))
+VOID
+DUMMYAPI TimerInterruptHandler(
+	IN	INTERRUPT_FRAME* _frame
+) {
+	Halt();
+	TimerOnInterrupt();
+	NotifyEndOfInterrupt();
 }

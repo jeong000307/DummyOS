@@ -1,6 +1,7 @@
 #ifndef __EFI_H__
 #define __EFI_H__
 
+#include "AssemblyFunction.h"
 #include "Type.h"
 
 #define ENCODE_ERROR(StatusCode)	((EFI_STATUS)(0x8000000000000000ULL | (StatusCode)))

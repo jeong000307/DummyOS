@@ -76,17 +76,12 @@ DUMMYAPI SwitchContext(
 );
 
 EXTERN VOID
-DUMMYAPI EnableApplicationProcessor(
-	VOID
-);
-
-EXTERN VOID
 DUMMYAPI SetInterruptFlag(
 	IN CONST	BOOLEAN	_flag
 );
 
 EXTERN VOID
-DUMMYAPI TimerInterruptHandler(
+DUMMYAPI NotifyEndOfInterrupt(
 	VOID
 );
 

@@ -44,8 +44,11 @@ EFIAPI GetSystemConfiguration(
 
 	Assert(L"Getting memory map", Status);
 
+	// 화면의 가로 해상도 할당
 	SystemConfiguration.GraphicsInformation.HorizontalResolution = GraphicsOutputProtocol->Mode->Info->HorizontalResolution;
+	// 화면의 세로 해상도 할당
 	SystemConfiguration.GraphicsInformation.VerticalResolution = GraphicsOutputProtocol->Mode->Info->VerticalResolution;
+	// 프레임버퍼의 시작 주소 할당
 	SystemConfiguration.GraphicsInformation.Framebuffer = GraphicsOutputProtocol->Mode->FrameBufferBase;
 
 	switch (GraphicsOutputProtocol->Mode->Info->PixelFormat) {
@@ -67,7 +70,7 @@ EFIAPI GetSystemConfiguration(
 	}
 
 	if (SystemConfiguration.ACPIInformation == NULL) {
-		Assert(L"Founding ACPI Table", EFI_NOT_FOUND);
+		Assert(L"Finding ACPI Table", EFI_NOT_FOUND);
 	}
 
 	return EFI_SUCCESS;
@@ -86,7 +89,7 @@ EFIAPI LoadKernel(
 	EFI_PHYSICAL_ADDRESS	FileStartAddress;
 	EFI_PHYSICAL_ADDRESS	FileEndAddress;
 
-	UINT8					FileInfoBuffer[sizeof(EFI_FILE_INFO) + sizeof(UINT16) * 12]; // VLA issue; fileInfoSize
+	UINT8					FileInfoBuffer[FileInfoSize];
 	EFI_FILE_INFO*			FileInfo;
 
 	EFI_FILE_PROTOCOL*		Directory;
@@ -114,7 +117,7 @@ EFIAPI LoadKernel(
 
 	GetLoadAddressRange(FileBuffer, &FileStartAddress, &FileEndAddress);
 
-	NumberOfPages = (FileEndAddress - FileStartAddress + 0xfff) / 0x1000;
+	NumberOfPages = (FileEndAddress - FileStartAddress + 0xFFF) / 0x1000;
 
 	Status = SystemTable->BootServices->AllocatePages(AllocateAnyPages, EfiLoaderData, NumberOfPages, &FileStartAddress);
 	Assert(L"Allocating pages", Status);
@@ -199,23 +202,25 @@ EFIAPI LoadFileSegment(
 	DOSHeader*				FileDOSHeader = (DOSHeader*)_FileBuffer;
 	NTHeader*				FileNTHeader = (NTHeader*)((BYTE*)_FileBuffer + FileDOSHeader->e_lfanew);
 	EFI_PHYSICAL_ADDRESS	FileSectionHeader = (EFI_PHYSICAL_ADDRESS)_FileBuffer + FileDOSHeader->e_lfanew + sizeof(NTHeader) + FileNTHeader->optionalHeader.NumberOfRvaAndSizes * sizeof(DataDirectory);
-	Section					FileSection;
+	Section*				FileSection;
 
 	if ((FileSectionHeader - (EFI_PHYSICAL_ADDRESS)_FileBuffer) % 8 != 0) {
 		FileSectionHeader += 8 - (FileSectionHeader - (EFI_PHYSICAL_ADDRESS)_FileBuffer) % 8;
 	}
 
 	for (Index = 0; Index < FileNTHeader->fileHeader.NumberOfSections; ++Index) {
-		FileSection = *((Section*)FileSectionHeader + Index);
-		Segment = (EFI_PHYSICAL_ADDRESS)((BYTE*)_FileBuffer + FileSection.PointerToRawData);
+		FileSection = (Section*)FileSectionHeader + Index;
+		Segment = (EFI_PHYSICAL_ADDRESS)((BYTE*)_FileBuffer + FileSection->PointerToRawData);
 
-		if (FileSection.VirtualSize > FileSection.SizeOfRawData) {
-			SystemTable->BootServices->CopyMem((VOID*)(_FileStartAddress + FileSection.VirtualAddress), (VOID*)Segment, FileSection.SizeOfRawData);
-			SystemTable->BootServices->SetMem((VOID*)(_FileStartAddress + FileSection.VirtualAddress + FileSection.SizeOfRawData), (UINTN)FileSection.VirtualSize - FileSection.SizeOfRawData, 0);
+		if (FileSection->VirtualSize > FileSection->SizeOfRawData) {
+			SystemTable->BootServices->CopyMem((VOID*)(_FileStartAddress + FileSection->VirtualAddress), (VOID*)Segment, FileSection->SizeOfRawData);
+			SystemTable->BootServices->SetMem((VOID*)(_FileStartAddress + FileSection->VirtualAddress + FileSection->SizeOfRawData), (UINTN)FileSection->VirtualSize - FileSection->SizeOfRawData, 0);
 		}
 		else {
-			SystemTable->BootServices->CopyMem((VOID*)(_FileStartAddress + FileSection.VirtualAddress), (VOID*)Segment, FileSection.VirtualSize);
-			SystemTable->BootServices->SetMem((VOID*)(_FileStartAddress + FileSection.VirtualAddress + FileSection.VirtualSize), (UINTN)FileSection.SizeOfRawData - FileSection.VirtualSize, 0);
+			SystemTable->BootServices->CopyMem((VOID*)(_FileStartAddress + FileSection->VirtualAddress), (VOID*)Segment, FileSection->VirtualSize);
+			if (FileSection->SizeOfRawData > FileSection->VirtualSize) {
+				SystemTable->BootServices->SetMem((VOID*)(_FileStartAddress + FileSection->VirtualAddress + FileSection->VirtualSize), (UINTN)(FileSection->SizeOfRawData - FileSection->VirtualSize), 0);
+			}
 		}
 	}
 }

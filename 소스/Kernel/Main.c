@@ -14,10 +14,10 @@ DUMMYAPI Main (
 	MEMORY_MANAGER*			memoryManager = GetMemoryManager();
 	//HEAP*					systemHeap = GetSystemHeap();
 	TIMER_MANAGER*			timerManager = GetTimerManager();
-	//TASK_MANAGER*			taskManager = GetTaskManager();
+	TASK_MANAGER*			taskManager = GetTaskManager();
 	MESSAGE_QUEUE*			messageQueue = GetMessageQueue();
 
-	SetInterruptFlag(FALSE);
+	SetInterruptFlag(TRUE);
 
 	SetSystemConfiguration(_systemConfiguration);
 	
@@ -47,21 +47,21 @@ DUMMYAPI Main (
 		return;
 	}
 
-	InitializeTimerManager();
-
-	systemConsole->Print(systemConsole, "Timer manager is initialized.\n");
-
 	InitializeInterrupt();
 
 	systemConsole->Print(systemConsole, "Interrupt manager is initialized.\n");
 
-	// status = InitializeTaskManager();
+	InitializeTimerManager();
 
-	// systemConsole->Print(systemConsole, "Task manager is initialized.\n");
+	systemConsole->Print(systemConsole, "Timer manager is initialized.\n");
 
-	// status = InitializePCI();
+	status = InitializeTaskManager();
 
-	// systemConsole->Print(systemConsole, "PCI devices are initialized.\n");
+	systemConsole->Print(systemConsole, "Task manager is initialized.\n");
+
+	status = InitializePCI();
+
+	systemConsole->Print(systemConsole, "PCI devices are initialized.\n");
 
 	// timerManager->CreateTimer(timerManager, 10, taskTimerValue);
 
@@ -90,7 +90,5 @@ DUMMYAPI Main (
 	// 	}
 	// }
 
-	while (TRUE) {
-		// Main loop
-	}
+	Halt();
 }
