@@ -12,22 +12,19 @@ typedef enum {
     TimerInterruptIndex = 0x41
 } INTERRUPT_VECTOR;
 
-#pragma pack(push, 1)
 typedef union {
-	UINT16			data;
+	UINT16						data;
 
 	struct {
-		unsigned	interruptStackTable : 3;
-		unsigned	: 5;
-		unsigned	type : 4;
-		unsigned	: 1;
-		unsigned	descriptorPrivilegeLevel : 2;
-		unsigned	present : 1;
-	}				bits;
-} INTERRUPT_DESCRIPTOR_ATTRIBUTE;
-#pragma pack(pop)
+		UINT16					interruptStackTable : 3;
+		UINT16					: 5;
+		UINT16					type : 4;
+		UINT16					: 1;
+		UINT16					descriptorPrivilegeLevel : 2;
+		UINT16					present : 1;
+	} __attribute__((packed)) 	bits;
+} __attribute__((packed)) INTERRUPT_DESCRIPTOR_ATTRIBUTE;
 
-#pragma pack(push, 1)
 typedef struct {
 	UINT16							offsetLow;
 	UINT16							segmentSelector;
@@ -35,8 +32,7 @@ typedef struct {
 	UINT16							offsetMiddle;
 	UINT32							offsetHigh;
 	UINT32							reserved;
-} INTERRUPT_DESCRIPTOR;
-#pragma pack(pop)
+} __attribute__((packed)) INTERRUPT_DESCRIPTOR;
 
 typedef struct {
 	UINT64	rip;
@@ -44,7 +40,7 @@ typedef struct {
 	UINT64	rflags;
 	UINT64	rsp;
 	UINT64	ss;
-} INTERRUPT_FRAME;
+} __attribute__((packed)) INTERRUPT_FRAME;
 
 STATUS
 DUMMYAPI InitializeInterrupt(

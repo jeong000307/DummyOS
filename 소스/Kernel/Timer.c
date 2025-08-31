@@ -105,7 +105,7 @@ STATUS
 DUMMYAPI InitializeTimerManager(
 	VOID
 )   {
-	UINT32 count;
+	UINT64 count;
 
 	timerManager.LVTTimer = (UINT32*)(ADDRESS)0xFEE00320;
 	timerManager.initialCount = (UINT32*)(ADDRESS)0xFEE00380;
@@ -125,7 +125,7 @@ DUMMYAPI InitializeTimerManager(
 	*timerManager.LVTTimer = 0b001 << 16;
 
 	timerManager.StartTimer(&timerManager);
-	WaitMilliSeconds(100);
+	WaitMilliSeconds(10);
 	count = timerManager.CountTime(&timerManager);
 	timerManager.StopTimer(&timerManager);
 

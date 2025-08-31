@@ -10,9 +10,9 @@ DUMMYAPI Main (
 	SYSTEM_CONFIGURATION*	systemConfiguration = GetSystemConfiguration();
 	SCREEN*					screen = GetScreen();
 	CONSOLE*				systemConsole = GetSystemConsole();
-	//PCI_DEVICES*			PCIDevices = GetPCIDevices();
+	PCI_DEVICES*			PCIDevices = GetPCIDevices();
 	MEMORY_MANAGER*			memoryManager = GetMemoryManager();
-	//HEAP*					systemHeap = GetSystemHeap();
+	HEAP*					systemHeap = GetSystemHeap();
 	TIMER_MANAGER*			timerManager = GetTimerManager();
 	TASK_MANAGER*			taskManager = GetTaskManager();
 	MESSAGE_QUEUE*			messageQueue = GetMessageQueue();
@@ -63,32 +63,30 @@ DUMMYAPI Main (
 
 	systemConsole->Print(systemConsole, "PCI devices are initialized.\n");
 
-	// timerManager->CreateTimer(timerManager, 10, taskTimerValue);
+	timerManager->CreateTimer(timerManager, 10, taskTimerValue);
 
-	// for(;;)	{
-	// 	SetInterruptFlag(FALSE);
+	while (TRUE)	{
+		SetInterruptFlag(FALSE);
 
-	// 	if (messageQueue->count == 0) {
-	// 		SetInterruptFlag(TRUE);
-	// 		continue;
-	// 	}
+		if (messageQueue->count == 0) {
+			SetInterruptFlag(TRUE);
+			continue;
+		}
 
-	// 	SetInterruptFlag(TRUE);
+		SetInterruptFlag(TRUE);
 
-	// 	WaitMilliSeconds(100);
+		WaitMilliSeconds(100);
 
-	// 	message = messageQueue->Pop(messageQueue);
+		message = messageQueue->Pop(messageQueue);
 
-	// 	switch (message.type) {
-	// 		case TimerInterruptIndex:
-	// 			systemConsole->Print(systemConsole, "Timer: timeout = %u, value = %d\n", message.argument.timer.timeOut, message.argument.timer.value);
+		switch (message.type) {
+			case TimerInterruptIndex:
+				systemConsole->Print(systemConsole, "Timer: timeout = %u, value = %d\n", message.argument.timer.timeOut, message.argument.timer.value);
 
-	// 			if (message.argument.timer.value > 0) {
-	// 				timerManager->CreateTimer(timerManager, message.argument.timer.timeOut + 10, message.argument.timer.value + 1);
-	// 			}
-	// 			break;
-	// 	}
-	// }
-
-	Halt();
+				if (message.argument.timer.value > 0) {
+					timerManager->CreateTimer(timerManager, message.argument.timer.timeOut + 10, message.argument.timer.value + 1);
+				}
+				break;
+		}
+	}
 }

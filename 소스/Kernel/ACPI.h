@@ -8,17 +8,14 @@
 #include "SystemConfiguration.h"
 #include "Type.h"
 
-#pragma pack(push, 1)
 typedef struct {
 	UINT8  addressSpaceID;
 	UINT8  registerBitWidth;
 	UINT8  registerBitOffset;
 	UINT8  accessSize;
 	UINT64 address;
-} GENERIC_ADDRESS_STRUCTURE;
-#pragma pack(pop)
+} __attribute__((packed)) GENERIC_ADDRESS_STRUCTURE;
 
-#pragma pack(push, 1)
 typedef struct {
 	BYTE   signiture[4];
 	UINT32 length;
@@ -29,18 +26,14 @@ typedef struct {
 	UINT32 oemRevision;
 	UINT32 creatorID;
 	UINT32 creatorRevision;
-} DESCRIPTION_HEADER;
-#pragma pack(pop)
+} __attribute__((packed)) DESCRIPTION_HEADER;
 
-#pragma pack(push, 1)
 typedef struct {
 	DESCRIPTION_HEADER  header;
 
 	ADDRESS				entry[1];
-} EXTENDED_SYSTEM_DESCRIPTION_TABLE;
-#pragma pack(pop)
+} __attribute__((packed)) EXTENDED_SYSTEM_DESCRIPTION_TABLE;
 
-#pragma pack(push, 1)
 typedef struct {
 	DESCRIPTION_HEADER			header;
 
@@ -98,8 +91,7 @@ typedef struct {
 	GENERIC_ADDRESS_STRUCTURE	sleepControlRegister;
 	GENERIC_ADDRESS_STRUCTURE	sleepStatusRegister;
 	UINT64						hypervisorVendorIdentity;
-} FIXED_ACPI_DESCRIPTION_TABLE;
-#pragma pack(pop)
+} __attribute__((packed)) FIXED_ACPI_DESCRIPTION_TABLE;
 
 FIXED_ACPI_DESCRIPTION_TABLE*
 DUMMYAPI GetFADT(
